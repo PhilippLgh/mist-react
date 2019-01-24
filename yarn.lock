@@ -719,10 +719,10 @@ electron-updater@2.23.2:
     semver "^5.5.0"
     source-map-support "^0.5.6"
 
-electron@3.0.12:
-  version "3.0.12"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-3.0.12.tgz#7486ff1c60e9c22d8aadaee620695c42c9ddb2ac"
-  integrity sha512-stvGbqYzWv5qHHtjZZgA7gET3NPGLuxs68IHTrJqsqujQfXGkhMOh8tstpXl86kBdRpzZn7GaDlTWcgeFSmsPw==
+electron@3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-3.1.2.tgz#e410b976c56fc2f783c3b0fb6d757e02eaeab902"
+  integrity sha512-B/mXRCN8jGBBx8dvtIgLyW+nE8i9y7K9G6wijU+cLoneqF5al9BgZA1l5xgZEiUrwTtt0cgXIWNwhStt7EDoQQ==
   dependencies:
     "@types/node" "^8.0.24"
     electron-download "^4.1.0"

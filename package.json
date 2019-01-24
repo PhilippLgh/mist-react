@@ -19,7 +19,7 @@
     "adm-zip": "^0.4.13"
   },
   "devDependencies": {
-    "electron": "3.0.12",
+    "electron": "3.1.2",
     "electron-builder": "20.28.0",
     "env-cmd": "^8.0.2"
   },
