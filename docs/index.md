@@ -9,17 +9,19 @@
 {% endunless %}
 
 
-# latest releases
+# Release {{ site.github.latest_release.tag_name }}
 
-{{ site.github.latest_release }}
 
 OS | File
--- | --
-{% for asset in site.github.latest_release.assets %}
-  {{ asset.name }} | {{ asset.browser_download_url }}
+-- | --{% for asset in site.github.latest_release.assets %}
+{{asset.name}} | [{{ asset.name }}]({{ asset.browser_download_url }})
 {% endfor %}
 
-# mist shell
+OS | File
+-- | --{% for asset in site.github.latest_release.assets %}
+{% if asset.name contains ".yml" %}{% else %}{{asset.name}} | [{{ asset.name }}]({{ asset.browser_download_url }}){% endif %}
+{% endfor %}
+
 
 This is the current test page of the Mist shell repository.
 
@@ -36,3 +38,8 @@ Linux x86_64 (.rpm) | [mist-shell-1.0.3.x86_64.rpm](https://github.com/ethereum/
 Linux x86_64 (.AppImage) | [mist-shell-1.0.3-x86_64.AppImage](https://github.com/ethereum/mist-shell/releases/download/untagged-3481f969b1bfb44bd2de/mist-shell-1.0.3-x86_64.AppImage)
 Linux amd64 (.deb) | [mist-shell_1.0.3_amd64.deb](https://github.com/ethereum/mist-shell/releases/download/untagged-3481f969b1bfb44bd2de/mist-shell_1.0.3_amd64.deb)
 Linux amd64 (.snap) | [mist-shell_1.0.3_amd64.snap](https://github.com/ethereum/mist-shell/releases/download/untagged-3481f969b1bfb44bd2de/mist-shell_1.0.3_amd64.snap)
+
+
+<div class="hidden">
+{{ site.github.latest_release }}
+</div>
