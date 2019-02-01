@@ -8,7 +8,7 @@ OS | File
   {%- if asset.name contains ".yml" -%}
   {%- else -%}
     {{asset.name}} | [{{ asset.name }}]({{ asset.browser_download_url }})
-  {%- endif %}
+  {%- endif -%}
 {% endfor %}
 
 
