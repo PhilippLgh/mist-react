@@ -1,3 +1,16 @@
+
+# latest releases
+
+{{ site.latest_release }}
+
+OS | File
+-- | --
+{% for asset in site.github.latest_release.assets %}
+  {{ asset.name }} | {{ asset.browser_download_url }}
+{% endfor %}
+
+
+
 # mist shell
 
 This is the current test page of the Mist shell repository.
