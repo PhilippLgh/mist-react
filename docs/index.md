@@ -1,15 +1,23 @@
 
+
+{% unless site.github.latest_release and site.github.latest_release.assets %}
+ have assets 
+{% endunless %}
+
+{% unless site.latest_release %}
+  Have release
+{% endunless %}
+
+
 # latest releases
 
-{{ site.latest_release }}
+{{ site.github.latest_release }}
 
 OS | File
 -- | --
 {% for asset in site.github.latest_release.assets %}
   {{ asset.name }} | {{ asset.browser_download_url }}
 {% endfor %}
-
-
 
 # mist shell
 
