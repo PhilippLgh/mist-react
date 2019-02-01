@@ -1,5 +1,4 @@
 
-
 {% unless site.github.latest_release and site.github.latest_release.assets %}
  have assets 
 {% endunless %}
@@ -11,6 +10,7 @@
 
 # Release {{ site.github.latest_release.tag_name }}
 
+{{ site.github.latest_release.body }}
 
 OS | File
 -- | --{% for asset in site.github.latest_release.assets %}
