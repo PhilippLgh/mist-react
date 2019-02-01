@@ -9,7 +9,7 @@ OS | File
   {%- else -%}
     {{asset.name}} | [{{ asset.name }}]({{ asset.browser_download_url }})
   {%- endif %}
-{% endfor -%}
+{% endfor %}
 
 
 <div style="display: none">
