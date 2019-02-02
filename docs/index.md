@@ -11,11 +11,12 @@ OS | File
     {%- elsif asset.name contains "-mac.zip" -%} Mac 
     {%- elsif asset.name contains ".dmg" -%} Mac
     {%- elsif asset.name contains ".rpm" -%} Linux
-    {%- elsif asset.name contains ".AppImage" -%} Linux (portable)
-    {%- elsif asset.name contains ".deb" -%} Linux
+    {%- elsif asset.name contains ".deb" -%} Linux (Debian)
+    {%- elsif asset.name contains ".snap" -%} Linux (Universal)
+    {%- elsif asset.name contains ".AppImage" -%} Linux (Portable)
     {%- else -%} -
     {%- endif -%}
-{{asset.name}} | [{{ asset.name }}]({{ asset.browser_download_url }})
+| [{{ asset.name }}]({{ asset.browser_download_url }})
 {% endif -%}
 {% endfor %}
 
