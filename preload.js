@@ -42,7 +42,8 @@ window.addEventListener('message', function(event) {
 */
 console.log('preload loaded')
 const Mist = {
-  geth : remote.getGlobal('Geth')
+  geth: remote.getGlobal('Geth'),
+  getWindowArgs: () => {}
 }
 
 /*
