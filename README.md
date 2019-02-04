@@ -33,3 +33,7 @@ In the the production mode a bundled app can be loaded from either `fs` or a rem
 - TODO installer signing
 - npm run release -> auto publishes
 - go to github, check everything, edit description and change from draft to release
+
+# Contributing
+
+There are many ways to get involved with this project. Get started [here](/docs/CONTRIBUTING.md).
