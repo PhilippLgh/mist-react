@@ -797,7 +797,7 @@ electron-updater@2.23.2:
     semver "^5.5.0"
     source-map-support "^0.5.6"
 
-electron@^5.0.0-beta.1:
+electron@5.0.0-beta.1:
   version "5.0.0-beta.1"
   resolved "https://registry.yarnpkg.com/electron/-/electron-5.0.0-beta.1.tgz#7e88d11d1e02497b7f04a488af73870a9d970b7b"
   integrity sha512-QxolvwM6Nxk4F9A6yTiiXqaxABNKCwIfK6909UCB1kKX5mP6kSGLxqf49DS8Lx6ECzG/FKAFP6jhv9VvRG5gNw==
