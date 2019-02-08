@@ -6,7 +6,30 @@ This is the hosting application for [Mist UI](https://github.com/ethereum/mist-u
 This project ensures that the user can update, configure and run the Mist UI web app and client binaries such as geth.
 Moreover this project can be bundled with Mist UI and create distributable installers that can be found under 'releases'.
 
-The app can be started with `yarn start:dev` for `yarn start:prod` for developer or production mode.
+###  Quick Start
+
+First we need to install less and Mist UI:
+
+```
+npm install -g less
+git clone https://github.com/ethereum/mist-ui.git
+cd mist-ui
+yarn && yarn run watch-css 
+```
+
+In another terminal, go to the mist-ui folder, type:
+
+```
+yarn run start
+```
+
+Then in a third terminal, outside the mist-ui folder and install and run mist-shell:
+
+```
+git clone https://github.com/ethereum/mist-shell.git
+cd mist-shell
+yarn && yarn start:dev
+```
 
 ## Dev Mode
 The developer mode will try to load Mist UI from a locally running web server on port `3080`. To run in dev mode you will have to follow the setup instructions on the Mist UI repo.

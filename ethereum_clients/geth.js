@@ -1,17 +1,13 @@
 const fs = require('fs')
 const path = require('path')
 const { AppManager } = require('@philipplgh/electron-app-manager')
-// const util = require('util')
-// const spawn = util.promisify(require('child_process').spawn)
 const { spawn } = require('child_process')
 const { EventEmitter } = require('events')
+const net = require('net')
 
-const axios = require('axios')
-const post = axios.post
-
+// Init CONSTANTS
 let EXT_LENGTH = 0
 let BINARY_NAME = ''
-
 const STATES = {
   STARTING: 0 /* Node about to be started */,
   STARTED: 1 /* Node started */,
@@ -19,51 +15,59 @@ const STATES = {
   STOPPING: 3 /* Node about to be stopped */,
   STOPPED: 4 /* Node stopped */,
   ERROR: -1 /* Unexpected error */
-};
+}
 
+// Set up cache
 const GETH_CACHE = path.join(__dirname, 'geth_bin')
-if(!fs.existsSync(GETH_CACHE)){
+if (!fs.existsSync(GETH_CACHE)) {
   fs.mkdirSync(GETH_CACHE)
 }
 
+// Init variables
 let urlFilter = ''
 let dataDir = ''
 let binaryPaths = []
+let rpcId = 1
 
-// platform specific initialization 
-switch(process.platform){
+// Platform specific initialization
+switch (process.platform) {
   case 'win32': {
     urlFilter = 'win'
     EXT_LENGTH = '.zip'.length
     BINARY_NAME = 'geth.exe'
     dataDir = '%APPDATA%/Ethereum'
-    break;
+    break
   }
   case 'linux': {
     urlFilter = 'linux'
     EXT_LENGTH = '.tar.gz'.length
     BINARY_NAME = 'geth'
     dataDir = '~/.ethereum'
-    break;
+    break
   }
   case 'darwin': {
     urlFilter = 'darwin'
     EXT_LENGTH = '.tar.gz'.length
     BINARY_NAME = 'geth'
     dataDir = '~/Library/Ethereum'
-    break;
+    break
   }
   default: {
-
   }
 }
 
 const gethUpdater = new AppManager({
   repository: 'https://gethstore.blob.core.windows.net',
   modifiers: {
-    version: ({ version })  => version.split('-').slice(0, -1).join('-')
+    version: ({ version }) =>
+      version
+        .split('-')
+        .slice(0, -1)
+        .join('-')
   },
-  filter: ({fileName}) => !fileName.includes('alltools') && (urlFilter && fileName.includes(urlFilter)),
+  filter: ({ fileName }) =>
+    !fileName.includes('alltools') &&
+    (urlFilter && fileName.includes(urlFilter)),
   auto: false,
   paths: [],
   cacheDir: GETH_CACHE
@@ -74,85 +78,88 @@ const defaultConfig = {
   dataDir,
   host: 'localhost',
   port: 8545,
-  network: 'main'
-}
-
-let id = 1
-const rpcCall = async call => {
-  let url = 'http://127.0.0.1:8545'
-  let obj = {
-    "jsonrpc":"2.0",
-    "method": call.method,
-    "id": id++
-  }
-  let response = await post(url, obj)
-  return response.data
+  network: 'main',
+  syncMode: 'light',
+  ipc: 'rpc'
 }
 
 // https://github.com/ethereum/ethereum-client-binaries
 // https://github.com/ethereumjs/geth.js/blob/master/index.js
 // https://github.com/ethereum/ethereum-client-binaries/blob/master/src/index.js
 // https://github.com/ethereum/mist/blob/develop/modules/ethereumNode.js
-class Geth extends EventEmitter{
+class Geth extends EventEmitter {
   constructor() {
     super()
     this.state = STATES.STOPPED
     this.flags = []
     this.logs = []
-    this._init()
+    this.ipc = null
+    this.responsePromises = {}
   }
-  get isRunning(){
+
+  get isRunning() {
     return this.state === STATES.STARTED
   }
-  set isRunning(isRunning){
+
+  set isRunning(isRunning) {
     this.state = isRunning ? STATES.STARTED : STATES.STOPPING
   }
+
   getUpdater() {
     return gethUpdater
   }
-  _init() {
-    
+
+  getLogs() {
+    return this.logs
   }
+
   async extractPackageBinaries(binaryPackage) {
     // on mac the tar contains as root entry a dir with the same name as the .tar.gz
     const basePackageName = binaryPackage.fileName.slice(0, -EXT_LENGTH)
     const binaryPathPackage = path.join(basePackageName, BINARY_NAME)
-    const gethBinary = await gethUpdater.getEntry(binaryPackage, binaryPathPackage)
+    const gethBinary = await gethUpdater.getEntry(
+      binaryPackage,
+      binaryPathPackage
+    )
     const binaryPathDisk = path.join(GETH_CACHE, basePackageName)
+
     // the unlinking might fail if the binary is e.g. being used by another instance
-    if(fs.existsSync(binaryPathDisk)){
+    if (fs.existsSync(binaryPathDisk)) {
       fs.unlinkSync(binaryPathDisk)
     }
+
     // IMPORTANT: if the binary already exists the mode cannot be set
     fs.writeFileSync(binaryPathDisk, await gethBinary.getData(), {
       mode: parseInt('754', 8) // strict mode prohibits octal numbers in some cases
     })
+
     return binaryPathDisk
   }
+
   async getLocalBinary() {
     const latestCached = await gethUpdater.getLatestCached()
-    if(latestCached){
+    if (latestCached) {
       // binary in extracted form was found in e.g. standard location on the system
-      if(latestCached.isBinary){
+      if (latestCached.isBinary) {
         return latestCached.location
-      } 
-      // binary is packaged as .zip or.tar.gz
-      else {
+      } else {
+        // binary is packaged as .zip or.tar.gz
         return this.extractPackageBinaries(latestCached)
       }
     }
     return null
   }
+
   async getLocalBinaries() {
     return await gethUpdater.cache.getReleases()
   }
 
-  async getReleases(){
+  async getReleases() {
     return await gethUpdater.getReleases()
   }
 
   async download(release, onProgress) {
-    if(!release){
+    if (!release) {
       release = await gethUpdater.getLatestRemote()
     }
     const _onProgress = (r, p) => onProgress(p)
@@ -160,37 +167,126 @@ class Geth extends EventEmitter{
     await gethUpdater.download(release)
     gethUpdater.removeListener(_onProgress)
   }
-  getUpdaterMenu(){
+
+  getUpdaterMenu() {
     return createMenu(updater)
   }
-  configure() {
 
-  }
+  configure() {}
+
   async start(binPackagePath) {
     console.log('start package', binPackagePath)
-    let binPath = await this.extractPackageBinaries(binPackagePath)
+    const binPath = await this.extractPackageBinaries(binPackagePath)
     console.log('start geth', binPath)
-    let flags = [
+    const flags = [
       // '--datadir', 'F:/Ethereum',
       '--rpc'
     ]
     // const { stdout, stderr } = await spawn(this.bin, {})
     const proc = spawn(binPath, flags)
-    const {stdout, stderr} = proc
+    const { stdout, stderr } = proc
     proc.once('error', error => {
       console.log('error in geth process', error)
     })
 
     const onData = data => {
-      // console.log('received data', data.toString())
       this.logs.push(data.toString())
     }
-    stdout.on("data", onData)
-    stderr.on("data", onData)
+    stdout.on('data', onData)
+    stderr.on('data', onData)
     this.proc = proc
     this.isRunning = true
 
+    // Check for IPC in 3s
+    setTimeout(() => {
+      this.getIpcPath()
+    }, 3000)
+
     return this.getStatus()
+  }
+
+  getIpcPath() {
+    console.log('Checking for IPC path...')
+    let ipcPath
+    const logs = this.getLogs()
+    for (const log of logs) {
+      const found = log.includes('IPC endpoint opened')
+      if (found) {
+        ipcPath = log.split('=')[1].trim()
+        console.log('Found IPC path: ', ipcPath)
+      }
+    }
+    if (ipcPath) {
+      this.connectIpc(ipcPath)
+    } else {
+      // Recheck in 3s
+      setTimeout(() => {
+        console.log('IPC endpoint not found, rechecking in 3s...')
+        this.getIpcPath()
+      }, 3000)
+    }
+  }
+
+  connectIpc(path) {
+    this.ipc = net.connect({ path })
+
+    this.ipc.on('connect', error => {
+      this.state = STATES.CONNECTED
+      console.log('IPC Connected')
+    })
+
+    this.ipc.on('end', function() {
+      this.state = STATES.STOPPED
+      this.ipc = null
+      console.log('IPC Connection Ended')
+    })
+
+    this.ipc.on('error', error => {
+      this.state = STATES.ERROR
+      this.ipc = null
+      console.error('IPC Connection Error: ', error)
+    })
+
+    this.ipc.on('timeout', function() {
+      this.state = STATES.ERROR
+      this.ipc = null
+      console.error('IPC Connection Timeout')
+    })
+
+    this.ipc.on('data', this.onIpcData.bind(this))
+  }
+
+  onIpcData(data) {
+    console.log('IPC data: ', data.toString())
+    let result
+    try {
+      result = JSON.parse(data)
+    } catch (error) {
+      console.error('Error parsing JSON: ', error)
+    }
+    if (result) {
+      if (this.responsePromises[result.id]) {
+        if (!result.error) {
+          this.responsePromises[result.id].resolve(result.result)
+        } else {
+          this.responsePromises[result.id].reject(result)
+        }
+        delete this.responsePromises[result.id]
+      }
+    }
+  }
+
+  send(payload) {
+    if (this.state !== STATES.CONNECTED) {
+      throw Error('IPC Not Connected')
+    }
+
+    return new Promise((resolve, reject) => {
+      const jsonString = JSON.stringify(payload)
+      this.ipc.write(jsonString)
+      // Add response promise
+      this.responsePromises[payload.id] = { resolve, reject }
+    })
   }
 
   async stop() {
@@ -199,27 +295,22 @@ class Geth extends EventEmitter{
     return this.getStatus()
   }
 
-  async restart() {
-
-  }
+  async restart() {}
 
   async checkForUpdates() {
     let result = await updater.checkForUpdates()
     return result
   }
 
-  async getLogs() {
-    return this.logs
-  }
-  setConfig(newConfig) {
+  setConfig(newConfig) {}
 
-  }
   async getConfig() {
     return defaultConfig
   }
+
   async getStatus() {
     return {
-      node: 'geth',
+      client: 'geth',
       binPath: this.binPath,
       version: '1.8.20-stable',
       commit: '24d727b6d6e2c0cde222fa12155c4a6db5caaf2e',
@@ -228,28 +319,36 @@ class Geth extends EventEmitter{
       isRunning: this.isRunning
     }
   }
-  async rpc(call){
-    let response = await rpcCall(call)
-    return response
-  }
-  reportBug() {
 
+  async rpc(method, params = []) {
+    const payload = {
+      jsonrpc: '2.0',
+      id: rpcId++,
+      method,
+      params
+    }
+    try {
+      const result = await this.send(payload)
+      return result
+    } catch (error) {
+      return error
+    }
   }
-  license() {
 
-  }
+  reportBug() {}
+
+  license() {}
+
   async network() {
-    let response = await rpcCall('net_version')
+    let response = await this.rpc('net_version')
     return response
   }
-  async version() {
-  }
-  import() {
 
-  }
-  export() {
+  async version() {}
 
-  }
+  import() {}
+
+  export() {}
 }
 
 module.exports = Geth
