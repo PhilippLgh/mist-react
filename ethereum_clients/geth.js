@@ -249,8 +249,6 @@ class Geth extends EventEmitter {
     })
 
     this.ipc.on('data', this.onIpcData.bind(this))
-
-    this.rpc('net_version')
   }
 
   onIpcData(data) {
