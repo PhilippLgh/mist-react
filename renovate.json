@@ -1,14 +1,14 @@
 {
-  "extends": [
-    "config:base"
-  ],
+  "extends": ["config:base"],
   "dependencies": {
     "enabled": false
   },
-  "packageRules": [{
-    "packagePatterns": [".+"],
-    "excludePackageNames": ["electron"],
-    "enabled": false
-  }],
+  "packageRules": [
+    {
+      "packagePatterns": [".+"],
+      "excludePackageNames": ["electron"],
+      "enabled": false
+    }
+  ],
   "recreateClosed": true
 }
