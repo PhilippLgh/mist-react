@@ -190,7 +190,6 @@ class Geth extends EventEmitter {
     })
 
     const onData = data => {
-      // console.log('received data', data.toString())
       this.logs.push(data.toString())
     }
     stdout.on('data', onData)
@@ -207,9 +206,10 @@ class Geth extends EventEmitter {
   }
 
   getIpcPath() {
-    console.log('checking for IPC path')
+    console.log('Checking for IPC path...')
     let ipcPath
-    for (const log of this.logs) {
+    const logs = this.getLogs()
+    for (const log of logs) {
       const found = log.includes('IPC endpoint opened')
       if (found) {
         ipcPath = log.split('=')[1].trim()
@@ -221,6 +221,7 @@ class Geth extends EventEmitter {
     } else {
       // Recheck in 3s
       setTimeout(() => {
+        console.log('IPC endpoint not found, rechecking in 3s...')
         this.getIpcPath()
       }, 3000)
     }
@@ -230,22 +231,26 @@ class Geth extends EventEmitter {
     this.ipc = net.connect({ path })
 
     this.ipc.on('connect', error => {
-      console.error('IPC Connected')
+      this.state = STATES.CONNECTED
+      console.log('IPC Connected')
     })
 
     this.ipc.on('end', function() {
-      console.log('IPC Connection Ended')
+      this.state = STATES.STOPPED
       this.ipc = null
+      console.log('IPC Connection Ended')
     })
 
     this.ipc.on('error', error => {
-      console.error('IPC Connection Error: ', error)
+      this.state = STATES.ERROR
       this.ipc = null
+      console.error('IPC Connection Error: ', error)
     })
 
     this.ipc.on('timeout', function() {
-      console.error('IPC Connection Timeout')
+      this.state = STATES.ERROR
       this.ipc = null
+      console.error('IPC Connection Timeout')
     })
 
     this.ipc.on('data', this.onIpcData.bind(this))
@@ -272,8 +277,8 @@ class Geth extends EventEmitter {
   }
 
   send(payload) {
-    if (!this.ipc) {
-      throw Error('No IPC Connection')
+    if (this.state !== STATES.CONNECTED) {
+      throw Error('IPC Not Connected')
     }
 
     return new Promise((resolve, reject) => {
