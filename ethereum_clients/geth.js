@@ -180,11 +180,7 @@ class Geth extends EventEmitter {
     console.log('start geth', binPath)
     const flags = [
       // '--datadir', 'F:/Ethereum',
-      '--rpc',
-      '--port',
-      8884,
-      '--rpcport',
-      8548
+      '--rpc'
     ]
     // const { stdout, stderr } = await spawn(this.bin, {})
     const proc = spawn(binPath, flags)
