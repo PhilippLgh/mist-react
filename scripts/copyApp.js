@@ -1,15 +1,14 @@
-
 // TODO executed before electron builder builds: copies or downloads with app-updater a version of the latest .asar to this dir for shipping
 // TODO make sure there is not more than one asar present
 
-const path = require('path');
-const {AppUpdater} = require('@philipplgh/electron-app-updater');
+const path = require('path')
+const { AppManager } = require('@philipplgh/electron-app-manager')
 
-const updater = new AppUpdater({
-  repo: 'https://github.com/PhilippLgh/mist-ui-react'
-});
+const updater = new AppManager({
+  repository: 'https://github.com/ethereum/mist-ui'
+})
 
-(async function(){
+;(async function() {
   const latest = await updater.getLatest()
-  await updater.download(latest, true, path.join(__dirname, '..'));
-})();
+  await updater.download(latest, true, path.join(__dirname, '..'))
+})()
