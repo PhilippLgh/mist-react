@@ -1,12 +1,12 @@
 {
-  "name": "mist-shell",
+  "name": "grid",
   "version": "1.0.3",
-  "description": "The Dapp Browser",
+  "description": "Ethereum Grid",
   "main": "index.js",
-  "homepage": "https://github.com/ethereum/mist-shell",
+  "homepage": "https://github.com/ethereum/grid",
   "author": "Mist team <mist@ethereum.org>",
   "license": "ISC",
-  "repository": "https://github.com/ethereum/mist-shell",
+  "repository": "https://github.com/ethereum/grid",
   "scripts": {
     "start:prod": "cross-env NODE_ENV=production electron .",
     "start:dev": "cross-env NODE_ENV=development electron .",
@@ -48,7 +48,7 @@
   },
   "build": {
     "productName": "Mist",
-    "appId": "org.ethereum.mist.next",
+    "appId": "org.ethereum.grid",
     "asar": false,
     "files": [
       "index.js",
