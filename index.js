@@ -54,7 +54,7 @@ const is = {
 }
 
 const updateMenuVersion = async release => {
-  const updateMenuMist = await ElectronMenu.updateMenuVersion(release.version)
+  const updateMenuMist = await appManager.updateMenuVersion(release.version)
   updateMenuMist.label = 'Mist UI'
 
   const template = getMenuTemplate()
