@@ -356,21 +356,44 @@ class Geth extends EventEmitter {
   }
 
   onIpcData(data) {
+    if (!data) {
+      return
+    }
+
     debug('IPC data: ', data.toString())
-    let result
+    let message
     try {
-      result = JSON.parse(data)
+      message = JSON.parse(data.toString())
     } catch (error) {
       debug('Error parsing JSON: ', error)
     }
-    if (result) {
-      if (this.responsePromises[result.id]) {
-        if (!result.error) {
-          this.responsePromises[result.id].resolve(result.result)
+
+    // Return if not a jsonrpc response
+    if (!message || !message.jsonrpc) {
+      return
+    }
+
+    const { id, method, result } = message
+
+    if (typeof id !== 'undefined') {
+      const promise = this.responsePromises[id]
+      if (promise) {
+        // Handle pending promise
+        if (data.type === 'error') {
+          promise.reject(message)
+        } else if (message.error) {
+          promise.reject(error)
         } else {
-          this.responsePromises[result.id].reject(result)
+          promise.resolve(result)
         }
-        delete this.responsePromises[result.id]
+        delete this.responsePromises[id]
+      }
+    } else {
+      if (method && method.indexOf('_subscription') > -1) {
+        // Emit subscription notification
+        const { params } = result
+        const { subscription: subscriptionId } = params
+        this.emit(subscriptionId, result)
       }
     }
   }
