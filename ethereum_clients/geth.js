@@ -10,12 +10,12 @@ const debug = require('debug')('geth-js')
 let EXT_LENGTH = 0
 let BINARY_NAME = ''
 const STATES = {
-  STARTING: 0 /* Node about to be started */,
-  STARTED: 1 /* Node started */,
-  CONNECTED: 2 /* IPC connected - all ready */,
-  STOPPING: 3 /* Node about to be stopped */,
-  STOPPED: 4 /* Node stopped */,
-  ERROR: -1 /* Unexpected error */
+  STARTING: 'STARTING' /* Node about to be started */,
+  STARTED: 'STARTED' /* Node started */,
+  CONNECTED: 'CONNECTED' /* IPC connected - all ready */,
+  STOPPING: 'STOPPING' /* Node about to be stopped */,
+  STOPPED: 'STOPPED' /* Node stopped */,
+  ERROR: 'ERROR' /* Unexpected error */
 }
 
 // Set up cache
@@ -102,7 +102,9 @@ class Geth extends EventEmitter {
   }
 
   get isRunning() {
-    return this.state === STATES.STARTED || this.state === STATES.CONNECTED
+    return [STATES.STARTING, STATES.STARTED, STATES.CONNECTED].includes(
+      this.state
+    )
   }
 
   getUpdater() {
@@ -114,7 +116,7 @@ class Geth extends EventEmitter {
   }
 
   async extractPackageBinaries(binaryPackage) {
-    // on mac the tar contains as root entry a dir with the same name as the .tar.gz
+    // On mac the tar contains as root entry a dir with the same name as the .tar.gz
     const basePackageName = binaryPackage.fileName.slice(0, -EXT_LENGTH)
     const binaryPathPackage = path.join(basePackageName, BINARY_NAME)
     const gethBinary = await gethUpdater.getEntry(
@@ -123,7 +125,7 @@ class Geth extends EventEmitter {
     )
     const binaryPathDisk = path.join(GETH_CACHE, basePackageName)
 
-    // the unlinking might fail if the binary is e.g. being used by another instance
+    // The unlinking might fail if the binary is e.g. being used by another instance
     if (fs.existsSync(binaryPathDisk)) {
       fs.unlinkSync(binaryPathDisk)
     }
@@ -139,11 +141,11 @@ class Geth extends EventEmitter {
   async getLocalBinary() {
     const latestCached = await gethUpdater.getLatestCached()
     if (latestCached) {
-      // binary in extracted form was found in e.g. standard location on the system
+      // Binary in extracted form was found in e.g. standard location on the system
       if (latestCached.isBinary) {
         return latestCached.location
       } else {
-        // binary is packaged as .zip or.tar.gz
+        // Binary is packaged as .zip or.tar.gz
         return this.extractPackageBinaries(latestCached)
       }
     }
@@ -247,6 +249,8 @@ class Geth extends EventEmitter {
       }
 
       this.state = STATES.STARTING
+      this.emit('starting')
+      debug('Emit: starting')
       debug('Start Geth: ', this.binPath)
 
       // Spawn process
@@ -255,31 +259,39 @@ class Geth extends EventEmitter {
 
       proc.on('error', error => {
         this.states = STATES.ERROR
-        debug('Geth Error in Process: ', error)
+        this.emit('error', error)
+        debug('Emit: error', error)
         reject(error)
       })
 
       proc.on('close', code => {
         this.states = STATES.STOPPED
-        const message = `Geth child process exited with code: ${code}`
-        reject(message)
+        const errorMessage = `Geth child process exited with code: ${code}`
+        this.emit('error', errorMessage)
+        reject(errorMessage)
+        if (code > 1) {
+          this.emit('stopped', errorMessage)
+          debug('Emit: stopped')
+        }
         if (code !== 0) {
           // closing with any code other than 0 means there was an error
-          debug('Error: ', message)
+          debug('Error: ', errorMessage)
           debug('DEBUG Last 10 log lines: ', this.getLogs().slice(-10))
         }
       })
 
-      const onConnect = () => {
-        this.state = STATES.CONNECTED
-        resolve(this.getStatus())
+      const onConnectResolvePromise = () => {
+        const status = this.getStatus()
+        resolve(status)
       }
 
       const onStart = () => {
         this.state = STATES.STARTED
+        this.emit('started')
+        debug('Emit: started')
         // Check for and connect IPC in 1s
         setTimeout(() => {
-          this.connectIpc(onConnect)
+          this.connectIpc(onConnectResolvePromise)
         }, 1000)
       }
 
@@ -288,9 +300,9 @@ class Geth extends EventEmitter {
         this.logs.push(log)
       }
 
-      stderr.once('data', onStart)
-      stdout.on('data', onData)
-      stderr.on('data', onData)
+      stderr.once('data', onStart.bind(this))
+      stdout.on('data', onData.bind(this))
+      stderr.on('data', onData.bind(this))
       this.proc = proc
     })
   }
@@ -314,30 +326,38 @@ class Geth extends EventEmitter {
 
     this.ipc = net.connect({ path: this.ipcPath })
 
-    this.ipc.on('connect', error => {
+    const onIpcConnect = () => {
       this.state = STATES.CONNECTED
+      this.emit('connect')
+      debug('Emit: connect')
       onConnect()
       debug('IPC Connected')
-    })
+    }
 
-    this.ipc.on('end', function() {
+    const onIpcEnd = () => {
       this.state = STATES.STOPPED
       this.ipc = null
       debug('IPC Connection Ended')
-    })
+    }
 
-    this.ipc.on('error', error => {
+    const onIpcError = error => {
       this.state = STATES.ERROR
       this.ipc = null
       debug('IPC Connection Error: ', error)
-    })
+    }
 
-    this.ipc.on('timeout', function() {
+    const onIpcTimeout = () => {
       this.state = STATES.ERROR
       this.ipc = null
-      debug('IPC Connection Timeout')
-    })
+      const errorMessage = 'IPC Connection Timeout'
+      this.emit('error', errorMessage)
+      debug(errorMessage)
+    }
 
+    this.ipc.on('connect', onIpcConnect.bind(this))
+    this.ipc.on('end', onIpcEnd.bind(this))
+    this.ipc.on('error', onIpcError.bind(this))
+    this.ipc.on('timeout', onIpcTimeout.bind(this))
     this.ipc.on('data', this.onIpcData.bind(this))
   }
 
@@ -382,18 +402,18 @@ class Geth extends EventEmitter {
         if (data.type === 'error') {
           promise.reject(message)
         } else if (message.error) {
-          promise.reject(error)
+          promise.reject(message.error)
         } else {
           promise.resolve(result)
         }
         delete this.responsePromises[id]
       }
     } else {
-      if (method && method.indexOf('_subscription') > -1) {
+      if (method && method.includes('_subscription')) {
         // Emit subscription notification
-        const { params } = result
+        const { params } = message
         const { subscription: subscriptionId } = params
-        this.emit(subscriptionId, result)
+        this.emit(subscriptionId, params)
       }
     }
   }

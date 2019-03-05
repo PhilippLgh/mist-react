@@ -232,6 +232,17 @@ describe('Clients', function() {
         const result = await geth.rpc('net_version')
         assert.equal(result, 1)
       })
+
+      // TODO: This is taking >60s and timing out, any faster way?
+      // it('returns a subscription response', async function(done) {
+      //   this.timeout(60 * 1000)
+      //   await geth.start()
+      //   const subscriptionId = await geth.rpc('eth_subscribe', ['syncing'])
+      //   geth.on(subscriptionId, () => {
+      //     assert.equal('1', result.subscription)
+      //     done()
+      //   })
+      // })
     })
 
     describe('getStatus()', function() {

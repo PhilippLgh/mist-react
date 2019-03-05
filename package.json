@@ -9,7 +9,7 @@
   "repository": "https://github.com/ethereum/grid",
   "scripts": {
     "start:prod": "cross-env NODE_ENV=production electron .",
-    "start:dev": "cross-env NODE_ENV=development DEBUG=dev electron .",
+    "start:dev": "cross-env NODE_ENV=development electron .",
     "test": "cross-env NODE_ENV=test mocha ./test",
     "test:watch": "cross-env NODE_ENV=test mocha ./test --watch",
     "prepare-release": "node ./scripts/copyApp.js",
