@@ -7,27 +7,19 @@
 # Enter the Grid
 
 This is the hosting application for [Grid UI](https://github.com/ethereum/grid-ui) and can be considered a [Mist](https://github.com/ethereum/Mist) alternative in the long run.
-This project ensures that the user can update, configure and run the Grid UI web app and client binaries such as geth.
-Moreover this project can be bundled with Grid UI and create distributable installers that can be found under 'releases'.
+This project ensures that the user can update, configure and run the Grid UI web app and client binaries, such as geth.
 
 ### Quick Start
 
-First we need to install less and Grid UI:
+Install and run Grid UI:
 
 ```
-npm install -g less
 git clone https://github.com/ethereum/grid-ui.git
 cd grid-ui
-yarn && yarn run watch-css
+yarn && yarn start
 ```
 
-In another terminal, go to the grid-ui folder, type:
-
-```
-yarn run start
-```
-
-Then in a third terminal, outside the grid-ui folder and install and run grid:
+Install and run Grid:
 
 ```
 git clone https://github.com/ethereum/grid.git
@@ -51,26 +43,7 @@ In the the production mode a bundled app can be loaded from either `fs` or a rem
 
 # Release Process
 
-## Steps to release with CI
-
-- Bump version number
-- Push / merge to master
-- TODO set trigger for Electron releases (with auto-updater), grid-ui releases (without auto-updater)
-
-## Steps to test release (locally)
-
-- npm run prepare-release
-  - will download latest app release and package it with shell
-- npm run build
-- double check that release/unpacked/Grid.exe is working
-
-## Steps to release (locally)
-
-- get github access token and insert into .env as GH_TOKEN
-- TODO changelog, and release draft
-- TODO installer signing
-- npm run release -> auto publishes
-- go to github, check everything, edit description and change from draft to release
+See the developer guide [here](/RELEASE.md).
 
 # Landing page development guide
 
@@ -78,4 +51,4 @@ See instructions at [/docs](/docs/README.md).
 
 # Contributing
 
-There are many ways to get involved with this project. Get started [here](/docs/CONTRIBUTING.md).
+There are many ways to get involved with this project. Get started [here](/CONTRIBUTING.md).

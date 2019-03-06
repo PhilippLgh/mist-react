@@ -11,7 +11,7 @@ The project has been broken into several pieces:
 - Grid (this repo) - the desktop app wrapper for grid-ui
 - [electron-app-manager](https://github.com/PhilippLgh/electron-app-manager) - handles app updates
 
-The MVP will be a node management tool for power users. No wallet or browser features will be included in the first release. Proposed MVP release date: first week of March 2019.
+The MVP will be a node management tool for power users. No wallet or browser features will be included in the first release.
 
 #### How can I contribute?
 
