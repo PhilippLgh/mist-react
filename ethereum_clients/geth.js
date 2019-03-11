@@ -265,19 +265,18 @@ class Geth extends EventEmitter {
       })
 
       proc.on('close', code => {
-        this.states = STATES.STOPPED
+        if (code === 0) {
+          this.states = STATES.STOPPED
+          this.emit('stopped')
+          debug('Emit: stopped')
+          return
+        }
+        // Closing with any code other than 0 means there was an error
         const errorMessage = `Geth child process exited with code: ${code}`
         this.emit('error', errorMessage)
+        debug('Error: ', errorMessage)
+        debug('DEBUG Last 10 log lines: ', this.getLogs().slice(-10))
         reject(errorMessage)
-        if (code > 1) {
-          this.emit('stopped', errorMessage)
-          debug('Emit: stopped')
-        }
-        if (code !== 0) {
-          // closing with any code other than 0 means there was an error
-          debug('Error: ', errorMessage)
-          debug('DEBUG Last 10 log lines: ', this.getLogs().slice(-10))
-        }
       })
 
       const onConnectResolvePromise = () => {
