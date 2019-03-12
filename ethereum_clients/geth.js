@@ -258,7 +258,7 @@ class Geth extends EventEmitter {
       const { stdout, stderr } = proc
 
       proc.on('error', error => {
-        this.states = STATES.ERROR
+        this.state = STATES.ERROR
         this.emit('error', error)
         debug('Emit: error', error)
         reject(error)
@@ -266,7 +266,7 @@ class Geth extends EventEmitter {
 
       proc.on('close', code => {
         if (code === 0) {
-          this.states = STATES.STOPPED
+          this.state = STATES.STOPPED
           this.emit('stopped')
           debug('Emit: stopped')
           return
