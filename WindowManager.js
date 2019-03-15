@@ -7,7 +7,7 @@ class WindowManager {
     const preloadPath = path.join(__dirname, 'preload.js')
 
     let baseOptions = {
-      width: 966,
+      width: 1059,
       height: 658,
       webPreferences: {
         preload: preloadPath,
