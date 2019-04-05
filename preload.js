@@ -40,8 +40,11 @@ window.addEventListener('message', function(event) {
   }
 }, false);
 */
-console.log('preload loaded')
-const Mist = {
+
+console.log('Preload loaded')
+
+const Grid = {
+  clef: remote.getGlobal('Clef'),
   geth: remote.getGlobal('Geth'),
   window: {
     getArgs: () => {}
@@ -67,7 +70,7 @@ const Geth = {
   },
   start: async () => {
     return rpc.send("geth.start")
-  },    
+  },
   stop: async () => {
     return rpc.send("geth.stop")
   },
@@ -78,14 +81,14 @@ const Geth = {
     return rpc.send("geth.rpc", call)
   }
 }
-const Mist = {
+const Grid = {
   geth: Geth
 }
 */
-window.Mist = Mist
+window.Grid = Grid
 
 /*
-webFrame.executeJavaScript(`window.Mist = {geth: {
+webFrame.executeJavaScript(`window.Grid = {geth: {
   getStatus: () => {return{}},
   getConfig: () => {return{}}
 }}`)

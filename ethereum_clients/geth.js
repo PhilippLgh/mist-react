@@ -18,7 +18,8 @@ const STATES = {
   ERROR: 'ERROR' /* Unexpected error */
 }
 
-// TODO consider moving this into a helper / utils module to retrieve global settings
+// TODO consider moving this into a
+// helper / utils module to retrieve global settings
 const USER_DATA_PATH =
   'electron' in process.versions
     ? require('electron').app.getPath('userData')
@@ -312,6 +313,7 @@ class Geth extends EventEmitter {
         const log = data.toString()
         this.logs.push(log)
         this.emit('log', log)
+        debug('Data: ', log)
       }
 
       stderr.once('data', onStart.bind(this))

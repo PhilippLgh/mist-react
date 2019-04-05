@@ -2,8 +2,8 @@ const fs = require('fs')
 const path = require('path')
 const url = require('url')
 const net = require('net')
-
 const createRenderer = require('./electron-shell')
+const Clef = require('./ethereum_clients/clef')
 const Geth = require('./ethereum_clients/geth')
 const { setupRpc } = require('./Rpc')
 const { getMenuTemplate } = require('./Menu')
@@ -17,16 +17,19 @@ const log = {
 
 const { app, dialog, Menu } = require('electron')
 
-const { AppManager, registerPackageProtocol } = require('@philipplgh/electron-app-manager')
+const {
+  AppManager,
+  registerPackageProtocol
+} = require('@philipplgh/electron-app-manager')
 registerPackageProtocol()
 
 AppManager.on('menu-available', updaterTemplate => {
   const template = getMenuTemplate()
-  
+
   // replace old updater menu with new one
   const idx = template.findIndex(mItem => mItem.label === 'Updater')
   template[idx] = updaterTemplate
-  
+
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 })
 
@@ -125,7 +128,6 @@ const startUI = async () => {
   })
 
   if (is.dev()) {
-
     // load user-provided package if possible
     if (fs.existsSync(path.join(__dirname, CONFIG_NAME))) {
       const { useDevSettings } = require(`./${CONFIG_NAME}`)
@@ -162,21 +164,13 @@ const startUI = async () => {
 }
 
 // ########## MAIN APP ENTRY POINT #########
+
 const onReady = async () => {
-  // 0 prepare windows, menus etc
   const geth = new Geth()
-  // await initialize(geth)
-
-  // 1. start UI for quick user-feedback without long init procedures
+  const clef = new Clef()
   await startUI()
-
-  // 2. make geth methods available in renderer
-  // setupRpc('geth', geth)
   global.Geth = geth
-  const gethBinary = await geth.getLocalBinary()
-  if (gethBinary) {
-    //geth.start(gethBinary)
-  }
-  // else do nothing: let user decide how to setup
+  global.Clef = clef
 }
+
 app.once('ready', onReady)

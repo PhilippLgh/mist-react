@@ -10,8 +10,7 @@
   "scripts": {
     "start:prod": "cross-env NODE_ENV=production electron .",
     "start:dev": "cross-env NODE_ENV=development electron .",
-    "start:dev:verbose": "cross-env NODE_ENV=development DEBUG=geth-js electron .",
-    "start:clef": "node ./ethereum_clients/clef.js",
+    "start:dev:debug": "cross-env NODE_ENV=development DEBUG=geth-js,clef-js electron .",
     "test": "cross-env NODE_ENV=test mocha ./test",
     "test:watch": "cross-env NODE_ENV=test mocha ./test --watch",
     "prepare-release": "node ./scripts/copyApp.js",
@@ -22,8 +21,7 @@
     "@philipplgh/electron-app-manager": "^0.22.0",
     "debug": "^4.1.1"
   },
-  "peerDependencies": {
-  },
+  "peerDependencies": {},
   "devDependencies": {
     "chai": "^4.2.0",
     "cross-env": "^5.2.0",
@@ -46,7 +44,9 @@
       "prettier --no-semi --single-quote --write",
       "git add"
     ],
-    "ignore": ["docs/**/*.md"]
+    "ignore": [
+      "docs/**/*.md"
+    ]
   },
   "build": {
     "productName": "Grid",
