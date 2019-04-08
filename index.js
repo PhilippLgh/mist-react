@@ -17,16 +17,19 @@ const log = {
 
 const { app, dialog, Menu } = require('electron')
 
-const { AppManager, registerPackageProtocol } = require('@philipplgh/electron-app-manager')
+const {
+  AppManager,
+  registerPackageProtocol
+} = require('@philipplgh/electron-app-manager')
 registerPackageProtocol()
 
 AppManager.on('menu-available', updaterTemplate => {
   const template = getMenuTemplate()
-  
+
   // replace old updater menu with new one
   const idx = template.findIndex(mItem => mItem.label === 'Updater')
   template[idx] = updaterTemplate
-  
+
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 })
 
@@ -125,7 +128,6 @@ const startUI = async () => {
   })
 
   if (is.dev()) {
-
     // load user-provided package if possible
     if (fs.existsSync(path.join(__dirname, CONFIG_NAME))) {
       const { useDevSettings } = require(`./${CONFIG_NAME}`)
@@ -161,6 +163,10 @@ const startUI = async () => {
   */
 }
 
+app.on('quit', async () => {
+  await global.Geth.stop()
+})
+
 // ########## MAIN APP ENTRY POINT #########
 const onReady = async () => {
   // 0 prepare windows, menus etc
@@ -171,12 +177,6 @@ const onReady = async () => {
   await startUI()
 
   // 2. make geth methods available in renderer
-  // setupRpc('geth', geth)
   global.Geth = geth
-  const gethBinary = await geth.getLocalBinary()
-  if (gethBinary) {
-    //geth.start(gethBinary)
-  }
-  // else do nothing: let user decide how to setup
 }
 app.once('ready', onReady)
