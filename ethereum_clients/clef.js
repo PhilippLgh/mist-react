@@ -5,6 +5,16 @@ const { EventEmitter } = require('events')
 const { AppManager } = require('@philipplgh/electron-app-manager')
 const debug = require('debug')('clef-js')
 
+// Init constants
+const STATES = {
+  STARTING: 'STARTING' /* Node about to be started */,
+  STARTED: 'STARTED' /* Node started */,
+  CONNECTED: 'CONNECTED' /* IPC connected - all ready */,
+  STOPPING: 'STOPPING' /* Node about to be stopped */,
+  STOPPED: 'STOPPED' /* Node stopped */,
+  ERROR: 'ERROR' /* Unexpected error */
+}
+
 // TODO consider moving this into a
 // helper / utils module to retrieve global settings
 const USER_DATA_PATH =
@@ -29,27 +39,39 @@ if (!fs.existsSync(CLEF_CACHE)) {
 let URL_FILTER = ''
 let EXT_LENGTH = 0
 let BINARY_NAME = ''
+let keystoreDir = ''
 switch (process.platform) {
   case 'win32': {
     URL_FILTER = 'windows'
     EXT_LENGTH = '.zip'.length
     BINARY_NAME = 'clef.exe'
+    keystoreDir = `${process.env.APPDATA}/Ethereum/keystore`
     break
   }
   case 'linux': {
     URL_FILTER = 'linux'
     EXT_LENGTH = '.tar.gz'.length
     BINARY_NAME = 'clef'
+    keystoreDir = '~/.ethereum/keystore'
     break
   }
   case 'darwin': {
     URL_FILTER = 'darwin'
     EXT_LENGTH = '.tar.gz'.length
     BINARY_NAME = 'clef'
+    keystoreDir = '~/Library/Ethereum/keystore'
     break
   }
   default: {
   }
+}
+
+const defaultConfig = {
+  name: 'default',
+  keystoreDir,
+  rpcHost: 'localhost',
+  rpcPort: 8550,
+  chainId: 1
 }
 
 const clefHandlers = {
@@ -106,7 +128,15 @@ class Clef extends EventEmitter {
   constructor() {
     super()
     this.logs = []
-    this.running = false
+    this.state = STATES.STOPPED
+  }
+
+  setConfig(newConfig) {
+    this.config = newConfig
+  }
+
+  getConfig() {
+    return this.config
   }
 
   async getLatestRelease() {
@@ -174,7 +204,7 @@ class Clef extends EventEmitter {
     }
 
     if (data.type !== 'request') {
-      debug('Non-request rpc: ' + rpc)
+      debug('Non-request rpc: ', data)
       return
     }
 
@@ -200,16 +230,12 @@ class Clef extends EventEmitter {
     }
   }
 
-  async start() {
-    this.emit('starting')
-    this.running = true
-    const release = await this.getLatestRelease()
-    this.release = release
-    const binaryPathDisk = await this.extractPackageBinaries(release)
+  getLogs() {
+    return this.logs
+  }
 
-    debug('Start clef binary: ', binaryPathDisk)
-
-    // Flags
+  getClefFlags() {
+    const { keystoreDir, rpcHost, rpcPort, chainId } = this.config
     let flags = [
       '--rpc',
       '--ipcdisable',
@@ -217,7 +243,33 @@ class Clef extends EventEmitter {
       '--stdio-ui-test',
       '--advanced'
     ]
+    if (keystoreDir) {
+      flags.push('--keystore', keystoreDir)
+    }
+    if (rpcHost) {
+      flags.push('--rpcaddr', rpcHost)
+    }
+    if (rpcPort) {
+      flags.push('--rpcport', rpcPort)
+    }
+    if (chainid) {
+      flags.push('--chainid', chainId)
+    }
     flags.push('--4bytedb', path.join(CLEF_CACHE, '4byte.json'))
+    return flags
+  }
+
+  async start() {
+    this.state = STATES.STARTING
+    this.emit('starting')
+    const release = await this.getLatestRelease()
+    this.release = release
+    const binaryPathDisk = await this.extractPackageBinaries(release)
+
+    debug('Start clef binary: ', binaryPathDisk)
+
+    // Flags
+    const flags = this.getClefFlags()
 
     const proc = spawn(binaryPathDisk, flags)
     const { stdout, stderr, stdin } = proc
@@ -230,18 +282,18 @@ class Clef extends EventEmitter {
 
     proc.on('close', code => {
       if (code === 0) {
-        this.running = false
+        this.state = STATES.STOPPED
         this.emit('stopped')
         debug('Emit: stopped')
         return
       }
       // Closing with any code other than 0 means there was an error
       const errorMessage = `Clef child process exited with code: ${code}`
+      this.STATE = STATES.ERROR
       // this.emit('error', errorMessage)
       debug('Error: ', errorMessage)
-      debug('DEBUG Last 10 log lines: ', this.logs.slice(-10))
+      debug('DEBUG Last 10 log lines: ', this.getLogs().slice(-10))
       // reject(errorMessage)
-      this.running = true
     })
 
     const onData = data => {
@@ -250,9 +302,16 @@ class Clef extends EventEmitter {
       this.emit('log', log)
       debug('Data: ', log)
       this.handleData(log)
+
+      if (log.includes('HTTP endpoint opened')) {
+        this.state = STATES.CONNECTED
+        this.emit('connect')
+        debug('Emit: connect')
+      }
     }
 
     const onStart = () => {
+      this.STATE = STATES.STARTED
       this.emit('started')
       debug('Emit: started')
     }
@@ -270,7 +329,26 @@ class Clef extends EventEmitter {
     // }, 3000)
   }
 
-  async stop() {}
+  async stop() {
+    return new Promise((resolve, reject) => {
+      if (!this.proc || !this.isRunning) {
+        resolve(true)
+      }
+      this.state = STATES.STOPPING
+      this.emit('stopping')
+      this.proc.on('exit', () => {
+        this.emit('stopped')
+        this.state = STATES.STOPPED
+        resolve(true)
+      })
+      this.proc.on('error', error => {
+        this.state = STATES.ERROR
+        this.emit('error', error)
+        reject(new Error('Clef Error Stopping: ', error))
+      })
+      this.proc.kill('SIGINT')
+    })
+  }
 
   async send(data) {
     if (!this.proc) {

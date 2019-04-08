@@ -352,6 +352,7 @@ class Geth extends EventEmitter {
 
     const onIpcEnd = () => {
       this.state = STATES.STOPPED
+      this.emit('stopped')
       this.ipc = null
       debug('IPC Connection Ended')
     }
@@ -457,12 +458,15 @@ class Geth extends EventEmitter {
         resolve(true)
       }
       this.state = STATES.STOPPING
+      this.emit('stopping')
       this.proc.on('exit', () => {
         this.state = STATES.STOPPED
+        this.emit('stopped')
         resolve(true)
       })
       this.proc.on('error', error => {
         this.state = STATES.ERROR
+        this.emit('error', error)
         reject(new Error('Geth Error Stopping: ', error))
       })
       this.proc.kill('SIGINT')
