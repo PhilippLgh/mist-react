@@ -129,6 +129,7 @@ class Clef extends EventEmitter {
     super()
     this.logs = []
     this.state = STATES.STOPPED
+    this.config = defaultConfig
   }
 
   setConfig(newConfig) {
@@ -137,6 +138,10 @@ class Clef extends EventEmitter {
 
   getConfig() {
     return this.config
+  }
+
+  getRelease() {
+    return this.release
   }
 
   async getLatestRelease() {
@@ -157,12 +162,10 @@ class Clef extends EventEmitter {
   async download(release) {
     const onProgress = (release, progress) => {
       this.emit('downloadProgress', progress)
-      if (progress === 0 || progress % 5 === 0) {
-        debug(`Download progress: ${progress}%`)
-      }
     }
     clefUpdater.on('update-progress', onProgress)
     try {
+      this.emit('downloadProgress', 0)
       return await clefUpdater.download(release)
     } catch (error) {
       return error
@@ -244,7 +247,8 @@ class Clef extends EventEmitter {
       '--advanced'
     ]
     if (keystoreDir) {
-      flags.push('--keystore', keystoreDir)
+      // TODO fix: not respecting home directory via ~/
+      // flags.push('--keystore', keystoreDir)
     }
     if (rpcHost) {
       flags.push('--rpcaddr', rpcHost)
@@ -252,81 +256,91 @@ class Clef extends EventEmitter {
     if (rpcPort) {
       flags.push('--rpcport', rpcPort)
     }
-    if (chainid) {
+    if (chainId) {
       flags.push('--chainid', chainId)
     }
     flags.push('--4bytedb', path.join(CLEF_CACHE, '4byte.json'))
     return flags
   }
 
-  async start() {
-    this.state = STATES.STARTING
-    this.emit('starting')
-    const release = await this.getLatestRelease()
-    this.release = release
-    const binaryPathDisk = await this.extractPackageBinaries(release)
+  start() {
+    return new Promise(async (resolve, reject) => {
+      this.state = STATES.STARTING
+      this.emit('starting')
+      const release = await this.getLatestRelease()
+      this.release = release
+      const binaryPathDisk = await this.extractPackageBinaries(release)
 
-    debug('Start clef binary: ', binaryPathDisk)
+      debug('Start clef binary: ', binaryPathDisk)
 
-    // Flags
-    const flags = this.getClefFlags()
+      // Flags
+      const flags = this.getClefFlags()
 
-    const proc = spawn(binaryPathDisk, flags)
-    const { stdout, stderr, stdin } = proc
+      // Spawn
+      const proc = spawn(binaryPathDisk, flags)
 
-    proc.on('error', error => {
-      this.emit('error', error)
-      debug('Emit: error', error)
-      reject(error)
-    })
+      const { stdout, stderr, stdin } = proc
 
-    proc.on('close', code => {
-      if (code === 0) {
-        this.state = STATES.STOPPED
-        this.emit('stopped')
-        debug('Emit: stopped')
-        return
+      proc.on('error', error => {
+        this.emit('error', error)
+        debug('Emit: error', error)
+        reject(error)
+      })
+
+      proc.on('close', code => {
+        if (code === 0) {
+          this.state = STATES.STOPPED
+          this.emit('stopped')
+          debug('Emit: stopped')
+          return
+        }
+        // Closing with any code other than 0 means there was an error
+        const errorMessage = `Clef child process exited with code: ${code}`
+        this.STATE = STATES.ERROR
+        this.emit('error', errorMessage)
+        debug('Error: ', errorMessage)
+        debug('DEBUG Last 10 log lines: ', this.getLogs().slice(-10))
+        reject(errorMessage)
+      })
+
+      const onData = data => {
+        const log = data.toString()
+        this.logs.push(log)
+        this.emit('log', log)
+        debug('Data: ', log)
+        this.handleData(log)
+
+        if (log.includes('HTTP endpoint opened')) {
+          this.state = STATES.CONNECTED
+          this.emit('connect')
+          resolve()
+          debug('Emit: connect')
+        }
+        if (log.includes('HTTP endpoint closed')) {
+          this.state = STATES.STARTED
+          this.emit('disconnect')
+          debug('Emit: disconnect')
+        }
       }
-      // Closing with any code other than 0 means there was an error
-      const errorMessage = `Clef child process exited with code: ${code}`
-      this.STATE = STATES.ERROR
-      // this.emit('error', errorMessage)
-      debug('Error: ', errorMessage)
-      debug('DEBUG Last 10 log lines: ', this.getLogs().slice(-10))
-      // reject(errorMessage)
-    })
 
-    const onData = data => {
-      const log = data.toString()
-      this.logs.push(log)
-      this.emit('log', log)
-      debug('Data: ', log)
-      this.handleData(log)
-
-      if (log.includes('HTTP endpoint opened')) {
-        this.state = STATES.CONNECTED
-        this.emit('connect')
-        debug('Emit: connect')
+      const onStart = () => {
+        this.STATE = STATES.STARTED
+        this.emit('started')
+        debug('Emit: started')
       }
-    }
 
-    const onStart = () => {
-      this.STATE = STATES.STARTED
-      this.emit('started')
-      debug('Emit: started')
-    }
+      stderr.once('data', onStart.bind(this))
+      stdout.on('data', onData.bind(this))
+      stderr.on('data', onData.bind(this))
 
-    stdout.on('data', onData.bind(this))
-    stdout.once('data', onStart.bind(this))
-    stderr.on('data', onData.bind(this))
+      this.proc = proc
 
-    this.proc = proc
-
-    // setTimeout(() => {
-    //   // clef expects an 'ok' for early version
-    //   stdin.write('ok\n')
-    //   stdin.end()
-    // }, 3000)
+      // setTimeout(() => {
+      //   // clef expects an 'ok' for early version
+      //   stdin.write('ok\n')
+      //   stdin.end()
+      // }, 3000)
+    })
   }
 
   async stop() {
