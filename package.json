@@ -63,7 +63,7 @@
       "public/error.html",
       "Menu.js",
       "Rpc.js",
-      "ethereum_clients/geth.js",
+      "ethereum_clients/**/*.js",
       "*.asar",
       "*.zip"
     ],
