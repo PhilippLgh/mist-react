@@ -74,39 +74,6 @@ const defaultConfig = {
   chainId: 1
 }
 
-const clefHandlers = {
-  ui_approveTx: {
-    msg: () => 'Transaction Signing is awaiting review.',
-    ui: true
-  },
-  ui_approveSignData: {
-    msg: () => 'Message signing is awaiting review.',
-    ui: true
-  },
-  ui_approveListing: {
-    msg: () => 'Account listing is awaiting review.',
-    ui: true
-  },
-  ui_approveNewAccount: {
-    msg: () => 'New account request is awaiting review.',
-    ui: true
-  },
-  // These ones do not have a separate UI
-  ui_showInfo: { msg: data => data.params[0].text },
-  ui_showError: { msg: data => data.params[0].text },
-  ui_onApprovedTx: { msg: data => 'Signed ' + data.params[0].tx.hash },
-  ui_onSignerStartup: {
-    msg: data =>
-      'Clef is up. Web: ' +
-      data.params[0].info.extapi_http +
-      ' IPC:' +
-      data.params[0].info.extapi_ipc
-  },
-  ui_onInputRequired: {
-    msg: data => 'Input required:' + data.params[0].text
-  }
-}
-
 const clefUpdater = new AppManager({
   repository: 'https://gethstore.blob.core.windows.net',
   modifiers: {
@@ -146,7 +113,7 @@ class Clef extends EventEmitter {
 
   async getLatestRelease() {
     let release
-    // First, download or find the latest local binaries
+    // First, download or find the latest binary
     const cached = await clefUpdater.getLatestCached()
     if (cached) {
       release = cached
@@ -202,35 +169,80 @@ class Clef extends EventEmitter {
   }
 
   handleData(data) {
-    if (data.includes('error') || data.includes('fatal')) {
+    if (
+      data.toLowerCase().includes('error') ||
+      data.toLowerCase().includes('fatal')
+    ) {
       // this.emit('error', data)
     }
 
-    if (data.type !== 'request') {
-      debug('Non-request rpc: ', data)
+    if (data.charAt(0) !== '{') {
+      // Not JSON
       return
     }
 
-    let payload = data.payload
-    let handler = clefHandlers[payload.method]
-
-    if (handler) {
-      // notify(mainWindow, handler.msg(payload));
-      if (handler.ui) {
-        this.emit('approvalRequired', payload)
-      } else {
-        // ui_ShowInfo, ui_ShowError, ui_OnSignerStartup, ui_OnApprovedTx, ui_onUserInputReqiored
-        // TODO, display this 'immediately'
-        // In the case of user input required, we need to send a response,
-        // but for notifications, there's no need
-        if (payload.id) {
-          const message = { jsonrpc: '2.0', id: payload.id, result: true }
-          this.send(message)
-        }
-      }
-    } else {
-      throw new Error('Missing handler for method: ', payload.method)
+    let payload
+    try {
+      payload = JSON.parse(data)
+    } catch (error) {
+      debug('Error parsing incoming data to JSON: ', error)
     }
+
+    if (!payload) {
+      return
+    }
+
+    switch (payload.method) {
+      case 'ui_approveTx':
+        this.emit('approveTx', payload)
+        break
+      case 'ui_approveSignData':
+        this.emit('approveSignData', payload)
+        break
+      case 'ui_approveListing':
+        this.emit('approveListing', payload)
+        break
+      case 'ui_approveNewAccount':
+        this.emit('approveNewAccount', payload)
+        break
+      case 'ui_showInfo':
+        this.emit('showInfo', payload)
+        break
+      case 'ui_showError':
+        this.emit('showError', payload)
+        break
+      case 'ui_onApprovedTx':
+        this.emit('onApprovedTx', payload)
+        break
+      case 'ui_onSignerStartup':
+        this.emit('onSignerStartup', payload)
+        break
+      case 'ui_onInputRequired':
+        this.emit('onInputRequired', payload)
+        break
+      default:
+        if (payload.error) {
+          // this.emit('error', payload)
+        } else {
+          debug('Missing handler for method: ', payload.method)
+        }
+    }
+
+    // In the case of user input required, we need to send a response,
+    // but for notifications, there's no need
+    // if (
+    //   [
+    //     'ui_onInputRequired',
+    //     'ui_onSignerStartup',
+    //     'ui_onApprovedTx',
+    //     'ui_showError',
+    //     'ui_showInfo'
+    //   ].includes(payload.method) &&
+    //   payload.id
+    // ) {
+    //   const message = { jsonrpc: '2.0', id: payload.id, result: true }
+    //   this.send(message)
+    // }
   }
 
   getLogs() {
@@ -304,23 +316,26 @@ class Clef extends EventEmitter {
       })
 
       const onData = data => {
-        const log = data.toString()
-        this.logs.push(log)
-        this.emit('log', log)
-        debug('Data: ', log)
-        this.handleData(log)
+        const dataString = data.toString()
 
-        if (log.includes('HTTP endpoint opened')) {
-          this.state = STATES.CONNECTED
-          this.emit('connect')
-          resolve()
-          debug('Emit: connect')
+        // Multiple data may be included at once,
+        // so let's split it up
+        if (dataString.includes('\n')) {
+          const multiData = dataString.split('\n')
+          multiData.forEach(singleData => {
+            // Return if blank
+            if (singleData === '') {
+              return
+            }
+            onData(singleData)
+          })
+          return
         }
-        if (log.includes('HTTP endpoint closed')) {
-          this.state = STATES.STARTED
-          this.emit('disconnect')
-          debug('Emit: disconnect')
-        }
+
+        this.logs.push(dataString)
+        this.emit('log', dataString)
+        debug('Data: ', dataString)
+        this.handleData(dataString)
       }
 
       const onStart = () => {
@@ -329,7 +344,13 @@ class Clef extends EventEmitter {
         debug('Emit: started')
       }
 
+      const onError = error => {
+        const errorMessage = error.toString()
+        debug('Error: ', errorMessage)
+      }
+
       stderr.once('data', onStart.bind(this))
+      stderr.on('data', onError.bind(this))
       stdout.on('data', onData.bind(this))
       stderr.on('data', onData.bind(this))
 
@@ -371,7 +392,7 @@ class Clef extends EventEmitter {
     const message = JSON.stringify(data)
     this.proc.stdin.write(message)
     this.proc.stdin.write('\n')
-    debug('Message sent: ', data)
+    debug('Message sent: ', message)
   }
 }
 

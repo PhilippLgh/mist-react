@@ -1,0 +1,6 @@
+{
+  "jsonrpc": "2.0",
+  "method": "account_sign",
+  "params": ["0x694267f14675d7e1b9494fd8d72fefe1755710fa", "0xdeadbeef"],
+  "id": 67
+}
