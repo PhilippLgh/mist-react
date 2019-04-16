@@ -85,7 +85,7 @@ class ControlledProcess extends EventEmitter {
           .trim('\n')
           .split('\n')
         this.appendLogs(logLines)
-        this.emit('log', logLines)
+        logLines.map(l => this.emit('log', l))
       }
 
       stderr.once('data', onStart.bind(this))
