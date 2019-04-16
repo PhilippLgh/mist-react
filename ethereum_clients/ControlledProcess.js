@@ -80,9 +80,12 @@ class ControlledProcess extends EventEmitter {
       }
 
       const onData = data => {
-        const log = data.toString()
-        this.logs.push(log)
-        this.emit('log', log)
+        const logLines = data
+          .toString()
+          .trim('\n')
+          .split('\n')
+        this.appendLogs(logLines)
+        this.emit('log', logLines)
       }
 
       stderr.once('data', onStart.bind(this))
@@ -113,6 +116,9 @@ class ControlledProcess extends EventEmitter {
   }
   getLogs() {
     return this.logs
+  }
+  appendLogs(lines) {
+    this.logs = this.logs.concat(lines)
   }
   async restart() {
     await this.stop()
