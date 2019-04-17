@@ -112,7 +112,7 @@ class ControlledProcess extends EventEmitter {
           let parts = log.split(/\r|\n/)
           parts = parts.filter(p => p !== '')
           this.logs.push(...parts)
-          this.emit('log', log)
+          parts.map(l => this.emit('log', l))
         }
       }
 
