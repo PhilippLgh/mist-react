@@ -55,8 +55,8 @@ module.exports = {
   },
   filter: {
     name: {
-      excludes: ['unstable', 'alltools', 'swarm'],
-      includes: [platform]
+      includes: [platform],
+      excludes: ['unstable', 'alltools', 'swarm']
     }
   },
   prefix: `geth-${platform}`,
@@ -80,26 +80,40 @@ module.exports = {
       '--rinkeby': '',
       '--ws --wsaddr': 'string',
       '--wsport': 'number'
+    }
+  },
+  settings: {
+    dataDir: {
+      default: '~/Library/Ethereum/',
+      label: 'Data Directory',
+      flag: '--datadir %s',
+      type: 'path'
     },
-    settings: {
-      dataDir: {
-        default: dataDir,
-        label: 'Data Directory',
-        flag: '--datadir %s'
-      },
-      ipc: {
-        default: 'ipc'
-        // options: [ {k: 'websockets', v: 'WebSockets', flag: '--ws --wsaddr %s --wsport'}, ]
-      },
-      network: {
-        default: '',
-        options: ['', '--testnet', '--rinkeby']
-      },
-      syncMode: {
-        default: 'light',
-        options: ['fast', 'full', 'light'],
-        flag: '--syncmode "%s"'
-      }
+    ipc: {
+      default: 'ipc',
+      label: 'IPC',
+      options: [
+        {
+          value: 'websockets',
+          label: 'WebSockets',
+          flag: '--ws --wsaddr %s --wsport 8586'
+        },
+        { value: 'ipc', label: 'IPC', flag: '--rpc' }
+      ]
+    },
+    network: {
+      default: 'main',
+      options: [
+        { value: 'main', label: 'Main', flag: '' },
+        { value: 'ropsten', label: 'Ropsten (testnet)', flag: '--testnet' },
+        { value: 'rinkeby', label: 'Rinkeby (testnet)', flag: '--rinkeby' }
+      ]
+    },
+    syncMode: {
+      default: 'light',
+      label: 'Sync Mode',
+      options: ['fast', 'full', 'light'],
+      flag: '--syncmode "%s"'
     }
   }
 }
