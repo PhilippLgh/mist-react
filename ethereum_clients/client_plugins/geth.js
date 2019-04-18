@@ -80,6 +80,26 @@ module.exports = {
       '--rinkeby': '',
       '--ws --wsaddr': 'string',
       '--wsport': 'number'
+    },
+    settings: {
+      dataDir: {
+        default: dataDir,
+        label: 'Data Directory',
+        flag: '--datadir %s'
+      },
+      ipc: {
+        default: 'ipc'
+        // options: [ {k: 'websockets', v: 'WebSockets', flag: '--ws --wsaddr %s --wsport'}, ]
+      },
+      network: {
+        default: '',
+        options: ['', '--testnet', '--rinkeby']
+      },
+      syncMode: {
+        default: 'light',
+        options: ['fast', 'full', 'light'],
+        flag: '--syncmode "%s"'
+      }
     }
   }
 }
