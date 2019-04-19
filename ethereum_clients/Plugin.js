@@ -88,20 +88,38 @@ class Plugin {
     console.warn('no binary found for', release)
     return {}
   }
+
+  generateFlags(userConfig, nodeSettings) {
+    const userConfigEntries = Object.keys(userConfig)
+    console.log('userConfigEntries', userConfigEntries)
+    let flags = []
+    userConfigEntries.map(e => {
+      let flag
+      // ruling out userConfigs not in nodeSettings
+      if (!(e in nodeSettings)) return
+
+      let flagStr = nodeSettings[e].flag
+      if (flagStr) {
+        flag = flagStr.replace(/%s/, userConfig[e]).split(' ')
+      } else if (nodeSettings[e].options) {
+        const options = nodeSettings[e].options
+        const selectedOption = options.find(f => f.value === userConfig[e])
+        flag = selectedOption.flag.replace(/%s/, userConfig[e]).split(' ')
+        console.log('selectedOption', selectedOption)
+        console.log('userConfig[e]', userConfig[e])
+      }
+      console.log('flag', flag)
+
+      flags = flags.concat(flag)
+    })
+
+    return flags.filter(e => e.length > 0)
+  }
+
   async start(release, config, emitter) {
     // TODO do flag validation here based on proxy metadata
-    const flags = []
-    try {
-      for (var flag in config) {
-        let val = config[flag]
-        // TODO plugin needs to tell plugin host flag format? e.g. network=1 vs --network 1
-        flags.push(`${flag}`)
-        flags.push(`${val}`)
-      }
-      console.log('start with flags: ', flags)
-    } catch (error) {
-      console.log('error in flag conversion', error)
-    }
+
+    const flags = this.generateFlags(config, emitter.plugin.config.settings)
 
     const { binaryPath, packagePath } = await this.getLocalBinary(release)
     console.log(

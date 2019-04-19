@@ -64,13 +64,12 @@ module.exports = {
   resolveIpc: logs => findIpcPathInLogs(logs),
   config: {
     default: {
-      name: 'default',
       dataDir,
-      host: 'localhost',
-      port: 8546,
+      api: 'ipc',
       network: 'main',
       syncMode: 'light',
-      ipc: 'ipc'
+      ipc: 'ipc',
+      cache: '2048'
     },
     flags: {
       '--datadir': 'path',
@@ -89,16 +88,13 @@ module.exports = {
       flag: '--datadir %s',
       type: 'path'
     },
-    ipc: {
+    api: {
       default: 'ipc',
-      label: 'IPC',
+      label: 'API',
       options: [
-        {
-          value: 'websockets',
-          label: 'WebSockets',
-          flag: '--ws --wsaddr %s --wsport 8586'
-        },
-        { value: 'ipc', label: 'IPC', flag: '--rpc' }
+        { value: 'ipc', label: 'IPC', flag: '' },
+        { value: 'websockets', label: 'WebSockets', flag: '--ws' },
+        { value: 'rpc', label: 'RPC HTTP', flag: '--rpc' }
       ]
     },
     network: {
@@ -113,7 +109,12 @@ module.exports = {
       default: 'light',
       label: 'Sync Mode',
       options: ['fast', 'full', 'light'],
-      flag: '--syncmode "%s"'
+      flag: '--syncmode %s'
+    },
+    cache: {
+      default: '2048',
+      label: 'Cache',
+      flag: '--cache %s'
     }
   }
 }
