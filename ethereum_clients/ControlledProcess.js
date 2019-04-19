@@ -42,6 +42,7 @@ class ControlledProcess extends EventEmitter {
       this.emit('starting')
       this.debug('Emit: starting')
       this.debug('Start: ', this.binaryPath)
+      this.debug('Flags: ', flags)
 
       flags = flags || []
 

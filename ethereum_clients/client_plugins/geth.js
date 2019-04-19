@@ -83,7 +83,7 @@ module.exports = {
   },
   settings: {
     dataDir: {
-      default: '~/Library/Ethereum/',
+      default: dataDir,
       label: 'Data Directory',
       flag: '--datadir %s',
       type: 'path'

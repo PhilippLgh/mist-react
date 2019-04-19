@@ -7,12 +7,18 @@ module.exports = {
   repository: 'https://github.com/PhilippLgh/EthCapetownWorkshop',
   prefix: `${process.platform}`, // filter github assets
   binaryName: process.platform === 'win32' ? 'parity.exe' : 'parity',
+  config: {
+    default: {
+      network: 'mainnet',
+      syncMode: 'warp'
+    }
+  },
   settings: {
     network: {
       label: 'Network',
       default: 'mainnet',
       options: [
-        { value: 'mainnet', label: 'Main', flag: '--chain main' },
+        { value: 'mainnet', label: 'Main', flag: '--chain mainnet' },
         {
           value: 'ropsten',
           label: 'Ropsten (testnet)',
@@ -26,7 +32,7 @@ module.exports = {
       label: 'Sync Mode',
       default: 'warp',
       options: [
-        { value: 'warp', label: 'Warp', flag: '--warp' },
+        { value: 'warp', label: 'Warp', flag: '' },
         { value: 'light', label: 'Light', flag: '--light' },
         { value: 'nowarp', label: 'Full', flag: '--no-warp' }
       ]
