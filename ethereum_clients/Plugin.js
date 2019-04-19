@@ -28,6 +28,9 @@ class Plugin {
   get displayName() {
     return this.config.displayName
   }
+  get defaultConfig() {
+    return this.config.config.default
+  }
   get state() {
     // FIXME ugly
     return this.process ? this.process.state : 'STOPPED'
@@ -134,7 +137,7 @@ class Plugin {
       let eventTypes = [
         'starting',
         'started',
-        'connect',
+        'connected',
         'error',
         'stopped',
         'log'
@@ -202,6 +205,9 @@ class PluginProxy extends EventEmitter {
   get state() {
     return this.plugin.state
   }
+  get config() {
+    return this.plugin.defaultConfig
+  }
   get isRunning() {
     return this.plugin.isRunning
   }
@@ -211,10 +217,11 @@ class PluginProxy extends EventEmitter {
   getLogs() {
     return this.plugin.getLogs()
   }
+  // FIXME doesn't handle corrupted packages well
   getReleases() {
     return this.plugin.getReleases()
   }
-  download(release, onProgress) {
+  download(release, onProgress = () => {}) {
     return this.plugin.download(release, progress => {
       onProgress(progress)
     })

@@ -11,7 +11,7 @@
     "start:prod": "cross-env NODE_ENV=production electron .",
     "start:dev": "cross-env NODE_ENV=development electron .",
     "start:dev:verbose": "cross-env NODE_ENV=development DEBUG=geth-js electron .",
-    "start:clef": "cross-env NODE_ENV=development node ./ethereum_clients/clef.js",
+    "test:parity": "cross-env NODE_ENV=test mocha ./test/parity_test.js",
     "test": "cross-env NODE_ENV=test mocha ./test",
     "test:watch": "cross-env NODE_ENV=test mocha ./test --watch",
     "prepare-release": "node ./scripts/copyApp.js",

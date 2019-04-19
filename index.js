@@ -7,6 +7,8 @@ const createRenderer = require('./electron-shell')
 const { setupRpc } = require('./Rpc')
 const { getMenuTemplate } = require('./Menu')
 
+const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
+
 const log = {
   dev: require('debug')('dev'),
   appManager: {
@@ -182,7 +184,7 @@ const startUI = async () => {
 
 // ########## MAIN APP ENTRY POINT #########
 const onReady = async () => {
-  require('./ethereum_clients/PluginHost')
+  registerGlobalPluginHost()
 
   // 1. start UI for quick user-feedback without long init procedures
   await startUI()

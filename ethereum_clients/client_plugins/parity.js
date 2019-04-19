@@ -1,3 +1,25 @@
+const HOME = require('os').homedir()
+let BASE
+switch (process.platform) {
+  case 'win32': {
+    BASE = `${process.env.USERPROFILE}/AppData/Roaming/Parity/Ethereum`
+    break
+  }
+  case 'linux': {
+    BASE = '~/.local/share/io.parity.ethereum'
+    break
+  }
+  case 'darwin': {
+    // WARNING don't just use ~/Library/.. here
+    BASE = `${HOME}/Library/Application Support/io.parity.ethereum`
+    break
+  }
+  default: {
+  }
+}
+
+const IPC_PATH = `${BASE}/jsonrpc.ipc`
+
 module.exports = {
   type: 'client',
   order: 2,
@@ -36,6 +58,12 @@ module.exports = {
         { value: 'light', label: 'Light', flag: '--light' },
         { value: 'nowarp', label: 'Full', flag: '--no-warp' }
       ]
+    },
+    ipcPath: {
+      label: 'IPC Path',
+      default: IPC_PATH,
+      flag: '--ipc-path %s'
     }
-  }
+  },
+  resolveIpc: logs => IPC_PATH,
 }
