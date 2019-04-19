@@ -37,6 +37,9 @@ class PluginHost {
   getAllPlugins() {
     return this.plugins.map(p => new PluginProxy(p))
   }
+  getPluginByName(name) {
+    return this.getAllPlugins().find(p => p.name === name)
+  }
   start(name) {
     console.log('start plugin', name)
   }
@@ -45,4 +48,10 @@ class PluginHost {
   }
 }
 
-global.PluginHost = new PluginHost()
+const registerGlobalPluginHost = () => {
+  global.PluginHost = new PluginHost()
+}
+
+module.exports.registerGlobalPluginHost = registerGlobalPluginHost
+
+module.exports.PluginHost = PluginHost

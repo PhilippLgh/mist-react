@@ -112,7 +112,7 @@ class ControlledProcess extends EventEmitter {
           let parts = log.split(/\r|\n/)
           parts = parts.filter(p => p !== '')
           this.logs.push(...parts)
-          this.emit('log', log)
+          parts.map(l => this.emit('log', l))
         }
       }
 
@@ -151,8 +151,8 @@ class ControlledProcess extends EventEmitter {
 
       const onIpcConnect = () => {
         this.state = STATES.CONNECTED
-        this.emit('connect')
-        this.debug('Emit: connect')
+        this.emit('connected')
+        this.debug('Emit: connected')
         resolve(this.state)
         this.debug('IPC Connected')
       }
