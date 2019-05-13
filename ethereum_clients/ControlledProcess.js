@@ -198,23 +198,29 @@ class ControlledProcess extends EventEmitter {
       this.ipc.on('data', this.onIpcData.bind(this))
     })
   }
-  onIpcData(data) {
-    if (!data) {
-      return
+  async onIpcData(data) {
+    if (!data) return
+    if (this.incompleteData) {
+      data = this.partialData.concat(data.toString())
+      console.log('∆∆∆ concatting partialData', data)
     }
 
-    this.debug('IPC data: ', data.toString())
+    // this.debug('IPC data: ', data.toString())
     let message
     try {
       message = JSON.parse(data.toString())
+      if (this.partialData) {
+        console.log('∆∆∆ clearing partialData')
+        this.partialData = null
+      }
     } catch (error) {
-      this.debug('Error parsing JSON: ', error)
+      // this.debug('Error parsing JSON: ', error)
+      // TODO: handle multiple clients
+      this.partialData = data.toString()
     }
 
     // Return if not a jsonrpc response
-    if (!message || !message.jsonrpc) {
-      return
-    }
+    if (!message || !message.jsonrpc) return
 
     const { id, method, result } = message
 
@@ -232,13 +238,10 @@ class ControlledProcess extends EventEmitter {
         delete this.responsePromises[id]
       }
     } else {
-      // FIXME hardcoded business logic
-      if (method && method.includes('_subscription')) {
-        // Emit subscription notification
-        const { params } = message
-        const { subscription: subscriptionId } = params
-        this.emit(subscriptionId, params)
-      }
+      // All other messages grouped into 'notification' category
+      // It is the responsibility of the UI to filter for ID
+      const { params } = message
+      this.emit('notification', params)
     }
   }
   // private low level ipc
