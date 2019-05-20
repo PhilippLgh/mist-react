@@ -126,6 +126,7 @@ class PluginHost extends EventEmitter {
         }
         return undefined
       } catch (error) {
+        const { name: pluginName } = pluginShortInfo
         console.log(
           `error: remote plugin ${pluginName} could not be loaded`,
           error
