@@ -74,7 +74,7 @@ test('As a user, I want to configure Geth settings', async t => {
   await versionList.waitUntilVersionSelected(0)
 
   await clientAppBar.settings.click()
-  await settings.getInput('dataDir').setValue('/tmp/datadir')
+  await settings.getPathInput('dataDir').setValue('/tmp/datadir')
   await settings.getInput('cache').setValue('1337')
   await settings.chooseSelectOption('syncMode', 'light')
   await settings.chooseSelectOption('api', 'websockets')

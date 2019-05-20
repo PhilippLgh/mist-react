@@ -7,6 +7,10 @@ class ClientSettingsForm {
     return this.client.element(`[data-test-id=input-text-${name}] input`)
   }
 
+  getPathInput(name) {
+    return this.client.element(`[data-test-id=input-path-${name}] input`)
+  }
+
   getSelect(name) {
     return this.client.element(`[data-test-id=input-select-${name}] [role=button]`)
   }
