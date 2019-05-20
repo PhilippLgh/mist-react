@@ -62,33 +62,16 @@ module.exports = {
   prefix: `geth-${platform}`,
   binaryName: process.platform === 'win32' ? 'geth.exe' : 'geth',
   resolveIpc: logs => findIpcPathInLogs(logs),
-  config: {
-    default: {
-      dataDir,
-      api: 'ipc',
-      network: 'main',
-      syncMode: 'light',
-      ipc: 'ipc',
-      cache: '2048'
-    },
-    flags: {
-      '--datadir': 'path',
-      '--syncmode': ['fast', 'light', 'full'],
-      '--networkid': 'number',
-      '--testnet': '',
-      '--rinkeby': '',
-      '--ws --wsaddr': 'string',
-      '--wsport': 'number'
-    }
-  },
-  settings: {
-    dataDir: {
+  settings: [
+    {
+      id: 'dataDir',
       default: dataDir,
       label: 'Data Directory',
       flag: '--datadir %s',
       type: 'path'
     },
-    api: {
+    {
+      id: 'api',
       default: 'ipc',
       label: 'API',
       options: [
@@ -97,7 +80,8 @@ module.exports = {
         { value: 'rpc', label: 'RPC HTTP', flag: '--rpc' }
       ]
     },
-    network: {
+    {
+      id: 'network',
       default: 'main',
       options: [
         { value: 'main', label: 'Main', flag: '' },
@@ -105,16 +89,18 @@ module.exports = {
         { value: 'rinkeby', label: 'Rinkeby (testnet)', flag: '--rinkeby' }
       ]
     },
-    syncMode: {
+    {
+      id: 'syncMode',
       default: 'light',
       label: 'Sync Mode',
       options: ['fast', 'full', 'light'],
       flag: '--syncmode %s'
     },
-    cache: {
+    {
+      id: 'cache',
       default: '2048',
       label: 'Cache',
       flag: '--cache %s'
     }
-  }
+  ]
 }

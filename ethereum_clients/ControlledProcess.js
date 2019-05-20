@@ -21,6 +21,7 @@ class ControlledProcess extends EventEmitter {
     this.resolveIpc = resolveIpc
     this.debug = console.log // debug(name)
     this.ipc = undefined
+    this.stdin = undefined
     this.logs = []
     this._state = STATES.STOPPED
     this.responsePromises = []
@@ -48,7 +49,8 @@ class ControlledProcess extends EventEmitter {
 
       // Spawn process
       const proc = spawn(this.binaryPath, flags)
-      const { stdout, stderr } = proc
+      const { stdout, stderr, stdin } = proc
+      this.stdin = stdin
 
       proc.on('error', error => {
         this.state = STATES.ERROR

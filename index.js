@@ -184,9 +184,12 @@ const startUI = async () => {
 
 // ########## MAIN APP ENTRY POINT #########
 const onReady = async () => {
-  registerGlobalPluginHost()
+  const pluginHost = registerGlobalPluginHost()
 
-  // 1. start UI for quick user-feedback without long init procedures
-  await startUI()
+  pluginHost.on('plugins-loaded', async () => {
+    // FIXME don't defer start
+    // 1. start UI for quick user-feedback without long init procedures
+    await startUI()
+  })
 }
 app.once('ready', onReady)
