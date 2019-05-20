@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { EventEmitter } = require('events')
-const { getBinaryUpdater } = require('./util')
+const { getBinaryUpdater, generateFlags } = require('./util')
 const ControlledProcess = require('./ControlledProcess')
 
 let rpcId = 1
@@ -157,37 +157,10 @@ class Plugin extends EventEmitter {
     return {}
   }
 
-  generateFlags(userConfig, nodeSettings) {
-    const userConfigEntries = Object.keys(userConfig)
-    console.log('userConfigEntries', userConfigEntries)
-    let flags = []
-    userConfigEntries.map(e => {
-      let flag
-      // ruling out userConfigs not in nodeSettings
-      if (!(e in nodeSettings)) return
-
-      let flagStr = nodeSettings[e].flag
-      if (flagStr) {
-        flag = flagStr.replace(/%s/, userConfig[e]).split(' ')
-      } else if (nodeSettings[e].options) {
-        const options = nodeSettings[e].options
-        const selectedOption = options.find(f => f.value === userConfig[e])
-        flag = selectedOption.flag.replace(/%s/, userConfig[e]).split(' ')
-        console.log('selectedOption', selectedOption)
-        console.log('userConfig[e]', userConfig[e])
-      }
-      console.log('flag', flag)
-
-      flags = flags.concat(flag)
-    })
-
-    return flags.filter(e => e.length > 0)
-  }
-
   async start(release, config) {
     // TODO do flag validation here based on proxy metadata
 
-    const flags = this.generateFlags(config, this.config.settings)
+    const flags = generateFlags(config, this.config.settings)
 
     const { binaryPath, packagePath } = await this.getLocalBinary(release)
     console.log(

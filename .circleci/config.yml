@@ -41,6 +41,9 @@ aliases:
   - &install
     run: yarn install
 
+  - &test
+    run: yarn test:settings
+
   - &run_script
     run: yarn release --$GRID_ENV
   
@@ -49,6 +52,7 @@ aliases:
       - checkout
       - *restore_modules_cache
       - *install
+      - *test 
       - *run_script
       - *save_modules_cache
       - *before_store_artifacts

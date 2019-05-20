@@ -14,6 +14,7 @@
     "test:parity": "cross-env NODE_ENV=test mocha ./test/parity_test.js",
     "test": "cross-env NODE_ENV=test mocha ./test",
     "test:watch": "cross-env NODE_ENV=test mocha ./test --watch",
+    "test:settings": "cross-env NODE_ENV=test mocha ./test/settings.test.js",
     "prepare-release": "node ./scripts/copyApp.js",
     "build": "yarn run prepare-release && build",
     "release": "env-cmd .env build"

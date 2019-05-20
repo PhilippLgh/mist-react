@@ -35,8 +35,9 @@ module.exports = {
       syncMode: 'warp'
     }
   },
-  settings: {
-    network: {
+  settings: [
+    {
+      id: 'network',
       label: 'Network',
       default: 'mainnet',
       options: [
@@ -50,7 +51,8 @@ module.exports = {
         { value: 'classic', label: 'Ethereum Classic', flag: '--chain classic' }
       ]
     },
-    syncMode: {
+    {
+      id: 'syncMode',
       label: 'Sync Mode',
       default: 'warp',
       options: [
@@ -59,11 +61,13 @@ module.exports = {
         { value: 'nowarp', label: 'Full', flag: '--no-warp' }
       ]
     },
-    ipcPath: {
+    {
+      id: 'ipcPath',
+      type: 'path',
       label: 'IPC Path',
       default: IPC_PATH,
       flag: '--ipc-path %s'
     }
-  },
-  resolveIpc: logs => IPC_PATH,
+  ],
+  resolveIpc: logs => IPC_PATH
 }
