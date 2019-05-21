@@ -51,8 +51,8 @@ aliases:
   - &install
     run: node --version && yarn install
 
-  - &test
-    run: yarn test:settings
+  - &test #run: yarn test
+
 
   - &test_e2e
     run: yarn test:e2e -s
