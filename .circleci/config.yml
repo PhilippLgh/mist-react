@@ -81,7 +81,6 @@ aliases:
       # - run: source ~/.bashrc && source ~/.bash_profile
       - run: node -v
       - run: nvm --version
-      - run: nvm list
       - run: nvm install 8.11
       - run: nvm alias default 8.11
       - run: node -v
