@@ -73,9 +73,18 @@ aliases:
     steps:
       - checkout
       - run: node --version
-      - *node_installation
-      - run: source ~/.bashrc && source ~/.bash_profile
-      - run: nvm use 8.11
+      - run: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+            echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
+
+      # - run: source ~/.bashrc && source ~/.bash_profile
+      - run: |
+            node -v
+            nvm install v8.11
+            nvm alias default 8.11
+            node -v
+            
       - *upgrade_yarn
       - run: source ~/.bashrc
       - *restore_modules_cache
