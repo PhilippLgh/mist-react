@@ -1,5 +1,6 @@
 import * as path from 'path'
 import fs from 'fs'
+import rimraf from 'rimraf'
 
 const rmGethDir = function () {
   try {
@@ -11,6 +12,10 @@ const rmGethDir = function () {
   }
 }
 
+const clearBinDir = function () {
+  rimraf.sync('./ethereum_clients/bin_*')
+}
+
 const delay = time => new Promise(resolve => setTimeout(resolve, time));
 
-export default rmGethDir
+export { rmGethDir, clearBinDir }

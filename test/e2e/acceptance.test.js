@@ -3,7 +3,7 @@ import ApplicationFactory from './_ApplicationFactory'
 import ClientAppBar from './_ClientAppBar'
 import MainAppBar from './_MainAppBar'
 import VersionList from './_VersionList'
-import rmGethDir from './_TestUtils'
+import { rmGethDir, clearBinDir } from './_TestUtils'
 import Node from './_Node'
 import ClientSettingsForm from './_ClientSettingsForm'
 import {getProcess, getProcessFlags} from './_ProcessMatcher'
@@ -17,7 +17,8 @@ const init = async function(t) {
 }
 
 test.beforeEach(async t => {
-  rmGethDir()
+  // rmGethDir()
+  clearBinDir()
 
   t.context.app = ApplicationFactory.development()
 
