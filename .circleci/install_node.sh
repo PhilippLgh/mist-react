@@ -1,4 +1,5 @@
 # https://nodejs.org/en/download/package-manager/#macos
+set -e
 
 if [[ $CIRCLE_JOB == 'build-mac' ]]
 then
@@ -9,8 +10,6 @@ then
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
   nvm install 8.11
 
-  curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version=1.15.2
-  source ~/.bashrc
 fi;
 
 echo `node --version`

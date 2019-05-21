@@ -31,7 +31,12 @@ aliases:
   - &node_installation
     run:
       name: "Update Node.js and npm if on MacOS"
-      command: source .circleci/install_node.sh
+      command: .circleci/install_node.sh
+
+  - &upgrade_yarn
+    run:
+      name: "Updates yarn"
+      command: .circleci/upgrade_yarn.sh
 
   # Custom task removes unnecessary build files before uploading release directory
   - &before_store_artifacts
@@ -57,6 +62,9 @@ aliases:
       - checkout
       - run: node --version
       - *node_installation
+      - run: source ~/.bashrc
+      - *upgrade_yarn
+      - run: source ~/.bashrc
       - *restore_modules_cache
       - *install
       - *test
