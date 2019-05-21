@@ -113,7 +113,7 @@ jobs:
 
   build-mac:
     macos:
-      xcode: '9.0'
+      xcode: '10.0'
     environment:
       GRID_ENV: mac
     working_directory: ~/repo
