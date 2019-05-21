@@ -143,6 +143,7 @@ test('As a user, I want to have the connection details remembered', async t => {
   t.is(dataDirValue, '/tmp/ac5718')
 })
 
+
 // OK - As a user, I want to download a geth node
 // OK - As a user, I want to start/stop my geth node from the app UI. #38
 // OK - As a user, I want to configure my node settings and options easily. #37
@@ -157,8 +158,10 @@ test('As a user, I want to have the connection details remembered', async t => {
 // Should be tested
 // As a user, I want to download codesigned applications, so it works without nasty warnings on my OS #114
 
-// Spectron menu plugin needed
 // As a developer, I want to test Grid-UI build channels from the Grid [shell] interface, so we can ensure app quality standards #87
+// - Spectron menu plugin
+// - Retrieve grid-ui version from renderer process
 
-// MOCK NEEDED
 // As a user, I want to be reminded of updates on the app itself, so I can get latest features and fixes. #33
+// - mock updater
+//

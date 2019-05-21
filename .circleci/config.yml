@@ -55,10 +55,10 @@ aliases:
   - &run_steps
     steps:
       - checkout
-      # - *node_installation
+      - *node_installation
       - *restore_modules_cache
       - *install
-      - *test 
+      - *test
       - *run_script
       - *save_modules_cache
       - *before_store_artifacts
@@ -72,7 +72,6 @@ jobs:
       GRID_ENV: linux
     working_directory: ~/repo
     <<: *run_steps
-
 
   build-win:
     docker:
@@ -89,7 +88,6 @@ jobs:
       GRID_ENV: mac
     working_directory: ~/repo
     <<: *run_steps
-
 
 workflows:
   version: 2
