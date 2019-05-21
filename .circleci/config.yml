@@ -74,7 +74,7 @@ aliases:
       - checkout
       - run: node --version
       - *node_installation
-      - run: source ~/.bashrc
+      - run: source ~/.bashrc && source ~/.bash_profile
       - run: nvm use 8.11
       - *upgrade_yarn
       - run: source ~/.bashrc
