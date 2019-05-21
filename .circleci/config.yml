@@ -96,7 +96,7 @@ jobs:
     environment:
       GRID_ENV: mac
     working_directory: ~/repo
-    <<: *run_steps_mac
+    <<: *run_steps
 
 workflows:
   version: 2
