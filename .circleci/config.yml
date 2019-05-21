@@ -54,41 +54,20 @@ aliases:
   - &test
     run: yarn test:settings
 
+  - &test_e2e
+    run: yarn test:e2e
+
   - &run_script
     run: yarn release --$GRID_ENV
 
   - &run_steps
     steps:
       - checkout
-      - *node_installation
+      - run: node -v
       - *restore_modules_cache
       - *install
       - *test
-      - *run_script
-      - *save_modules_cache
-      - *before_store_artifacts
-      - *upload_artifacts
-
-  - &run_steps_mac
-    steps:
-      - checkout
-      - run: node --version
-      - run: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
-            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
-            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
-
-      # - run: source ~/.bashrc && source ~/.bash_profile
-      - run: node -v
-      - run: nvm --version
-      - run: nvm install 8.11
-      - run: nvm alias default 8.11
-      - run: node -v
-      - *upgrade_yarn
-      - run: source ~/.bashrc
-      - *restore_modules_cache
-      - *install
-      - *test
+      - *test_e2e
       - *run_script
       - *save_modules_cache
       - *before_store_artifacts
