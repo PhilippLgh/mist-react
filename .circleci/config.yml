@@ -55,7 +55,7 @@ aliases:
     run: yarn test:settings
 
   - &test_e2e
-    run: yarn test:e2e
+    run: yarn test:e2e -s
 
   - &run_script
     run: yarn release --$GRID_ENV
@@ -67,7 +67,7 @@ aliases:
       - *restore_modules_cache
       - *install
       - *test
-      - *test_e2e
+      # - *test_e2e
       - *run_script
       - *save_modules_cache
       - *before_store_artifacts
