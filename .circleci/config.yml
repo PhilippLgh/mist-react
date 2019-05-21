@@ -79,12 +79,10 @@ aliases:
             echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
 
       # - run: source ~/.bashrc && source ~/.bash_profile
-      - run: |
-            node -v
-            nvm install v8.11
-            nvm alias default 8.11
-            node -v
-            
+      - run: node -v
+      - run: nvm install v8.11
+      - run: nvm alias default v8.11
+      - run: node -v             
       - *upgrade_yarn
       - run: source ~/.bashrc
       - *restore_modules_cache
