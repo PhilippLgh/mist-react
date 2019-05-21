@@ -29,12 +29,6 @@ module.exports = {
   repository: 'https://github.com/PhilippLgh/EthCapetownWorkshop',
   prefix: `${process.platform}`, // filter github assets
   binaryName: process.platform === 'win32' ? 'parity.exe' : 'parity',
-  config: {
-    default: {
-      network: 'mainnet',
-      syncMode: 'warp'
-    }
-  },
   settings: [
     {
       id: 'network',
