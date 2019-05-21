@@ -44,7 +44,7 @@ aliases:
       path: release/
 
   - &install
-    run: yarn install
+    run: node --version && yarn install
 
   - &test
     run: yarn test:settings
@@ -55,6 +55,7 @@ aliases:
   - &run_steps
     steps:
       - checkout
+      - node --version
       - *node_installation
       - *restore_modules_cache
       - *install
