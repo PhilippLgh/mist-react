@@ -47,6 +47,10 @@ class ControlledProcess extends EventEmitter {
 
       flags = flags || []
 
+      // Add start cmd to logs
+      const cmd = `${this.binaryPath} ${flags.join(' ')}`
+      this.logs.push(cmd)
+
       // Spawn process
       const proc = spawn(this.binaryPath, flags)
       const { stdout, stderr, stdin } = proc
