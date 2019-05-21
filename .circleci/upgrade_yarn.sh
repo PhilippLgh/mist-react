@@ -1,4 +1,5 @@
-# https://nodejs.org/en/download/package-manager/#macos
+#!/bin/bash
+set -x
 
 if [[ $CIRCLE_JOB == 'build-mac' ]]
 then

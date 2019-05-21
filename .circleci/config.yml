@@ -60,9 +60,22 @@ aliases:
   - &run_steps
     steps:
       - checkout
+      - *node_installation
+      - *restore_modules_cache
+      - *install
+      - *test
+      - *run_script
+      - *save_modules_cache
+      - *before_store_artifacts
+      - *upload_artifacts
+
+  - &run_steps_mac
+    steps:
+      - checkout
       - run: node --version
       - *node_installation
       - run: source ~/.bashrc
+      - run: nvm use 8.11
       - *upgrade_yarn
       - run: source ~/.bashrc
       - *restore_modules_cache
@@ -96,7 +109,7 @@ jobs:
     environment:
       GRID_ENV: mac
     working_directory: ~/repo
-    <<: *run_steps
+    <<: *run_steps_mac
 
 workflows:
   version: 2
