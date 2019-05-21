@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { EventEmitter } = require('events')
-const { getBinaryUpdater, generateFlags } = require('./util')
+const { getBinaryUpdater } = require('./util')
 const ControlledProcess = require('./ControlledProcess')
 
 let rpcId = 1
@@ -157,10 +157,8 @@ class Plugin extends EventEmitter {
     return {}
   }
 
-  async start(release, config) {
+  async start(release, flags, config) {
     // TODO do flag validation here based on proxy metadata
-
-    const flags = generateFlags(config, this.config.settings)
 
     const { binaryPath, packagePath } = await this.getLocalBinary(release)
     console.log(

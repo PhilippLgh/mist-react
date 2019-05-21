@@ -85,44 +85,7 @@ const getBinaryUpdater = (repo, name, filter, prefix, cachePath) => {
   })
 }
 
-const generateFlags = (userConfig, nodeSettings) => {
-  if (!Array.isArray(nodeSettings)) throw 'Settings must be an Array instance'
-
-  const userConfigEntries = Object.keys(userConfig)
-
-  let flags = []
-
-  userConfigEntries.map(e => {
-    let flag
-    let configEntry = nodeSettings.find(s => s.id === e)
-    let flagStr = configEntry.flag
-
-    if (flagStr) {
-      flag = flagStr.replace(/%s/, userConfig[e]).split(' ')
-    } else if (configEntry.options) {
-      const options = configEntry.options
-      const selectedOption = options.find(
-        f => userConfig[e] === f.value || userConfig[e] === f
-      )
-
-      if (typeof selectedOption['flag'] !== 'string') {
-        throw `Option "${selectedOption.value ||
-          selectedOption}" must have the "flag" key`
-      }
-
-      flag = selectedOption.flag.replace(/%s/, userConfig[e]).split(' ')
-    } else {
-      throw `Config entry "${e}" must have the "flag" key`
-    }
-
-    flags = flags.concat(flag)
-  })
-
-  return flags.filter(e => e.length > 0)
-}
-
 module.exports = {
-  generateFlags,
   getCachePath,
   getPluginCachePath,
   getBinaryUpdater
