@@ -9,7 +9,7 @@ then
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
   nvm install 10
 
-  curl -o- -L https://yarnpkg.com/install.sh | bash --version=1.15.2
+  curl -o- -L https://yarnpkg.com/install.sh | bash -- --version=1.15.2
   source ~/.bashrc
 fi;
 
