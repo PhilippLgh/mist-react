@@ -31,7 +31,7 @@ aliases:
   - &node_installation
     run:
       name: "Update Node.js and npm if on MacOS"
-      command: .circleci/install_node.sh
+      command: source .circleci/install_node.sh
 
   # Custom task removes unnecessary build files before uploading release directory
   - &before_store_artifacts
