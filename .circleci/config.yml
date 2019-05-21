@@ -80,9 +80,11 @@ aliases:
 
       # - run: source ~/.bashrc && source ~/.bash_profile
       - run: node -v
-      - run: nvm install v8.11
-      - run: nvm alias default v8.11
-      - run: node -v             
+      - run: nvm --version
+      - run: nvm list
+      - run: nvm install 8.11
+      - run: nvm alias default 8.11
+      - run: node -v
       - *upgrade_yarn
       - run: source ~/.bashrc
       - *restore_modules_cache
