@@ -198,26 +198,26 @@ class ControlledProcess extends EventEmitter {
       this.ipc.on('data', this.onIpcData.bind(this))
     })
   }
-  async onIpcData(data) {
+  onIpcData(data) {
     if (!data) return
     if (this.incompleteData) {
       data = this.partialData.concat(data.toString())
-      console.log('∆∆∆ concatting partialData', data)
     }
 
-    // this.debug('IPC data: ', data.toString())
     let message
     try {
       message = JSON.parse(data.toString())
       if (this.partialData) {
-        console.log('∆∆∆ clearing partialData')
         this.partialData = null
       }
     } catch (error) {
       // this.debug('Error parsing JSON: ', error)
       // TODO: handle multiple clients
       this.partialData = data.toString()
+      return
     }
+
+    this.debug('IPC data: ', data.toString())
 
     // Return if not a jsonrpc response
     if (!message || !message.jsonrpc) return
