@@ -40,10 +40,6 @@ const CONFIG_NAME = '.shell.config.js'
 // hw acceleration can cause problem in VMs and in certain APIs
 app.disableHardwareAcceleration()
 
-const WindowManager = require('./WindowManager')
-// TODO move into WindowManager
-let mainWindow = null
-
 const shellManager = new AppManager({
   repository: 'https://github.com/ethereum/grid',
   auto: true,
