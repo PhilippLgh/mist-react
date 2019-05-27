@@ -1,4 +1,5 @@
 const createRenderer = require('../electron-shell')
+const WindowManager = require('../WindowManager')
 
 class AppManager {
   getAvailableApps() {
@@ -8,7 +9,7 @@ class AppManager {
   launch(app) {
     console.log('launch', app.name)
     let url = app.url || 'http://localhost:3000'
-    const mainWindow = createRenderer(`http://localhost:3080/index.html`, {
+    const mainWindow = createRenderer(WindowManager.getMainUrl(), {
       url,
       isApp: true
     })
