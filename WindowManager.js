@@ -2,32 +2,19 @@ const { BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const fs = require('fs')
 
+let main = null
+
 class WindowManager {
-  createInsecureWindow(options, data = {}) {
-    const preloadPath = path.join(__dirname, 'preload.js')
-
-    let baseOptions = {
-      width: 1059,
-      height: 658,
-      webPreferences: {
-        preload: preloadPath,
-        nodeIntegration: true,
-        webSecurity: false,
-        webviewTag: true,
-      }
-    }
-
-    let win = new BrowserWindow(baseOptions)
-
-    return win
+  getMainUrl() {
+    return main ? main.webContents.getURL() : undefined
   }
 
   createWindow(options = {}, data = {}) {
     const preloadPath = path.join(__dirname, 'preload.js')
 
     let baseOptions = {
-      width: 800,
-      height: 600
+      width: 1059,
+      height: 658
     }
 
     if (options.title) {
@@ -49,7 +36,7 @@ class WindowManager {
     let enforcedOptions = {
       webPreferences: {
         // https://electronjs.org/docs/tutorial/security#3-enable-context-isolation-for-remote-content
-        contextIsolation: true,
+        contextIsolation: false, // FIXME true,
         preload: preloadPath,
         // https://electronjs.org/docs/tutorial/security#2-disable-nodejs-integration-for-remote-content
         nodeIntegration: false,
@@ -101,12 +88,18 @@ class WindowManager {
     }
 
     // pass initial data to window
+    /*
     win.data = JSON.stringify(data)
 
     win.update = changes => {
       win.webContents.send('__update', {
         ...changes
       })
+    }
+    */
+
+    if (!main) {
+      main = win
     }
 
     return win

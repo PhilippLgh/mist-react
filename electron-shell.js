@@ -7,74 +7,6 @@ const WindowManager = require('./WindowManager')
 
 let win
 
-// downloads the app.zip from github to memory and starts it in a renderer
-const hotLoading = async appUpdater => {
-  let result = await appUpdater.hotLoad(
-    path.join(__dirname, 'ui', 'download-splash.html')
-  )
-  // create window for app
-  win = WindowManager.createWindow()
-  win.loadURL(result.electronUrl)
-
-  // win.webContents.openDevTools()
-}
-
-/*
- * the "packaged" app is the one that was shipped with this shell / which was part of the installation bundle
- * contrary: updated apps are downloaded and cached by the updater some time after installation and are not always available
- */
-function loadPackagedApp() {
-  let files = fs.readdirSync(__dirname)
-  let appPath = files.find(
-    file => file.endsWith('.zip') || file.endsWith('.asar')
-  )
-  appPath = path.join(__dirname, appPath)
-
-  if (!fs.existsSync(appPath)) {
-    throw new Error(
-      'Bad installation: application is missing or cannot be found'
-    )
-    return
-  }
-
-  // WARNING: due to NPM insecurity main-script loading is deactivated ...
-  /*
-  // start main script
-  // TODO allow script to be renamed? use main from package.json?
-  let mainScript = path.join(packagedApp, 'main.js')
-  // FIXME unless patched, fs will not work on .zip archives
-  if (!fs.existsSync(mainScript)) {
-    // fatal
-    throw new Error("Bad application: application has no entry point")
-  }
-  // FIXME Module._load(mainScript, Module, true)
-  */
-
-  // ... INSTEAD the shell provides a browser window for the app and loads the index.html
-
-  // Create a browser window for the app
-  win = WindowManager.createWindow()
-
-  let ui = url.format({
-    slashes: true,
-    protocol: 'file:',
-    pathname: path.resolve(appPath, 'index.html')
-  })
-
-  win.loadURL(ui)
-
-  // Open the DevTools.
-  // win.webContents.openDevTools()
-
-  // Emitted when the window is closed.
-  win.on('closed', () => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    win = null
-  })
-}
-
 function secureApplication() {
   // FIXME replace with correct origin
   let validOrigin = 'https://yourapp.com/'
@@ -138,9 +70,8 @@ function createRenderer(clientUrl, args) {
   })
 
   const loadRenderer = () => {
-    win = WindowManager.createInsecureWindow()
+    win = WindowManager.createWindow()
     win.args = args
-    //win = WindowManager.createWindow()
     win.loadURL(clientUrl)
     // win.webContents.openDevTools()
   }
