@@ -100,7 +100,7 @@ module.exports = {
       id: 'cache',
       default: '2048',
       label: 'Cache',
-      flag: '--cache %s'
+      flag: '--cache=%s'
     }
   ]
 }
