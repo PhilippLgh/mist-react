@@ -67,7 +67,7 @@ module.exports = {
       id: 'dataDir',
       default: dataDir,
       label: 'Data Directory',
-      flag: '--datadir="%s"',
+      flag: '--datadir %s',
       type: 'path'
     },
     {
@@ -95,13 +95,13 @@ module.exports = {
       default: 'light',
       label: 'Sync Mode',
       options: ['fast', 'full', 'light'],
-      flag: '--syncmode=%s'
+      flag: '--syncmode %s'
     },
     {
       id: 'cache',
       default: '2048',
       label: 'Cache',
-      flag: '--cache=%s'
+      flag: '--cache %s'
     }
   ]
 }
