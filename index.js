@@ -27,7 +27,7 @@ registerPackageProtocol()
 
 const CONFIG_NAME = '.shell.config.js'
 
-// hw acceleration can cause problem in VMs and in certain APIs
+// how acceleration can cause problems in VMs and in certain APIs
 app.disableHardwareAcceleration()
 
 const shellManager = new AppManager({
@@ -107,7 +107,7 @@ const startWithDevConfig = async appUrl => {
   } = require(`./${CONFIG_NAME}`)
   // test if local path configured
   if (packagePath && fs.existsSync(packagePath)) {
-    log.dev('load user provided package from fs:', packagePath)
+    log.dev('load user provided package from fs: ', packagePath)
     appUrl = await appManager.load(packagePath)
   }
   // test if user provided server is defined and reachable
@@ -115,17 +115,17 @@ const startWithDevConfig = async appUrl => {
     const { hostname, port } = url.parse(packageServer)
     const isServerRunning = await checkConnection(hostname, port)
     if (isServerRunning) {
-      log.dev('load user provided package url:', packageServer)
+      log.dev('load user provided package url: ', packageServer)
       appUrl = packageServer
     } else {
-      log.dev('user provided server unreachable:', packageServer)
+      log.dev('user provided server unreachable: ', packageServer)
     }
   }
   // fallback to user defined package url
   else if (packageUrl) {
     throw Error('not implemented')
   } else if (packageVersion) {
-    log.dev('load user provided version:', packageVersion)
+    log.dev('load user provided version: ', packageVersion)
     const releases = await appManager.getReleases()
     // console.log(releases.map(r => r.version).join(', '))
     const release = releases.find(r => r.version === packageVersion)
