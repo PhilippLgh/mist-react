@@ -1,5 +1,5 @@
 const { ipcRenderer, remote, webFrame } = require('electron')
-const { notify, openFolderDialog } = require('./utils/electron')
+const { notify, openFolderDialog } = require('./utils/renderer/electron')
 
 const PluginHost = remote.getGlobal('PluginHost')
 

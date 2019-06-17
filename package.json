@@ -70,6 +70,7 @@
       "ethereum_clients/**/*.json",
       "grid_apps/**/*.js",
       "grid_apps/**/*.json",
+      "utils/**/*.js",
       "*.asar",
       "*.zip"
     ],
