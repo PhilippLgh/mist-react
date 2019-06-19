@@ -67,17 +67,7 @@ class Plugin extends EventEmitter {
   registerEventListeners(sourceEmitter, destEmitter) {
     // FIXME memory leaks start here:
     // forward all events from the spawned process
-    let eventTypes = [
-      'newState',
-      'starting',
-      'started',
-      'connected',
-      'disconnected',
-      'error',
-      'stopped',
-      'log',
-      'notification'
-    ]
+    let eventTypes = ['newState', 'error', 'log', 'notification']
     eventTypes.forEach(eventName => {
       sourceEmitter.on(eventName, arg => {
         if (eventName !== 'log') {
