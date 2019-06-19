@@ -26,7 +26,7 @@ module.exports = {
   displayName: 'Parity',
   name: 'parity',
   // repository: 'https://github.com/paritytech/parity-ethereum'
-  repository: 'https://github.com/PhilippLgh/EthCapetownWorkshop',
+  repository: 'https://github.com/evertonfraga/releases-parity',
   prefix: `${process.platform}`, // filter github assets
   binaryName: process.platform === 'win32' ? 'parity.exe' : 'parity',
   settings: [

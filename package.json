@@ -1,6 +1,6 @@
 {
   "name": "grid",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "Ethereum Grid",
   "main": "index.js",
   "homepage": "https://github.com/ethereum/grid",

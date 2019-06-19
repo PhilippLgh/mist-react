@@ -68,9 +68,11 @@ class Plugin extends EventEmitter {
     // FIXME memory leaks start here:
     // forward all events from the spawned process
     let eventTypes = [
+      'newState',
       'starting',
       'started',
       'connected',
+      'disconnected',
       'error',
       'stopped',
       'log',

@@ -41,6 +41,7 @@ class ControlledProcess extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.state = STATES.STARTING
       this.emit('starting')
+      this.emit('newState', 'starting')
       this.debug('Emit: starting')
       this.debug('Start: ', this.binaryPath)
       this.debug('Flags: ', flags)
@@ -67,6 +68,7 @@ class ControlledProcess extends EventEmitter {
         if (code === 0) {
           this.state = STATES.STOPPED
           this.emit('stopped')
+          this.emit('newState', 'stopped')
           this.debug('Emit: stopped')
           return
         }
@@ -83,6 +85,7 @@ class ControlledProcess extends EventEmitter {
       const onStart = () => {
         this.state = STATES.STARTED
         this.emit('started')
+        this.emit('newState', 'started')
         this.debug('Emit: started')
         // Check for and connect IPC in 1s
         setTimeout(async () => {
@@ -165,13 +168,16 @@ class ControlledProcess extends EventEmitter {
       const onIpcConnect = () => {
         this.state = STATES.CONNECTED
         this.emit('connected')
+        this.emit('newState', 'connected')
         this.debug('Emit: connected')
         resolve(this.state)
         this.debug('IPC Connected')
       }
 
       const onIpcEnd = () => {
-        this.state = STATES.STOPPED
+        this.state = STATES.DISCONNECTED
+        this.emit('disconnected')
+        this.emit('newState', 'disconnected')
         this.ipc = null
         this.debug('IPC Connection Ended')
       }

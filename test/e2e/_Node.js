@@ -1,5 +1,8 @@
+import { isUndefined } from 'util'
+import { getProcess } from './_ProcessMatcher'
+
 class Node {
-  constructor (client) {
+  constructor(client) {
     this.client = client
   }
 
@@ -12,13 +15,27 @@ class Node {
   }
 
   waitUntilStarted() {
-    return this.client.waitUntilTextExists('[data-test-id=node-state]', 'STARTED', 5000)
+    return this.client.waitUntilTextExists(
+      '[data-test-id=node-state]',
+      'STARTED',
+      5000
+    )
   }
 
   waitUntilStopped() {
-    return this.client.waitUntilTextExists('[data-test-id=node-state]', 'STOPPED', 3000)
+    return this.client.waitUntilTextExists(
+      '[data-test-id=node-state]',
+      'STOPPED',
+      3000
+    )
   }
 
+  waitUntilProcessExited(processName, delay = 10000) {
+    return this.client.waitUntil(async () => {
+      const process = await getProcess(processName)
+      return isUndefined(process)
+    }, delay)
+  }
 }
 
 export default Node
