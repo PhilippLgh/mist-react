@@ -1,5 +1,5 @@
 const { ipcRenderer, remote, webFrame } = require('electron')
-const { notify, openFolderDialog } = require('./utils/renderer/electron')
+const { notify, showOpenDialog } = require('./utils/renderer/electron')
 
 const PluginHost = remote.getGlobal('PluginHost')
 
@@ -51,5 +51,5 @@ window.grid = {
     }
   },
   notify,
-  openFolderDialog
+  showOpenDialog
 }

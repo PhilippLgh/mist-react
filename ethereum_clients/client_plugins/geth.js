@@ -68,7 +68,7 @@ module.exports = {
       default: dataDir,
       label: 'Data Directory',
       flag: '--datadir %s',
-      type: 'path'
+      type: 'directory'
     },
     {
       id: 'api',

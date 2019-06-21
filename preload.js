@@ -1,5 +1,5 @@
 const { ipcRenderer, remote, webFrame } = require('electron')
-const { notify, openFolderDialog } = require('./utils/renderer/electron')
+const { notify, showOpenDialog } = require('./utils/renderer/electron')
 
 // Enabling spectron integration https://github.com/electron/spectron#node-integration
 if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
@@ -58,7 +58,7 @@ const Grid = {
     getArgs: () => currentWindow.args
   },
   notify,
-  openFolderDialog
+  showOpenDialog
 }
 
 /*
