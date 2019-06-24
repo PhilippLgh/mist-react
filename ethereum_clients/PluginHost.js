@@ -3,6 +3,7 @@ const path = require('path')
 const { EventEmitter } = require('events')
 const { Plugin, PluginProxy } = require('./Plugin')
 const { getPluginCachePath } = require('./util')
+const { getUserConfig } = require('../Config')
 const { AppManager } = require('@philipplgh/electron-app-manager')
 
 function requireFromString(src, filename) {
@@ -52,6 +53,19 @@ class PluginHost extends EventEmitter {
     const plugin = new Plugin(pluginConfig)
     return plugin
   }
+  async loadUserRegistries() {
+    try {
+      const UserConfig = getUserConfig()
+      const registries = UserConfig.getItem('registries')
+      // FIXME support all user registries
+      const repoUrl = registries[0]
+      const result = await AppManager.downloadJson(repoUrl)
+      return result.plugins
+    } catch (error) {
+      console.log('user registries parse error', error)
+      return []
+    }
+  }
   async discoverRemote() {
     const PLUGIN_DIR = path.join(__dirname, 'client_plugins')
     let remotePluginList = []
@@ -62,7 +76,9 @@ class PluginHost extends EventEmitter {
     } catch (error) {
       console.log('error: could not parse plugin list', error)
     }
-    let releases = remotePluginList.map(async pluginShortInfo => {
+    const userPluginList = await this.loadUserRegistries()
+    const remotePlugins = [...remotePluginList, ...userPluginList]
+    let releases = remotePlugins.map(async pluginShortInfo => {
       try {
         const { name: pluginName, location } = pluginShortInfo
         if (!location) {
