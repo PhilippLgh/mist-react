@@ -36,7 +36,7 @@ const showOpenDialog = (
         reject('No selection')
         return
       }
-      resolve(filePaths[0])
+      resolve(filePaths.join(','))
     })
   })
 }
