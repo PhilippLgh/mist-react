@@ -9,6 +9,9 @@ const { getMenuTemplate } = require('./Menu')
 
 const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
 const { registerGlobalAppManager } = require('./grid_apps/AppManager')
+const { registerGlobalUserConfig } = require('./Config')
+
+registerGlobalUserConfig()
 
 const log = {
   dev: require('debug')('dev'),
