@@ -11,7 +11,8 @@ class AppManager {
     let url = app.url || 'http://localhost:3000'
     const mainWindow = createRenderer(WindowManager.getMainUrl(), {
       url,
-      isApp: true
+      isApp: true,
+      app
     })
   }
 }
