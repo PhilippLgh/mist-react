@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Config Editor</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+    }
+    textarea {
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow-x: scroll;
+      tab-size: 2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Config Editor</h1>
+  <div>
+    <textarea name="" id="editor" cols="1000" rows="30" wrap='off' style="width: 100%"></textarea>
+  </div>
+  <button id="btn-save">save</button>
+  <button id="btn-cancel">cancel</button>
+  <button id="btn-reset">reset default</button>
+  <script>
+    const editor = document.getElementById('editor')
+    const save = document.getElementById('btn-save')
+    const cancel = document.getElementById('btn-cancel')
+    const reset = document.getElementById('btn-reset')
+
+    editor.addEventListener('keydown', function(e){
+      if(e.keyCode === 9) { // tab was pressed
+        var start = this.selectionStart;
+        var end		= this.selectionEnd;
+        this.value 	= this.value.substr( 0, start ) + '\t' + this.value.substr( end );
+        this.selectionStart = this.selectionEnd = start + 1;
+        e.preventDefault();
+        return false
+      }
+    })
+
+    let config = window.Grid.Config.getItem()
+
+    const resetDefault = () => {
+      const def = {
+        registries: []
+      }
+      config = def
+      editor.value = JSON.stringify(def, null, 2)
+      window.Grid.Config.setConfig(def)
+    }
+
+    const init = () => {
+      editor.value = JSON.stringify(config, null, 2)
+    }
+
+    init()
+
+
+    save.onclick = () => {
+      let newConfig = editor.value
+      try {
+        newConfig = JSON.parse(newConfig)
+      } catch (error) {
+        alert('invalid json')
+        return
+      }
+      config = newConfig
+      try {
+        window.Grid.Config.setConfig(newConfig)
+      } catch (error) {
+        alert('save failed')
+        return
+      }
+      alert('saved')
+    }
+
+    cancel.onclick = init
+
+    reset.onclick = resetDefault
+  
+  </script>
+</body>
+</html>
