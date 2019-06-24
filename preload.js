@@ -54,6 +54,7 @@ const currentWindow = remote.getCurrentWindow()
 const Grid = {
   PluginHost: remote.getGlobal('PluginHost'),
   AppManager: remote.getGlobal('AppManager'),
+  Config: remote.getGlobal('UserConfig'),
   window: {
     getArgs: () => currentWindow.args
   },
