@@ -103,6 +103,15 @@ module.exports = {
       default: '2048',
       label: 'Cache',
       flag: '--cache %s'
+    },
+    {
+      id: 'console',
+      label: 'Enable console',
+      default: 'false',
+      options: [
+        { value: 'true', flag: 'console', label: 'Yes' },
+        { value: 'false', flag: '', label: 'No' }
+      ]
     }
   ]
 }
