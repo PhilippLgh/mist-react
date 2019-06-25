@@ -255,9 +255,8 @@ class ControlledProcess extends EventEmitter {
       return
     }
     const { stdin } = this.proc
-    const jsonString = JSON.stringify(payload)
-    stdin.write(jsonString + '\n')
-    debug('Wrote to stdin:', jsonString)
+    stdin.write(payload + '\n')
+    debug('Wrote to stdin: ', payload)
   }
   // private low level ipc
   send(payload) {
