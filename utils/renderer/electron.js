@@ -20,10 +20,10 @@ const showOpenDialog = (
     const options = {
       properties: ['showHiddenFiles']
     }
-    if (pathType === 'file') {
-      options.properties.push('openFile')
-    } else if (pathType === 'directory') {
+    if (pathType === 'directory') {
       options.properties.push('openDirectory')
+    } else {
+      options.properties.push('openFile')
     }
     if (selectMultiple) {
       options.properties.push('multiSelections')
