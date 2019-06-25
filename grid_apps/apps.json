@@ -14,12 +14,6 @@
     "ignore": "package://24f0c0e4272ca1bbb7e32fe1d8bf87367b169f74415e48eb9f2ca4552759ef5c"
   },
   {
-    "name": "Swarm P2P Sharing",
-    "description": "Example P2P file sharing app with Grid",
-    "screenshot": "https://github.com/PhilippLgh/ethereum-grid-tutorials/raw/master/assets/Swarm-file-dropzone.PNG",
-    "url": "package://github.com/PhilippLgh/grid-swarm-p2p"
-  },
-  {
     "name": "Grid Wallet",
     "description": "Example how to build a wallet with Grid",
     "screenshot": "https://github.com/PhilippLgh/ethereum-grid-tutorials/raw/master/assets/Wallet-Starter.png",
