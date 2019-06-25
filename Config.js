@@ -14,12 +14,22 @@ const getUserDataPath = () => {
   return USER_DATA_PATH
 }
 
+const INITIAL_CONFIG = {
+  registries: [],
+  plugins: [],
+  apps: []
+}
+
 class Config {
   constructor(filePath) {
     this.filePath = filePath
     if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(this.filePath, JSON.stringify({}))
+      this.reset()
     }
+  }
+
+  reset(config) {
+    fs.writeFileSync(this.filePath, JSON.stringify(config || INITIAL_CONFIG))
   }
 
   setConfig(newConfig) {
@@ -55,7 +65,10 @@ const registerGlobalUserConfig = () => {
 }
 
 const startConfigEditor = () => {
-  const win = createRenderer(`file://${__dirname}/ui/json-editor.html`)
+  const win = createRenderer(`file://${__dirname}/ui/json-editor.html`, {
+    width: 800,
+    height: 600
+  })
   win.setMenu(null)
 }
 

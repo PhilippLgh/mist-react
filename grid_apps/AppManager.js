@@ -64,11 +64,15 @@ class AppManager extends EventEmitter {
   launch(app) {
     console.log('launch', app.name)
     let url = app.url || 'http://localhost:3000'
-    const mainWindow = createRenderer(WindowManager.getMainUrl(), {
-      url,
-      isApp: true,
-      app
-    })
+    const mainWindow = createRenderer(
+      WindowManager.getMainUrl(),
+      {},
+      {
+        url,
+        isApp: true,
+        app
+      }
+    )
   }
 }
 
