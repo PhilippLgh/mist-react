@@ -149,6 +149,9 @@ const startUI = async () => {
   })
 
   if (is.dev()) {
+    const template = getMenuTemplate()
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+
     // load user-provided package if possible
     if (fs.existsSync(path.join(__dirname, CONFIG_NAME))) {
       const { useDevSettings } = require(`./${CONFIG_NAME}`)
