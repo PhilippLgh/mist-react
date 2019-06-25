@@ -39,10 +39,10 @@ class Config {
     this.setConfig(config)
   }
 
-  getItem(key) {
+  getItem(key, default_val) {
     const config = JSON.parse(fs.readFileSync(this.filePath))
     if (!key) {
-      return config
+      return default_val || config
     }
     return config[key]
   }
