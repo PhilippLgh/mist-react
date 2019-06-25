@@ -19,7 +19,7 @@ const clientInterface = client => {
       return client.state
     },
     execute: command => {
-      client.execute(command)
+      return client.execute(command)
     },
     start: () => {
       dialog.showMessageBox(
