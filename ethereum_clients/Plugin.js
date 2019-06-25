@@ -201,6 +201,12 @@ class Plugin extends EventEmitter {
       return error
     }
   }
+  write(payload) {
+    if (!this.process) {
+      return
+    }
+    this.process.write(payload)
+  }
   async execute(command) {
     return new Promise((resolve, reject) => {
       console.log('execute command:', command)
@@ -291,6 +297,9 @@ class PluginProxy extends EventEmitter {
   }
   rpc(method, params = []) {
     return this.plugin.rpc(method, params)
+  }
+  write(payload) {
+    return this.plugin.write(payload)
   }
   execute(command) {
     return this.plugin.execute(command)

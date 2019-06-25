@@ -250,6 +250,15 @@ class ControlledProcess extends EventEmitter {
       this.emit('notification', params)
     }
   }
+  write(payload) {
+    if (!this.proc) {
+      return
+    }
+    const { stdin } = this.proc
+    const jsonString = JSON.stringify(payload)
+    stdin.write(jsonString + '\n')
+    debug('Wrote to stdin:', jsonString)
+  }
   // private low level ipc
   send(payload) {
     if (this.state !== STATES.CONNECTED) {
