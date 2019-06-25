@@ -17,6 +17,14 @@ class WindowManager {
       height: 658
     }
 
+    // Open new window in offset to existing window if exists
+    const focusedWindow = BrowserWindow.getFocusedWindow()
+    if (focusedWindow) {
+      const position = focusedWindow.getPosition()
+      baseOptions.x = position[0] + 35
+      baseOptions.y = position[1] + 35
+    }
+
     if (options.title) {
       baseOptions.title = options.title
     }
