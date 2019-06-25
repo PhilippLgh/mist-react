@@ -13,13 +13,12 @@
     textarea {
       box-sizing: border-box;
       white-space: nowrap;
-      overflow-x: scroll;
+      overflow-x: auto;
       tab-size: 2;
     }
   </style>
 </head>
 <body>
-  <h1>Config Editor</h1>
   <div>
     <textarea name="" id="editor" cols="1000" rows="30" wrap='off' style="width: 100%"></textarea>
   </div>
@@ -47,7 +46,9 @@
 
     const resetDefault = () => {
       const def = {
-        registries: []
+        registries: [],
+        plugins: [],
+        apps: []
       }
       config = def
       editor.value = JSON.stringify(def, null, 2)
