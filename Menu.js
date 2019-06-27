@@ -39,7 +39,7 @@ module.exports.getMenuTemplate = () => {
       label: 'Config',
       submenu: [
         {
-          label: 'edit',
+          label: 'Edit',
           click() {
             startConfigEditor()
           }
@@ -50,7 +50,7 @@ module.exports.getMenuTemplate = () => {
       label: 'Plugins',
       submenu: [
         {
-          label: 'rescan',
+          label: 'Rescan',
           click() {
             if (!global.PluginHost) {
               console.log('plugin host not ready')
