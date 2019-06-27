@@ -17,7 +17,8 @@ const getUserDataPath = () => {
 const INITIAL_CONFIG = {
   registries: [],
   plugins: [],
-  apps: []
+  apps: [],
+  settings: {}
 }
 
 class Config {
