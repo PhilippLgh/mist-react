@@ -7,7 +7,7 @@ const ControlledProcess = require('./ControlledProcess')
 let rpcId = 1
 
 class Plugin extends EventEmitter {
-  constructor(config) {
+  constructor(config, source, meta) {
     super()
     const { name, repository, filter, prefix } = config
     if (!name || !repository) {
@@ -15,6 +15,8 @@ class Plugin extends EventEmitter {
         'plugin is missing required fields "name" or "repository"'
       )
     }
+    this._meta = meta
+    this._source = source
     this.updater = getBinaryUpdater(repository, name, filter, prefix)
     this.config = config
     this.process = undefined
@@ -50,6 +52,12 @@ class Plugin extends EventEmitter {
   }
   get defaultConfig() {
     return this.config.config.default
+  }
+  get source() {
+    return this._source
+  }
+  get metadata() {
+    return this._meta
   }
   get state() {
     // FIXME ugly
@@ -290,6 +298,12 @@ class PluginProxy extends EventEmitter {
   }
   get config() {
     return this.plugin.defaultConfig
+  }
+  get source() {
+    return this.plugin.source
+  }
+  get metadata() {
+    return this.plugin.metadata
   }
   get isRunning() {
     return this.plugin.isRunning
