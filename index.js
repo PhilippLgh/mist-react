@@ -191,11 +191,7 @@ const startUI = async () => {
 const onReady = async () => {
   const pluginHost = registerGlobalPluginHost()
 
-  pluginHost.on('plugins-loaded', async () => {
-    // FIXME don't defer start
-    // 1. start UI for quick user-feedback without long init procedures
-    await startUI()
-  })
+  await startUI()
 
   const appManager = registerGlobalAppManager()
 }
