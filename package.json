@@ -2,7 +2,7 @@
   "name": "grid",
   "version": "1.4.0",
   "description": "Ethereum Grid",
-  "main": "index.js",
+  "main": "nano.js",
   "homepage": "https://github.com/ethereum/grid",
   "author": "Grid team <mist@ethereum.org>",
   "license": "ISC",
@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "@philipplgh/electron-app-manager": "^0.42.0",
-    "debug": "^4.1.1"
+    "debug": "^4.1.1",
+    "menubar": "^6.0.6"
   },
   "peerDependencies": {},
   "devDependencies": {
