@@ -47,7 +47,7 @@ window.addEventListener('message', function(event) {
   }
 }, false);
 */
-console.log('preload loaded')
+console.log('grid preload script loaded')
 
 const currentWindow = remote.getCurrentWindow()
 

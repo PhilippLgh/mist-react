@@ -26,6 +26,10 @@
         box-shadow: 0 0 0.5em rgba(87,213, 126,.8);
       }
 
+      .switch input[type=checkbox]+.check {
+        background: #3e3e3e;
+      }
+
       #app {
         padding: 10px;
       }
@@ -37,6 +41,11 @@
       }
 
       .client-name {
+        margin-right: 5px;
+      }
+
+      .client-profile {
+        color: #44a1d9;
         margin-right: 5px;
       }
 
@@ -70,43 +79,75 @@
     <script src="https://unpkg.com/vue"></script>
     <!-- Full bundle -->
     <script src="https://unpkg.com/buefy/dist/buefy.min.js"></script>
-
-    <!-- Individual components -->
-    <script src="https://unpkg.com/buefy/dist/components/table"></script>
-    <script src="https://unpkg.com/buefy/dist/components/input"></script>
-
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
 
     <script>
+
+        Vue.component('profile-select', {
+          template: `
+          <b-dropdown aria-role="list">
+        <button size="is-small" class="button is-primary" slot="trigger">
+            <span>Click me!</span>
+            <b-icon pack="fas" icon="caret-down"></b-icon>
+        </button>
+        <b-dropdown-item aria-role="listitem">Action</b-dropdown-item>
+        <b-dropdown-item aria-role="listitem">Another action</b-dropdown-item>
+        <b-dropdown-item aria-role="listitem">Something else</b-dropdown-item>
+      </b-dropdown>
+          `
+        })
 
         Vue.component('client-item', {
           props: ['client'],
           template: `
             <div class="client-item">
               <span class="client-name">{{ client.name }}</span>
+              <span class="client-profile">{{ client.profile }}</span>
               <span class="client-version centered">{{ client.version }}</span>
               <div class="spacer"></div>
-              <b-switch v-model="isSwitched">
+              <b-switch v-model="isSwitched" size="is-small">
               </b-switch>
-              <b-icon
-                pack="fas"
-                icon="cog"
-                size="is-small">
-              </b-icon>
+              <b-button 
+                size="is-small"
+                icon-pack="fas"
+                icon-left="cog"
+                v-on:click="say('hi')"
+              >
+              </b-button>
+              <b-button 
+                size="is-small"
+                icon-pack="fas"
+                icon-left="terminal"
+                v-on:click="say('hi')"
+              >
+              </b-button>
             </div>
-          `
+          `,
+          methods: {
+            say: function (message) {
+              alert(message)
+            }
+          }
         })
 
         new Vue({
           el: '#app',
           data: {
-            clients: [
-              {name: 'Geth', version: '1.0.0'},
-              {name: 'Ganache', version: '1.0.0'},
-              {name: 'IPFS', version: '1.0.0'},
-              {name: 'Prysm (Eth 2.0)', version: '1.0.0'},
-            ],
+            clients: [],
             isSwitched: false
+          },
+          mounted: async function(){
+            try {
+              const plugins = window.Grid.PluginHost.getAllPlugins()
+              this.clients = plugins.map(p => ({
+                name: p.displayName,
+                profile: '',
+                version: ''
+              }))
+              console.log('plugins loaded', plugins.length)
+            } catch (error) {
+              console.log('error loading plugins', error)          
+            }
           } 
         })
     </script>
