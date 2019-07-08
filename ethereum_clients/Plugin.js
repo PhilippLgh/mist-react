@@ -91,6 +91,13 @@ class Plugin extends EventEmitter {
     const releases = await this.updater.getReleases()
     return releases
   }
+  async getCachedReleases() {
+    const releases = await this.updater.getCachedReleases()
+    return releases
+  }
+  async getLatestCached() {
+    return this.updater.getLatestCached()
+  }
   download(release, onProgress) {
     return this.updater.download(release, { onProgress })
   }
@@ -303,6 +310,12 @@ class PluginProxy extends EventEmitter {
   // FIXME doesn't handle corrupted packages well
   getReleases() {
     return this.plugin.getReleases()
+  }
+  getCachedReleases() {
+    return this.plugin.getCachedReleases()
+  }
+  getLatestCached() {
+    return this.plugin.getLatestCached()
   }
   download(release, onProgress = () => {}) {
     return this.plugin.download(release, progress => {
