@@ -65,7 +65,6 @@
       }
 
       .client-version {
-        line-height: 1.5rem;
         font-size: .8rem;
         color: #555;
         visibility: hidden;
@@ -78,11 +77,13 @@
       .button.client-button {
         background-color: transparent;
         border: none;
-        font-size: 1.1rem;
+        outline: 1px solid grey;
+        font-size: .70rem;
+        color: #666;
       }
 
       .button.client-button:hover {
-        outline: 1px solid grey;
+        outline: 1px solid #FFF;
       }
 
       .button.client-button:focus {
@@ -150,6 +151,7 @@
                 v-on:click="openTerminal()"
               >
               </b-button>
+              <!--
               <b-button
                 class="client-button" 
                 size="is-small"
@@ -158,6 +160,7 @@
                 v-on:click="openSettings()"
               >
               </b-button>
+              -->
             </div>
             <progress v-if="isDownloading" max="100" class="progress is-small is-primary" v-bind:value="downloadProgress"></progress>
           </div>
@@ -211,8 +214,17 @@
             openSettings: function (message) {
               // TODO open settings
             },
-            openTerminal: function (message) {
-              // TODO open terminal
+            openTerminal: async function (message) {
+              console.log('open terminal')
+              const apps = await window.Grid.AppManager.launch({
+                name: 'grid-ui',
+                args: {
+                  scope: {
+                    component: 'terminal',
+                    client: 'geth'
+                  }
+                }
+              })
             }
           }
         })

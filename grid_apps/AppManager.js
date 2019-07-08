@@ -63,6 +63,26 @@ class AppManager extends EventEmitter {
   }
   launch(app) {
     console.log('launch', app.name)
+
+    if (app.name === 'grid-ui') {
+      // const appUrl = 'package://github.com/ethereum/grid-ui'
+      const appUrl = 'http://localhost:3080/'
+      let mainWindow = createRenderer(
+        appUrl,
+        {
+          x: 400,
+          y: 400
+        },
+        {
+          scope: {
+            component: 'terminal',
+            client: 'geth'
+          }
+        }
+      )
+      return
+    }
+
     let url = app.url || 'http://localhost:3000'
     const mainWindow = createRenderer(
       WindowManager.getMainUrl(),
