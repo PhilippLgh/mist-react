@@ -3,17 +3,19 @@ const { menubar } = require('menubar')
 const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
 
 const preloadPath = path.join(__dirname, 'preload.js')
-const localFileProtocol = process.os !== 'windows' ? 'file://' : ''
+
+const makePath = p =>
+  (process.os !== 'windows' ? 'file://' : '') + path.normalize(p)
 
 const mb = menubar({
-  index: path.join(localFileProtocol, __dirname, 'ui', 'nano.html'),
+  index: makePath(`${__dirname}/ui/nano.html`),
   browserWindow: {
     alwaysOnTop: true, // good for debugging
     webPreferences: {
       preload: preloadPath
     }
   },
-  icon: path.join(__dirname, 'build', 'icon.png')
+  icon: path.resolve(`${__dirname}/build/IconTemplate.png`)
 })
 
 mb.on('ready', () => {
