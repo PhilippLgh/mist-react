@@ -235,8 +235,8 @@
             clients: [],
             isSwitched: false
           },
-          mounted: async function(){
-            try {
+          methods: {
+            init: function() {
               const plugins = window.Grid.PluginHost.getAllPlugins()
               this.clients = plugins.map(p => ({
                 name: p.name,
@@ -245,6 +245,14 @@
                 version: ''
               }))
               console.log('plugins loaded', plugins.length)
+            }
+          },
+          mounted: async function(){
+            try {
+              this.init()
+              window.Grid.PluginHost.on('plugins-loaded', () => {
+                this.init()
+              })
             } catch (error) {
               console.log('error loading plugins', error)          
             }
