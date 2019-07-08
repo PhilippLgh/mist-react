@@ -44,6 +44,11 @@
         margin-right: 5px;
       }
 
+      .client-name:hover {
+        cursor: pointer;
+        text-decoration: underline; 
+      }
+
       .client-profile {
         color: #44a1d9;
         margin-right: 5px;
@@ -56,10 +61,11 @@
 
       .client-state {
         color: #555;
+        margin-right: 5px;
       }
 
       .client-version {
-        line-height: 1rem;
+        line-height: 1.5rem;
         font-size: .8rem;
         color: #555;
         visibility: hidden;
@@ -67,6 +73,21 @@
 
       .client-item:hover .client-version {
         visibility: visible;
+      }
+
+      .button.client-button {
+        background-color: transparent;
+        border: none;
+        font-size: 1.1rem;
+      }
+
+      .button.client-button:hover {
+        outline: 1px solid grey;
+      }
+
+      .button.client-button:focus {
+        outline: none;
+        border: none;
       }
 
       .spacer {
@@ -105,6 +126,7 @@
           props: ['client'],
           data: function() {
             return {
+              clientVersion: '',
               isSwitched: false,
               state: '',
               isDownloading: false,
@@ -114,24 +136,26 @@
           template: `
           <div>
             <div class="client-item">
-              <span class="client-name">{{ client.name }}</span>
-              <span class="client-profile">{{ client.profile }}</span>
-              <span class="client-state">{{ state }}</span>
-              <span class="client-version centered">{{ client.version }}</span>
+              <span class="client-name centered">{{ client.displayName }}</span>
+              <span class="client-profile centered">{{ client.profile }}</span>
+              <span class="client-state centered">{{ state }}</span>
+              <span class="client-version centered">{{ clientVersion }}</span>
               <div class="spacer"></div>
               <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
               <b-button 
-                size="is-small"
-                icon-pack="fas"
-                icon-left="cog"
-                v-on:click="openSettings()"
-              >
-              </b-button>
-              <b-button 
+                class="client-button"
                 size="is-small"
                 icon-pack="fas"
                 icon-left="terminal"
                 v-on:click="openTerminal()"
+              >
+              </b-button>
+              <b-button
+                class="client-button" 
+                size="is-small"
+                icon-pack="fas"
+                icon-left="cog"
+                v-on:click="openSettings()"
               >
               </b-button>
             </div>
@@ -139,40 +163,49 @@
           </div>
           `,
           methods: {
-            handleChange: async function(ev) {
+            handleSwitchedOn: async function(clientPlugin) {
+              // check if downloaded version is available
+              let latestBinCached = await clientPlugin.getLatestCached()
+              if (!latestBinCached) {
+                console.log('no client binary found --> download now')
+                const latestRemote = await clientPlugin.getLatestRemote()
+                // TODO handle no remote release found
+                try {
+                  this.state = "downloading"
+                  this.isDownloading = true
+                  latestBinCached = await clientPlugin.download(latestRemote, downloadProgress => {
+                    console.log('download progress', downloadProgress)
+                    this.downloadProgress = downloadProgress
+                    this.state = `downloading ${downloadProgress}%`
+                  })
+                  this.isDownloading = false
+                  this.state = ""
+                } catch (error) {
+                  console.log('error during download', error)
+                  return //TODO handleDownloadError(error)
+                }
+              }
+
+              this.clientVersion = latestBinCached.version
+              
+              console.log('cached release found --> start now')
+              clientPlugin.start(latestBinCached)
+
+              clientPlugin.on('newState', (state) => {
+                console.log('new state', state)
+                this.state = state
+              })
+            },
+            handleChange: function(ev) {
+              // get reference to plugin                
+              const clientPlugin = window.Grid.PluginHost.getPluginByName(this.client.name)
               if (this.isSwitched) {
-                // get reference to plugin                
-                const clientPlugin = window.Grid.PluginHost.getPluginByName('geth')
-                // check if downloaded version is available
-                let latestBinCached = undefined // await clientPlugin.getLatestCached()
-                if (!latestBinCached) {
-                  console.log('no client binary found --> download now')
-                  const latestRemote = await clientPlugin.getLatestRemote()
-                  // TODO handle no remote release found
-                  try {
-                    this.state = "downloading"
-                    this.isDownloading = true
-                    latestBinCached = await clientPlugin.download(latestRemote, downloadProgress => {
-                      console.log('download progress', downloadProgress)
-                      this.downloadProgress = downloadProgress
-                      this.state = `downloading ${downloadProgress}%`
-                    })
-                    this.isDownloading = false
-                    this.state = ""
-                  } catch (error) {
-                    console.log('error during download', error)
-                    return //TODO handleDownloadError(error)
-                  }
-                } 
-                
-                console.log('cached release found --> start now')
-                clientPlugin.start(latestBinCached)
-
-                clientPlugin.on('newState', (state) => {
-                  console.log('new state', state)
-                  this.state = state
-                })
-
+                this.handleSwitchedOn(clientPlugin)
+              } else {
+                // TODO cancel download if currently running
+                if (['started', 'starting'].includes(this.state)) {
+                  clientPlugin.stop()
+                }
               }
             },
             openSettings: function (message) {
@@ -194,7 +227,8 @@
             try {
               const plugins = window.Grid.PluginHost.getAllPlugins()
               this.clients = plugins.map(p => ({
-                name: p.displayName,
+                name: p.name,
+                displayName: p.displayName,
                 profile: '',
                 version: ''
               }))
