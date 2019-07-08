@@ -180,7 +180,14 @@ class Plugin extends EventEmitter {
 
   async start(release, flags, config) {
     // TODO do flag validation here based on proxy metadata
-
+    if (this.config.beforeStart) {
+      if (this.config.beforeStart.execute) {
+        const cmds = this.config.beforeStart.execute
+        for (const cmd of cmds) {
+          await this.execute(cmd)
+        }
+      }
+    }
     const { binaryPath, packagePath } = await this.getLocalBinary(release)
     console.log(
       `client ${
@@ -190,7 +197,6 @@ class Plugin extends EventEmitter {
     try {
       this.process = new ControlledProcess(binaryPath, this.resolveIpc)
       this.registerEventListeners(this.process, this)
-
       await this.process.start(flags)
     } catch (error) {
       console.log('error start', error)
@@ -237,7 +243,10 @@ class Plugin extends EventEmitter {
     return new Promise((resolve, reject) => {
       console.log('execute command:', command)
       const { spawn } = require('child_process')
-      const flags = command.split(' ')
+      let flags = command
+      if (typeof command === 'string') {
+        flags = command.split(' ')
+      }
       let proc = undefined
       try {
         proc = spawn(binaryPath, flags)

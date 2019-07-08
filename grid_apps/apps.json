@@ -21,8 +21,14 @@
   },
   {
     "name": "Grid RPC Tester",
-    "description": "Grid app to test RPC endpoints",
+    "description": "Grid app to test RPC endpoints.",
     "screenshot": "https://i.imgur.com/zI5QLEv.png",
     "url": "package://github.com/ryanio/grid-rpc-app"
+  },
+  {
+    "name": "IPFS Web UI",
+    "description": "A web interface to IPFS.",
+    "screenshot": "https://github.com/ipfs-shipyard/ipfs-webui/raw/master/docs/screenshots/ipfs-webui-status.png",
+    "url": "package://github.com/ryanio/ipfs-webui-static-build"
   }
 ]
