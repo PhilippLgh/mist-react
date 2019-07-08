@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
+    <style>
+      html, body {
+        padding: 0px;
+        margin: 0px;
+        background-color: #1E1E1E;
+        overflow: hidden;
+      }
+      body {
+        min-height: 100vh;
+      }
+    </style>
+    <style>
+      .switch input[type=checkbox]:checked+.check {
+          background: #57d57e;
+      }
+      .switch:hover input[type=checkbox]:checked+.check {
+          background: rgba(87,213, 126, .9);
+      }
+      .switch input[type=checkbox]:focus:checked+.check {
+        box-shadow: 0 0 0.5em rgba(87,213, 126,.8);
+      }
+
+      #app {
+        padding: 10px;
+      }
+
+      .client-item {
+        padding: 5px;
+        display: flex;
+        color: white;
+      }
+
+      .client-name {
+        margin-right: 5px;
+      }
+
+      span.centered {
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .client-version {
+        line-height: 1rem;
+        font-size: .8rem;
+        color: #555;
+        visibility: hidden;
+      }
+
+      .client-item:hover .client-version {
+        visibility: visible;
+      }
+
+      .spacer {
+        flex-grow: 1;
+      }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+      <client-item v-for="client in clients" :client="client"></client-item>
+    </div>
+
+    <script src="https://unpkg.com/vue"></script>
+    <!-- Full bundle -->
+    <script src="https://unpkg.com/buefy/dist/buefy.min.js"></script>
+
+    <!-- Individual components -->
+    <script src="https://unpkg.com/buefy/dist/components/table"></script>
+    <script src="https://unpkg.com/buefy/dist/components/input"></script>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+
+    <script>
+
+        Vue.component('client-item', {
+          props: ['client'],
+          template: `
+            <div class="client-item">
+              <span class="client-name">{{ client.name }}</span>
+              <span class="client-version centered">{{ client.version }}</span>
+              <div class="spacer"></div>
+              <b-switch v-model="isSwitched">
+              </b-switch>
+              <b-icon
+                pack="fas"
+                icon="cog"
+                size="is-small">
+              </b-icon>
+            </div>
+          `
+        })
+
+        new Vue({
+          el: '#app',
+          data: {
+            clients: [
+              {name: 'Geth', version: '1.0.0'},
+              {name: 'Ganache', version: '1.0.0'},
+              {name: 'IPFS', version: '1.0.0'},
+              {name: 'Prysm (Eth 2.0)', version: '1.0.0'},
+            ],
+            isSwitched: false
+          } 
+        })
+    </script>
+</body>
+</html>
