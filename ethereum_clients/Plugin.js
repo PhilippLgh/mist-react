@@ -98,6 +98,9 @@ class Plugin extends EventEmitter {
   async getLatestCached() {
     return this.updater.getLatestCached()
   }
+  async getLatestRemote() {
+    return this.updater.getLatestRemote()
+  }
   download(release, onProgress) {
     return this.updater.download(release, { onProgress })
   }
@@ -316,6 +319,9 @@ class PluginProxy extends EventEmitter {
   }
   getLatestCached() {
     return this.plugin.getLatestCached()
+  }
+  getLatestRemote() {
+    return this.plugin.getLatestRemote()
   }
   download(release, onProgress = () => {}) {
     return this.plugin.download(release, progress => {

@@ -54,6 +54,10 @@
         align-items: center;
       }
 
+      .client-state {
+        color: #555;
+      }
+
       .client-version {
         line-height: 1rem;
         font-size: .8rem;
@@ -99,10 +103,20 @@
 
         Vue.component('client-item', {
           props: ['client'],
+          data: function() {
+            return {
+              isSwitched: false,
+              state: '',
+              isDownloading: false,
+              downloadProgress: 0
+            }
+          },
           template: `
+          <div>
             <div class="client-item">
               <span class="client-name">{{ client.name }}</span>
               <span class="client-profile">{{ client.profile }}</span>
+              <span class="client-state">{{ state }}</span>
               <span class="client-version centered">{{ client.version }}</span>
               <div class="spacer"></div>
               <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
@@ -121,23 +135,44 @@
               >
               </b-button>
             </div>
+            <progress v-if="isDownloading" max="100" class="progress is-small is-primary" v-bind:value="downloadProgress"></progress>
+          </div>
           `,
-          data: {
-            isSwitched: false
-          },
           methods: {
             handleChange: async function(ev) {
               if (this.isSwitched) {
                 // get reference to plugin                
                 const clientPlugin = window.Grid.PluginHost.getPluginByName('geth')
                 // check if downloaded version is available
-                const latestBinCached = await clientPlugin.getLatestCached()
-                if (latestBinCached) {
-                  console.log('cached release found --> start now')
-                  clientPlugin.start(latestBinCached)
-                } else {
-                  console.log('no client binary found')
-                }
+                let latestBinCached = undefined // await clientPlugin.getLatestCached()
+                if (!latestBinCached) {
+                  console.log('no client binary found --> download now')
+                  const latestRemote = await clientPlugin.getLatestRemote()
+                  // TODO handle no remote release found
+                  try {
+                    this.state = "downloading"
+                    this.isDownloading = true
+                    latestBinCached = await clientPlugin.download(latestRemote, downloadProgress => {
+                      console.log('download progress', downloadProgress)
+                      this.downloadProgress = downloadProgress
+                      this.state = `downloading ${downloadProgress}%`
+                    })
+                    this.isDownloading = false
+                    this.state = ""
+                  } catch (error) {
+                    console.log('error during download', error)
+                    return //TODO handleDownloadError(error)
+                  }
+                } 
+                
+                console.log('cached release found --> start now')
+                clientPlugin.start(latestBinCached)
+
+                clientPlugin.on('newState', (state) => {
+                  console.log('new state', state)
+                  this.state = state
+                })
+
               }
             },
             openSettings: function (message) {
