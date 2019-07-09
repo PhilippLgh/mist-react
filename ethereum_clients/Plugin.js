@@ -81,7 +81,7 @@ class Plugin extends EventEmitter {
       'started',
       'connected',
       'disconnected',
-      'error',
+      'pluginError',
       'stopped',
       'log',
       'notification'
