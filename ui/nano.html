@@ -16,6 +16,9 @@
       }
     </style>
     <style>
+      .switch {
+        margin-right: 4px;
+      }
       .switch input[type=checkbox]:checked+.check {
           background: #57d57e;
       }
@@ -30,28 +33,51 @@
         background: #3e3e3e;
       }
 
-      body > header {
-        height: 30px;
-      }
-      
       #app {
-        padding: 10px;
-        height: calc(100vh - 30px);
+        padding: 8px 6px;
+        height: calc(100vh - 18px);
+        margin-top: 18px;
+        z-index: 1;
         background-color: rgba(30,30,30,1);
         border-radius: 12px;
       }
-      #app::before {
+
+      .tip {
+        display: block;
+        height: 16px;
+        width: 70px;
+        position: absolute;
+        left: 50%;
+        top: 3px;
+        overflow: hidden;
+        transform: translateX(-48%);
+      }
+      .tip::before {
         content: '';
         display: block;
+        position: absolute;
         width: 50px;
         height: 50px;
         background-color: rgba(30,30,30,1);
-        border-radius: 9px;
-        transform: rotate(-45deg), translateY(-30px);
-        position: absolute;
-        left: 50%;
-        margin-left: -35px;
-        
+        border-radius: 8px;
+        transform: rotate(-45deg) translateX(1px) translateY(11px);
+        transform-origin: center;
+      }
+
+      /* they need to share the same border. DRY'ing */
+      #app, .tip::before {
+        border: 1px solid #262626;
+      }
+
+      /* variant of the tip when the window is docked to the bottom */
+      body.docked-to-bottom #app {
+        margin-top: 3px;
+      }
+      body.docked-to-bottom .tip {
+        transform: rotate(180deg) translateX(50%);
+        top: initial;
+        bottom: 0;
+        margin-left: -2px;
       }
 
       .client-item {
@@ -79,47 +105,73 @@
         align-items: center;
       }
 
+      .client-info {
+        line-height: 1rem;
+        position: relative;
+        overflow: hidden;
+        flex-grow: 1;
+      }
+      .client-info span {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+        transition: 200ms all ease-out;
+        line-height: 1.85rem;
+      }
+      .client-item:hover .client-state {
+        top: -1.85rem;
+        opacity: 0;
+      }
+      .client-item:hover .client-version {
+        top: 0rem;
+        opacity: 1;
+      }
+
       .client-state {
         color: #555;
         margin-right: 5px;
+        font-size: .8rem;
+        top: 0;
+        opacity: 1;
       }
 
       .client-version {
-        font-size: .8rem;
+        font-size: .7rem;
         color: #555;
-        visibility: hidden;
+        white-space: nowrap;
+        top: 1.85rem;
+        opacity: 0;
       }
 
-      .client-item:hover .client-version {
+      /* .client-item:hover .client-version {
         visibility: visible;
-      }
+      } */
 
       .icon-indicator {
         padding: 1px;
         color: #555;
-        outline: 1px solid #555;
         cursor: pointer;
         margin-left: 2px;
-        margin-right: 2px;
+        transition: color 120ms linear;
+      }
+      .icon-indicator:hover {
+        color: #888;
       }
 
       .icon-indicator.active {
         color: #5789d5cc;
-        outline: 1px solid #5789d5cc;
       }
 
       .icon-indicator i {
         font-size: 1rem;
       }
 
-      .spacer {
-        flex-grow: 1;
-      }
     </style>
 </head>
 
-<body>
-    <header></header>
+<!-- <body class="docked-to-bottom"> -->
+<body class=""> 
+    <span class="tip"></span>
     <div id="app">
       <client-item v-for="client in clients" :client="client"></client-item>
     </div>
@@ -147,7 +199,7 @@
 
         
         Vue.component('icon-indicator', {
-          props: ['icon'],
+          props: ['icon', 'pack'],
           data: function() {
             return {
               isActive: false
@@ -155,7 +207,7 @@
           },
           template: `
           <span class="icon-indicator" v-bind:class="{ active: isActive }" v-on:click="isActive = !isActive; $emit('change', isActive)">
-            <b-icon pack="fas" :icon="icon"></b-icon>
+            <b-icon :pack="pack" :icon="icon"></b-icon>
           </span>  
           `
         })
@@ -180,11 +232,12 @@
               <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
               <span class="client-name centered">{{ client.displayName }}</span>
               <span class="client-profile centered">{{ client.profile }}</span>
-              <span class="client-state centered">{{ state }}</span>
-              <span class="client-version centered">{{ clientVersion }}</span>
-              <div class="spacer"></div>
-              <icon-indicator @change="toggleTerminal($event)" icon="terminal"></icon-indicator>
-              <icon-indicator @change="toggleSettings($event)" icon="cog"></icon-indicator>
+              <span class="client-info centered">
+                <span class="client-state">{{ state }}</span>
+                <span class="client-version">{{ clientVersion }}</span>
+              </span>
+              <icon-indicator @change="toggleTerminal($event)" pack="far" icon="window-maximize"></icon-indicator>
+              <icon-indicator @change="toggleSettings($event)" pack="fas" icon="cog"></icon-indicator>
             </div>
             <progress v-if="isDownloading" max="100" class="progress is-small is-primary" v-bind:value="downloadProgress"></progress>
           </div>
