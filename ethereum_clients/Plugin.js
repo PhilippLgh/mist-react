@@ -48,6 +48,9 @@ class Plugin extends EventEmitter {
   get displayName() {
     return this.config.displayName
   }
+  get settings() {
+    return this.config.settings
+  }
   get defaultConfig() {
     return this.config.config.default
   }
@@ -297,6 +300,9 @@ class PluginProxy extends EventEmitter {
   }
   get state() {
     return this.plugin.state
+  }
+  get settings() {
+    return this.plugin.settings
   }
   get config() {
     return this.plugin.defaultConfig
