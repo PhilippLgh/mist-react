@@ -1,7 +1,7 @@
 const { EventEmitter } = require('events')
+const path = require('path')
 const createRenderer = require('../electron-shell')
 const WindowManager = require('../WindowManager')
-
 const { AppManager: Downloader } = require('@philipplgh/electron-app-manager')
 
 const { getUserConfig } = require('../Config')
@@ -64,9 +64,25 @@ class AppManager extends EventEmitter {
   launch(app) {
     console.log('launch', app.name)
 
+    if (app.id) {
+      const win = WindowManager.getById(app.id)
+      if (win) {
+        win.show()
+        return win.id
+      }
+    }
+
     if (app.name === 'grid-ui') {
       // const appUrl = 'package://github.com/ethereum/grid-ui'
-      const appUrl = 'http://localhost:3080/'
+      // const appUrl = 'http://localhost:3080/'
+      const appUrl = `file://${path.join(
+        __dirname,
+        '..',
+        'ui',
+        'terminal.html'
+      )}`
+      const clientName = 'geth'
+      const clientDisplayName = 'Geth'
       let mainWindow = createRenderer(
         appUrl,
         {
@@ -76,11 +92,13 @@ class AppManager extends EventEmitter {
         {
           scope: {
             component: 'terminal',
-            client: 'geth'
+            client: clientName
           }
         }
       )
-      return
+      mainWindow.setMenu(null)
+      mainWindow.setTitle('Ethereum Grid Terminal for ' + clientDisplayName)
+      return mainWindow.id
     }
 
     let url = app.url || 'http://localhost:3000'
@@ -93,6 +111,9 @@ class AppManager extends EventEmitter {
         app
       }
     )
+  }
+  hide(windowId) {
+    return WindowManager.hide(windowId)
   }
 }
 
