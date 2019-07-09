@@ -24,7 +24,8 @@
   "dependencies": {
     "@philipplgh/electron-app-manager": "^0.42.0",
     "debug": "^4.1.1",
-    "menubar": "^6.0.6"
+    "menubar": "^6.0.6",
+    "xterm": "^3.14.4"
   },
   "peerDependencies": {},
   "devDependencies": {
