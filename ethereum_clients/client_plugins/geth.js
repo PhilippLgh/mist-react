@@ -112,6 +112,15 @@ module.exports = {
         { value: 'true', flag: 'console', label: 'Yes' },
         { value: 'false', flag: '', label: 'No' }
       ]
+    },
+    {
+      id: 'graphql',
+      label: 'Enable GraphQL',
+      default: 'false',
+      options: [
+        { value: 'true', flag: '--graphql', label: 'Yes' },
+        { value: 'false', flag: '', label: 'No' }
+      ]
     }
   ]
 }
