@@ -404,6 +404,13 @@
             }
           } 
         })
+
+        // Tip placement, only at startup
+        var distanceToBottom = window.screen.height - (window.screenTop + window.innerHeight)
+        var distanceToTop = window.screenTop;
+        document.body.classList.add(
+          (distanceToBottom < distanceToTop) ? 'docked-to-bottom' : 'docked-to-top'
+        );
     </script>
 </body>
 </html>
