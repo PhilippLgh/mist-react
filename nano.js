@@ -1,5 +1,6 @@
 const path = require('path')
 const { menubar } = require('menubar')
+const { Menu } = require('electron')
 const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
 const { registerGlobalAppManager } = require('./grid_apps/AppManager')
 const { registerGlobalUserConfig } = require('./Config')
@@ -51,4 +52,19 @@ mb.on('ready', () => {
 
   mb.showWindow()
   mb.window.webContents.openDevTools()
+})
+
+// right-click menu for tray
+mb.on('after-create-window', function() {
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Quit',
+      click: () => {
+        mb.app.quit()
+      }
+    }
+  ])
+  mb.tray.on('right-click', () => {
+    mb.tray.popUpContextMenu(contextMenu)
+  })
 })
