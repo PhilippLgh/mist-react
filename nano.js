@@ -1,6 +1,6 @@
 const path = require('path')
 const { menubar } = require('menubar')
-const { Menu } = require('electron')
+const { Menu, shell } = require('electron')
 const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
 const { registerGlobalAppManager } = require('./grid_apps/AppManager')
 const { registerGlobalUserConfig } = require('./Config')
@@ -57,6 +57,16 @@ mb.on('ready', () => {
 // right-click menu for tray
 mb.on('after-create-window', function() {
   const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Feedback',
+      click: () => {
+        shell.openExternal(
+          'https://docs.google.com/forms/d/e/1FAIpQLSeJ4BtbvDVSnIFCKG6TmJo_tbSZql-NBZHes_-M6SyTDTjP0Q/viewform'
+        )
+        mb.hideWindow()
+      }
+    },
+    { type: 'separator' },
     {
       label: 'Quit',
       click: () => {
