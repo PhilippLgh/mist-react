@@ -1,0 +1,73 @@
+<!doctype html>
+  <html>
+    <head>
+      <link rel="stylesheet" href="../node_modules/xterm/dist/xterm.css" />
+      <script src="../node_modules/xterm/dist/xterm.js"></script>
+      <style>
+        html, body {
+          height: 100%;
+          margin: 0px;
+          padding: 0px;
+        }
+        #terminal {
+          height: 100%;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="terminal"></div>
+      <script>
+        var term = new Terminal({
+          cols: 500,
+          rows: 35
+        });
+        term.open(document.getElementById('terminal'));
+
+        // customize terminal
+        // https://github.com/zeit/hyper/blob/72bc73ea7670b289b750c00b05fd49f6e4bbc225/lib/components/term.js
+        // https://github.com/zeit/hyper/blob/519ca3e651326df64fb0e8a99be00551f3b76333/lib/reducers/ui.js#L31
+        // https://xtermjs.org/docs/api/terminal/classes/terminal/#setoption
+        term.setOption('fontSize', 12)
+        term.setOption('letterSpacing', 2)
+        term.setOption('lineHeight', 2)
+        term.setOption('cursorBlink', true)
+        term.setOption('fontFamily', 'Menlo, "DejaVu Sans Mono", "Lucida Console", monospace')
+        term.setOption('theme', {
+          background: '#111'
+        })
+
+        term.resize()
+      
+      </script>
+
+      <script>
+
+        const renderLogs = logs => {
+          logs.forEach(log => {
+            console.log('process', log)
+            log = log.replace('INFO', `\x1B[1;3;92m${'INFO'}\x1B[0m`)
+            log = log.replace('WARN', `\x1B[1;3;93m${'WARN'}\x1B[0m`)
+            log = log.replace('ERROR', `\x1B[1;3;31m${'ERROR'}\x1B[0m`)
+            term.writeln(log)
+          });
+        }
+
+        const args = (Grid && Grid.window && Grid.window.getArgs()) || {}
+        const { client: clientName } = args.scope
+        const client = window.Grid.PluginHost.getPluginByName(clientName)
+        term.writeln(`***** Ethereum Grid: Emulated Terminal for "${client.displayName}" *****`)
+
+        term.on('data', data => {
+          console.log('received data', data)
+          term.write(data)
+        })
+
+        const logs = client.getLogs()
+        renderLogs(logs)
+
+        client.on('log', log => {
+          renderLogs([log])
+        })
+      </script>
+    </body>
+  </html>

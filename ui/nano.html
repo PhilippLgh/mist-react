@@ -85,7 +85,6 @@
       }
 
       .client-version {
-        line-height: 1.5rem;
         font-size: .8rem;
         color: #555;
         visibility: hidden;
@@ -95,19 +94,22 @@
         visibility: visible;
       }
 
-      .button.client-button {
-        background-color: transparent;
-        border: none;
-        font-size: 1.1rem;
+      .icon-indicator {
+        padding: 1px;
+        color: #555;
+        outline: 1px solid #555;
+        cursor: pointer;
+        margin-left: 2px;
+        margin-right: 2px;
       }
 
-      .button.client-button:hover {
-        outline: 1px solid grey;
+      .icon-indicator.active {
+        color: #5789d5cc;
+        outline: 1px solid #5789d5cc;
       }
 
-      .button.client-button:focus {
-        outline: none;
-        border: none;
+      .icon-indicator i {
+        font-size: 1rem;
       }
 
       .spacer {
@@ -134,12 +136,27 @@
           <b-dropdown aria-role="list">
         <button size="is-small" class="button is-primary" slot="trigger">
             <span>Click me!</span>
-            <b-icon pack="fas" icon="caret-down"></b-icon>
+            <b-icon pack="fas" icon="caret-down" size="is-small"></b-icon>
         </button>
         <b-dropdown-item aria-role="listitem">Action</b-dropdown-item>
         <b-dropdown-item aria-role="listitem">Another action</b-dropdown-item>
         <b-dropdown-item aria-role="listitem">Something else</b-dropdown-item>
       </b-dropdown>
+          `
+        })
+
+        
+        Vue.component('icon-indicator', {
+          props: ['icon'],
+          data: function() {
+            return {
+              isActive: false
+            }
+          },
+          template: `
+          <span class="icon-indicator" v-bind:class="{ active: isActive }" v-on:click="isActive = !isActive; $emit('change', isActive)">
+            <b-icon pack="fas" :icon="icon"></b-icon>
+          </span>  
           `
         })
 
@@ -151,34 +168,23 @@
               isSwitched: false,
               state: '',
               isDownloading: false,
-              downloadProgress: 0
+              downloadProgress: 0,
+              checkbox: [],
+              terminalWindowId: undefined,
+              settingsWindowId: undefined
             }
           },
           template: `
           <div>
             <div class="client-item">
+              <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
               <span class="client-name centered">{{ client.displayName }}</span>
               <span class="client-profile centered">{{ client.profile }}</span>
               <span class="client-state centered">{{ state }}</span>
               <span class="client-version centered">{{ clientVersion }}</span>
               <div class="spacer"></div>
-              <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
-              <b-button 
-                class="client-button"
-                size="is-small"
-                icon-pack="fas"
-                icon-left="terminal"
-                v-on:click="openTerminal()"
-              >
-              </b-button>
-              <b-button
-                class="client-button" 
-                size="is-small"
-                icon-pack="fas"
-                icon-left="cog"
-                v-on:click="openSettings()"
-              >
-              </b-button>
+              <icon-indicator @change="toggleTerminal($event)" icon="terminal"></icon-indicator>
+              <icon-indicator @change="toggleSettings($event)" icon="cog"></icon-indicator>
             </div>
             <progress v-if="isDownloading" max="100" class="progress is-small is-primary" v-bind:value="downloadProgress"></progress>
           </div>
@@ -229,11 +235,43 @@
                 }
               }
             },
-            openSettings: function (message) {
-              // TODO open settings
+            toggleSettings: async function (val) {
+              if (val) {
+                this.settingsWindowId = await window.Grid.AppManager.launch({
+                  name: 'grid-ui',
+                  id: this.settingsWindowId,
+                  args: {
+                    scope: {
+                      component: 'settings',
+                      client: 'geth'
+                    }
+                  }
+                })
+              } else {
+                if (this.settingsWindowId) {
+                  await window.Grid.AppManager.hide(this.settingsWindowId)
+                }
+              }
             },
-            openTerminal: function (message) {
-              // TODO open terminal
+            toggleTerminal: async function (val) {
+              console.log('open terminal', val)
+              // TODO handle if window is closed outside of this logic
+              if (val) {
+                this.terminalWindowId = await window.Grid.AppManager.launch({
+                  name: 'grid-ui',
+                  id: this.terminalWindowId,
+                  args: {
+                    scope: {
+                      component: 'terminal',
+                      client: 'geth'
+                    }
+                  }
+                })
+              } else {
+                if (this.terminalWindowId) {
+                  await window.Grid.AppManager.hide(this.terminalWindowId)
+                }
+              }
             }
           }
         })
@@ -244,8 +282,8 @@
             clients: [],
             isSwitched: false
           },
-          mounted: async function(){
-            try {
+          methods: {
+            init: function() {
               const plugins = window.Grid.PluginHost.getAllPlugins()
               this.clients = plugins.map(p => ({
                 name: p.name,
@@ -254,6 +292,14 @@
                 version: ''
               }))
               console.log('plugins loaded', plugins.length)
+            }
+          },
+          mounted: async function(){
+            try {
+              this.init()
+              window.Grid.PluginHost.on('plugins-loaded', () => {
+                this.init()
+              })
             } catch (error) {
               console.log('error loading plugins', error)          
             }
