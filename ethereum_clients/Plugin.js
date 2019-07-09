@@ -178,14 +178,13 @@ class Plugin extends EventEmitter {
     return undefined
   }
 
-  async start(release, flags, config) {
+  async start(release, flags) {
     // TODO do flag validation here based on proxy metadata
-    if (this.config.beforeStart) {
-      if (this.config.beforeStart.execute) {
-        const cmds = this.config.beforeStart.execute
-        for (const cmd of cmds) {
-          await this.execute(cmd)
-        }
+    const { beforeStart } = this.config
+    if (beforeStart && beforeStart.execute) {
+      const cmds = beforeStart.execute
+      for (const cmd of cmds) {
+        await this.execute(cmd)
       }
     }
     const { binaryPath, packagePath } = await this.getLocalBinary(release)
@@ -335,8 +334,8 @@ class PluginProxy extends EventEmitter {
   getLocalBinary(release) {
     return this.plugin.getLocalBinary(release)
   }
-  start(release, config) {
-    return this.plugin.start(release, config)
+  start(release, flags) {
+    return this.plugin.start(release, flags)
   }
   stop() {
     console.log(`client ${this.name} stopped`)
