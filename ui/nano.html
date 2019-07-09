@@ -74,21 +74,20 @@
         visibility: visible;
       }
 
-      .button.client-button {
-        background-color: transparent;
-        border: none;
-        outline: 1px solid grey;
-        font-size: .70rem;
-        color: #666;
+      .icon-indicator {
+        padding: 1px;
+        color: #555;
+        outline: 1px solid #555;
+        cursor: pointer;
       }
 
-      .button.client-button:hover {
-        outline: 1px solid #FFF;
+      .icon-indicator.active {
+        color: #5789d5cc;
+        outline: 1px solid #5789d5cc;
       }
 
-      .button.client-button:focus {
-        outline: none;
-        border: none;
+      .icon-indicator i {
+        font-size: 1rem;
       }
 
       .spacer {
@@ -114,12 +113,26 @@
           <b-dropdown aria-role="list">
         <button size="is-small" class="button is-primary" slot="trigger">
             <span>Click me!</span>
-            <b-icon pack="fas" icon="caret-down"></b-icon>
+            <b-icon pack="fas" icon="caret-down" size="is-small"></b-icon>
         </button>
         <b-dropdown-item aria-role="listitem">Action</b-dropdown-item>
         <b-dropdown-item aria-role="listitem">Another action</b-dropdown-item>
         <b-dropdown-item aria-role="listitem">Something else</b-dropdown-item>
       </b-dropdown>
+          `
+        })
+
+        
+        Vue.component('icon-indicator', {
+          data: function() {
+            return {
+              isActive: false
+            }
+          },
+          template: `
+          <span class="icon-indicator" v-bind:class="{ active: isActive }" v-on:click="isActive = !isActive; $emit('change', isActive)">
+            <b-icon pack="fas" icon="terminal"></b-icon>
+          </span>  
           `
         })
 
@@ -131,7 +144,9 @@
               isSwitched: false,
               state: '',
               isDownloading: false,
-              downloadProgress: 0
+              downloadProgress: 0,
+              checkbox: [],
+              terminalId: undefined
             }
           },
           template: `
@@ -143,15 +158,16 @@
               <span class="client-version centered">{{ clientVersion }}</span>
               <div class="spacer"></div>
               <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
+              <icon-indicator @change="toggleTerminal($event)"></icon-indicator>
+              <!--
               <b-button 
                 class="client-button"
                 size="is-small"
                 icon-pack="fas"
                 icon-left="terminal"
-                v-on:click="openTerminal()"
+                v-on:click="toggleTerminal()"
               >
               </b-button>
-              <!--
               <b-button
                 class="client-button" 
                 size="is-small"
@@ -214,17 +230,26 @@
             openSettings: function (message) {
               // TODO open settings
             },
-            openTerminal: async function (message) {
-              console.log('open terminal')
-              const apps = await window.Grid.AppManager.launch({
-                name: 'grid-ui',
-                args: {
-                  scope: {
-                    component: 'terminal',
-                    client: 'geth'
+            toggleTerminal: async function (val) {
+              console.log('open terminal', val)
+              // TODO handle if window is closed outside of this logic
+              if (val) {
+                const wId = await window.Grid.AppManager.launch({
+                  name: 'grid-ui',
+                  id: this.terminalId,
+                  args: {
+                    scope: {
+                      component: 'terminal',
+                      client: 'geth'
+                    }
                   }
+                })
+                this.terminalId = wId
+              } else {
+                if (this.terminalId) {
+                  await window.Grid.AppManager.hide(this.terminalId)
                 }
-              })
+              }
             }
           }
         })
