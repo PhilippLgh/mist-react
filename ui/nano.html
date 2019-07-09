@@ -79,6 +79,8 @@
         color: #555;
         outline: 1px solid #555;
         cursor: pointer;
+        margin-left: 2px;
+        margin-right: 2px;
       }
 
       .icon-indicator.active {
@@ -124,6 +126,7 @@
 
         
         Vue.component('icon-indicator', {
+          props: ['icon'],
           data: function() {
             return {
               isActive: false
@@ -131,7 +134,7 @@
           },
           template: `
           <span class="icon-indicator" v-bind:class="{ active: isActive }" v-on:click="isActive = !isActive; $emit('change', isActive)">
-            <b-icon pack="fas" icon="terminal"></b-icon>
+            <b-icon pack="fas" :icon="icon"></b-icon>
           </span>  
           `
         })
@@ -146,37 +149,21 @@
               isDownloading: false,
               downloadProgress: 0,
               checkbox: [],
-              terminalId: undefined
+              terminalWindowId: undefined,
+              settingsWindowId: undefined
             }
           },
           template: `
           <div>
             <div class="client-item">
+              <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
               <span class="client-name centered">{{ client.displayName }}</span>
               <span class="client-profile centered">{{ client.profile }}</span>
               <span class="client-state centered">{{ state }}</span>
               <span class="client-version centered">{{ clientVersion }}</span>
               <div class="spacer"></div>
-              <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
-              <icon-indicator @change="toggleTerminal($event)"></icon-indicator>
-              <!--
-              <b-button 
-                class="client-button"
-                size="is-small"
-                icon-pack="fas"
-                icon-left="terminal"
-                v-on:click="toggleTerminal()"
-              >
-              </b-button>
-              <b-button
-                class="client-button" 
-                size="is-small"
-                icon-pack="fas"
-                icon-left="cog"
-                v-on:click="openSettings()"
-              >
-              </b-button>
-              -->
+              <icon-indicator @change="toggleTerminal($event)" icon="terminal"></icon-indicator>
+              <icon-indicator @change="toggleSettings($event)" icon="cog"></icon-indicator>
             </div>
             <progress v-if="isDownloading" max="100" class="progress is-small is-primary" v-bind:value="downloadProgress"></progress>
           </div>
@@ -227,16 +214,31 @@
                 }
               }
             },
-            openSettings: function (message) {
-              // TODO open settings
+            toggleSettings: async function (val) {
+              if (val) {
+                this.settingsWindowId = await window.Grid.AppManager.launch({
+                  name: 'grid-ui',
+                  id: this.settingsWindowId,
+                  args: {
+                    scope: {
+                      component: 'settings',
+                      client: 'geth'
+                    }
+                  }
+                })
+              } else {
+                if (this.settingsWindowId) {
+                  await window.Grid.AppManager.hide(this.settingsWindowId)
+                }
+              }
             },
             toggleTerminal: async function (val) {
               console.log('open terminal', val)
               // TODO handle if window is closed outside of this logic
               if (val) {
-                const wId = await window.Grid.AppManager.launch({
+                this.terminalWindowId = await window.Grid.AppManager.launch({
                   name: 'grid-ui',
-                  id: this.terminalId,
+                  id: this.terminalWindowId,
                   args: {
                     scope: {
                       component: 'terminal',
@@ -244,10 +246,9 @@
                     }
                   }
                 })
-                this.terminalId = wId
               } else {
-                if (this.terminalId) {
-                  await window.Grid.AppManager.hide(this.terminalId)
+                if (this.terminalWindowId) {
+                  await window.Grid.AppManager.hide(this.terminalWindowId)
                 }
               }
             }
