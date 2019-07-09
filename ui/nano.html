@@ -169,8 +169,7 @@
     </style>
 </head>
 
-<!-- <body class="docked-to-bottom"> -->
-<body class=""> 
+<body> 
     <span class="tip"></span>
     <div id="app">
       <client-item v-for="client in clients" :client="client"></client-item>
@@ -358,6 +357,13 @@
             }
           } 
         })
+
+        // Tip placement, only at startup
+        var distanceToBottom = window.screen.height - (window.screenTop + window.innerHeight)
+        var distanceToTop = window.screenTop;
+        document.body.classList.add(
+          (distanceToBottom < distanceToTop) ? 'docked-to-bottom' : 'docked-to-top'
+        );
     </script>
 </body>
 </html>
