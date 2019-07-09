@@ -166,62 +166,85 @@
         font-size: 1rem;
       }
 
+      .separator {
+        height: 1px;
+        margin-top: 3px;
+        margin-bottom: 3px;
+        background-color: #333;
+      }
+
+      .header {
+        display: flex;
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+
+      .spacer {
+        flex-grow: 1;
+      }
+
     </style>
+
+    <script src="https://unpkg.com/vue"></script>
+    <!-- Full bundle -->
+    <script src="https://unpkg.com/buefy/dist/buefy.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+    
+    <script>
+                 
+      Vue.component('icon-indicator', {
+        props: ['icon', 'pack', 'active'],
+        template: `
+        <span class="icon-indicator" v-bind:class="{ active: active }" v-on:click="$emit('change', !active)">
+          <b-icon :pack="pack" :icon="icon"></b-icon>
+        </span>  
+        `
+      })
+
+      Vue.component('profile-select', {
+        template: `
+          <b-dropdown aria-role="list">
+            <button size="is-small" class="button is-primary" slot="trigger">
+                <span>Click me!</span>
+                <b-icon pack="fas" icon="caret-down" size="is-small"></b-icon>
+            </button>
+            <b-dropdown-item aria-role="listitem">Action</b-dropdown-item>
+            <b-dropdown-item aria-role="listitem">Another action</b-dropdown-item>
+            <b-dropdown-item aria-role="listitem">Something else</b-dropdown-item>
+          </b-dropdown>
+          `
+      })
+    </script>
 </head>
 
 <!-- <body class="docked-to-bottom"> -->
 <body class=""> 
     <span class="tip"></span>
     <div id="app">
-      <client-item v-for="client in clients" :client="client"></client-item>
+      <div class="header">
+        <span>Grid v1.0.0</span>
+        <span class="spacer"></span>
+        <icon-indicator :active="configActive" @change="toggleSettings($event)" pack="fas" icon="cog"></icon-indicator>
+      </div>
+      <div class="separator"></div>
+      <client-item v-if="!configActive" v-for="client in clients" :client="client"></client-item>
+      <grid-config v-if="configActive"></grid-config>
     </div>
 
-    <script src="https://unpkg.com/vue"></script>
-    <!-- Full bundle -->
-    <script src="https://unpkg.com/buefy/dist/buefy.min.js"></script>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
-
     <script>
-
-        Vue.component('profile-select', {
-          template: `
-          <b-dropdown aria-role="list">
-        <button size="is-small" class="button is-primary" slot="trigger">
-            <span>Click me!</span>
-            <b-icon pack="fas" icon="caret-down" size="is-small"></b-icon>
-        </button>
-        <b-dropdown-item aria-role="listitem">Action</b-dropdown-item>
-        <b-dropdown-item aria-role="listitem">Another action</b-dropdown-item>
-        <b-dropdown-item aria-role="listitem">Something else</b-dropdown-item>
-      </b-dropdown>
-          `
-        })
-
-        
-        Vue.component('icon-indicator', {
-          props: ['icon', 'pack'],
-          data: function() {
-            return {
-              isActive: false
-            }
-          },
-          template: `
-          <span class="icon-indicator" v-bind:class="{ active: isActive }" v-on:click="isActive = !isActive; $emit('change', isActive)">
-            <b-icon :pack="pack" :icon="icon"></b-icon>
-          </span>  
-          `
-        })
 
         Vue.component('client-item', {
           props: ['client'],
           data: function() {
             return {
-              clientVersion: '',
               isSwitched: false,
+              clientVersion: '',
               state: '',
               isDownloading: false,
               downloadProgress: 0,
               checkbox: [],
+              terminalDisplayed: false,
+              settingsDisplayed: false,
               terminalWindowId: undefined,
               settingsWindowId: undefined
             }
@@ -236,10 +259,10 @@
                 <span class="client-state">{{ state }}</span>
                 <span class="client-version">{{ clientVersion }}</span>
               </span>
-              <icon-indicator @change="toggleTerminal($event)" pack="far" icon="window-maximize"></icon-indicator>
-              <icon-indicator @change="toggleSettings($event)" pack="fas" icon="cog"></icon-indicator>
+              <icon-indicator :active="terminalDisplayed" @change="toggleTerminal($event)" pack="far" icon="window-maximize"></icon-indicator>
+              <icon-indicator :active="settingsDisplayed" @change="toggleSettings($event)" pack="fas" icon="cog"></icon-indicator>
             </div>
-            <progress v-if="isDownloading" max="100" class="progress is-small is-primary" v-bind:value="downloadProgress"></progress>
+            <progress v-if="isDownloading" max="100" class="progress is-small is-primary" :value="downloadProgress"></progress>
           </div>
           `,
           methods: {
@@ -289,7 +312,8 @@
               }
             },
             toggleSettings: async function (val) {
-              if (val) {
+              this.settingsDisplayed = val
+              if (this.settingsDisplayed) {
                 this.settingsWindowId = await window.Grid.AppManager.launch({
                   name: 'grid-ui',
                   id: this.settingsWindowId,
@@ -307,9 +331,10 @@
               }
             },
             toggleTerminal: async function (val) {
+              this.terminalDisplayed = val
               console.log('open terminal', val)
               // TODO handle if window is closed outside of this logic
-              if (val) {
+              if (this.terminalDisplayed) {
                 this.terminalWindowId = await window.Grid.AppManager.launch({
                   name: 'grid-ui',
                   id: this.terminalWindowId,
@@ -329,11 +354,28 @@
           }
         })
 
+        Vue.component('grid-config', {
+          data: function(){
+            return {
+              startOnBoot: false
+            }
+          },
+          template:`
+          <div>
+            <div><a href="https://github.com/ethereum/grid">Grid Repository</a></div>
+            <b-switch v-model="startOnBoot" size="is-small">Start on boot</b-switch>
+          </div>
+          `
+        })
+
         new Vue({
           el: '#app',
-          data: {
-            clients: [],
-            isSwitched: false
+          data: function() {
+            return {
+              clients: [],
+              isSwitched: false,
+              configActive: false
+            }
           },
           methods: {
             init: function() {
@@ -345,6 +387,10 @@
                 version: ''
               }))
               console.log('plugins loaded', plugins.length)
+            },
+            toggleSettings: function(val) {
+              console.log('set configActive to', val)
+              this.configActive = val
             }
           },
           mounted: async function(){
