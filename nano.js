@@ -11,6 +11,12 @@ const mb = menubar({
   index: makePath(`${__dirname}/ui/nano.html`),
   browserWindow: {
     alwaysOnTop: true, // good for debugging
+    transparent: true,
+    backgroundColor: '#00FFFFFF',
+    frame: false,
+    resizable: false,
+    width: 320,
+    height: 420,
     webPreferences: {
       preload: preloadPath
     }
