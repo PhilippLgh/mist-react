@@ -310,7 +310,7 @@
                 this.handleSwitchedOn(clientPlugin)
               } else {
                 // TODO cancel download if currently running
-                if (['started', 'starting'].includes(this.state)) {
+                if (['started', 'starting', 'connected'].includes(this.state)) {
                   clientPlugin.stop()
                 }
               }
