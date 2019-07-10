@@ -245,15 +245,19 @@
               checkbox: [],
               terminalDisplayed: false,
               settingsDisplayed: false,
+              uiDisplayed: false,
               terminalWindowId: undefined,
-              settingsWindowId: undefined
+              settingsWindowId: undefined,
+              uiWindowId: undefined
             }
           },
           template: `
           <div>
             <div class="client-item">
               <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
-              <span class="client-name centered">{{ client.displayName }}</span>
+              <span class="client-name centered" v-on:click="toggleUI(!uiDisplayed)">
+                {{ client.displayName }}
+              </span>
               <span class="client-profile centered">{{ client.profile }}</span>
               <span class="client-info centered">
                 <span class="client-state">{{ state }}</span>
@@ -308,6 +312,25 @@
                 // TODO cancel download if currently running
                 if (['started', 'starting'].includes(this.state)) {
                   clientPlugin.stop()
+                }
+              }
+            },
+            toggleUI: async function(val) {
+              this.uiDisplayed = val
+              if (this.uiDisplayed) {
+                this.uiWindowId = await window.Grid.AppManager.launch({
+                  name: 'grid-ui',
+                  id: this.uiWindowId,
+                  args: {
+                    scope: {
+                      component: 'ui',
+                      client: this.client.name
+                    }
+                  }
+                })
+              } else {
+                if (this.uiWindowId) {
+                  await window.Grid.AppManager.hide(this.uiWindowId)
                 }
               }
             },

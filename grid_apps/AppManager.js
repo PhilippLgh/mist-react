@@ -90,7 +90,7 @@ class AppManager extends EventEmitter {
         },
         {
           scope: {
-            component: 'terminal',
+            component: component,
             client: clientName
           }
         }
