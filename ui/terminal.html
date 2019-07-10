@@ -30,7 +30,7 @@
         // https://xtermjs.org/docs/api/terminal/classes/terminal/#setoption
         term.setOption('fontSize', 12)
         term.setOption('letterSpacing', 2)
-        term.setOption('lineHeight', 2)
+        term.setOption('lineHeight', 1)
         term.setOption('cursorBlink', true)
         term.setOption('fontFamily', 'Menlo, "DejaVu Sans Mono", "Lucida Console", monospace')
         term.setOption('theme', {
@@ -38,14 +38,26 @@
         })
 
         term.resize()
+        
 
+        const lineFeedListener = term.onLineFeed(data => {
+          console.log('data on line feed', data)
+        })
+
+        /*
         term.onKey(e => {
             const ev = e.domEvent;
             const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
             const ENTER = 13
             const BACKSPACE = 8
+            const NEWLINE = '\r\n'
             if (ev.keyCode === ENTER) {
-              console.log()
+              const lines = term.buffer._buffer.lines
+              console.log('enter pressed', lines)
+              const command = 'bla'
+              term.write(NEWLINE)
+              term.writeln(command +  ' : command not found')
+              term.write('$ ')
             } else if (ev.keyCode === BACKSPACE) {
             // Do not delete the prompt
               if (term._core.buffer.x > 2) {
@@ -55,25 +67,33 @@
               term.write(e.key);
             }
         });
+        */
       
       </script>
 
       <script>
-
         const args = (Grid && Grid.window && Grid.window.getArgs()) || {}
         const { client: clientName } = args.scope
         const client = window.Grid.PluginHost.getPluginByName(clientName)
         term.writeln(`***** Ethereum Grid: Emulated Terminal for "${client.displayName}" *****`)
-
+        
         const init = async () => {
           const { binaryPath } = await client.getLocalBinary()
           console.log('bin path', binaryPath)
           term.writeln(binaryPath)
-          term.write('$ ')
-          // term.prompt()
+
+          const ptyProcess = await client.startPtyProcess()
+          // Setup communication between xterm.js and node-pty
+          term.on('data', (data) => {
+            ptyProcess.write(data);
+          });
+          ptyProcess.on('data', function (data) {
+            term.write(data);
+          });
         }
         init()
-
+        
+        /*
         // setup listeners to render the client output. also if reloaded get existing logs and render them
         const renderLogs = logs => {
           logs.forEach(log => {
@@ -89,6 +109,8 @@
         client.on('log', log => {
           renderLogs([log])
         })
+        */
+
       </script>
     </body>
   </html>

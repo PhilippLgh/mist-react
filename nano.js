@@ -4,12 +4,8 @@ const { Menu, shell } = require('electron')
 const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
 const { registerGlobalAppManager } = require('./grid_apps/AppManager')
 const { registerGlobalUserConfig } = require('./Config')
-
-const createRenderer = require('./electron-shell')
-
 const { registerPackageProtocol } = require('@philipplgh/electron-app-manager')
 registerPackageProtocol()
-
 registerGlobalUserConfig()
 
 const preloadPath = path.join(__dirname, 'preload.js')
@@ -51,7 +47,11 @@ mb.on('ready', () => {
   */
 
   mb.showWindow()
-  mb.window.webContents.openDevTools()
+  /*
+  mb.window.webContents.openDevTools({
+    mode: 'detach'
+  })
+  */
 })
 
 // right-click menu for tray

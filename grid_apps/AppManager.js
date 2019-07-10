@@ -86,7 +86,8 @@ class AppManager extends EventEmitter {
         appUrl,
         {
           x: 400,
-          y: 400
+          y: 400,
+          backgroundColor: '#1E1E1E'
         },
         {
           scope: {
@@ -96,6 +97,11 @@ class AppManager extends EventEmitter {
         }
       )
       mainWindow.setMenu(null)
+      /*
+      mainWindow.webContents.openDevTools({
+        mode: 'detach'
+      })
+      */
       mainWindow.setTitle('Ethereum Grid Terminal for ' + clientDisplayName)
       return mainWindow.id
     }
