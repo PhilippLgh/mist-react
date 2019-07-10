@@ -60,6 +60,7 @@
     "asar": false,
     "files": [
       "index.js",
+      "nano.js",
       "electron-shell.js",
       "electron-zip-support.js",
       "preload.js",
@@ -67,6 +68,8 @@
       "WindowManager.js",
       "ui/download-splash.html",
       "ui/json-editor.html",
+      "ui/nano.html",
+      "ui/terminal.html",
       "public/error.html",
       "Menu.js",
       "Config.js",
