@@ -198,14 +198,12 @@ class Plugin extends EventEmitter {
     })
     return ptyProcess
   }
-  async start(release, flags, config) {
+  async start(release, flags) {
     // TODO do flag validation here based on proxy metadata
 
     const { binaryPath, packagePath } = await this.getLocalBinary(release)
     console.log(
-      `client ${
-        this.name
-      } / ${packagePath} about to start - binary: ${binaryPath}`
+      `client ${this.name} / ${packagePath} about to start - binary: ${binaryPath}`
     )
     try {
       this.process = new ControlledProcess(binaryPath, this.resolveIpc)

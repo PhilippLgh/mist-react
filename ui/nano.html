@@ -296,7 +296,10 @@
               this.clientVersion = latestBinCached.version
               
               console.log('cached release found --> start now')
-              clientPlugin.start(latestBinCached)
+              const persistedFlags = await Grid.Config.getItem('flags') || {}
+              const flags = persistedFlags[clientPlugin.name]
+
+              clientPlugin.start(latestBinCached, flags)
 
               clientPlugin.on('newState', (state) => {
                 console.log('new state', state)
