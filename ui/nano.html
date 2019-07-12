@@ -337,6 +337,10 @@
             toggleUI: async function(val) {
               this.uiDisplayed = val
               if (this.uiDisplayed) {
+                const settings = Grid.Config.getItem('settings')
+                const newSettings = Object.assign({}, settings, { selected: this.client.name })
+                Grid.Config.setItem('settings', newSettings)
+
                 this.uiWindowId = await window.Grid.AppManager.launch({
                   name: 'grid-ui',
                   id: this.uiWindowId,
