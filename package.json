@@ -20,14 +20,14 @@
     "prepare-release": "node ./scripts/copyApp.js",
     "build": "yarn run prepare-release && build",
     "release": "env-cmd .env build",
-    "rebuild": "electron-rebuild -f -w node-pty",
+    "rebuild": "electron-rebuild -f -o node-pty",
     "postinstall": "yarn rebuild"
   },
   "dependencies": {
     "@philipplgh/electron-app-manager": "^0.42.0",
     "debug": "^4.1.1",
     "menubar": "^6.0.6",
-    "node-pty": "^0.8.1",
+    "node-pty": "^0.9.0-beta19",
     "xterm": "^3.14.4"
   },
   "peerDependencies": {},
