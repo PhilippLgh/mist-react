@@ -27,8 +27,8 @@
   },
   {
     "name": "IPFS Web UI",
-    "description": "A web interface to IPFS.",
+    "description": "Ensure daemon setting is enabled in IPFS settings for app to load.",
     "screenshot": "https://github.com/ipfs-shipyard/ipfs-webui/raw/master/docs/screenshots/ipfs-webui-status.png",
-    "url": "package://github.com/ryanio/ipfs-webui-static-build"
+    "url": "http://127.0.0.1:5001/webui"
   }
 ]
