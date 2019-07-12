@@ -370,10 +370,24 @@
           },
           template:`
           <div>
+            <div><a v-on:click="openApps()">View Apps</a></div>
             <div><a href="https://github.com/ethereum/grid">Grid Repository</a></div>
             <b-switch v-model="startOnBoot" size="is-small">Start on boot</b-switch>
           </div>
-          `
+          `,
+          methods: {
+            openApps: async function() {
+              this.appsWindowId = await window.Grid.AppManager.launch({
+                name: 'grid-ui',
+                id: this.appsWindowId,
+                args: {
+                  scope: {
+                    component: 'apps'
+                  }
+                }
+              })
+            }
+          }
         })
 
         new Vue({
