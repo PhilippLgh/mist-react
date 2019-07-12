@@ -232,7 +232,6 @@
     </div>
 
     <script>
-
         Vue.component('client-item', {
           props: ['client'],
           data: function() {
@@ -255,9 +254,7 @@
           <div>
             <div class="client-item">
               <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
-              <span class="client-name centered" v-on:click="toggleUI(!uiDisplayed)">
-                {{ client.displayName }}
-              </span>
+              <span class="client-name centered" v-on:click="toggleUI(!uiDisplayed)">{{ client.displayName }}</span>
               <span class="client-profile centered">{{ client.profile }}</span>
               <span class="client-info centered">
                 <span class="client-state">{{ state }}</span>
@@ -269,7 +266,29 @@
             <progress v-if="isDownloading" max="100" class="progress is-small is-primary" :value="downloadProgress"></progress>
           </div>
           `,
+          mounted: function() {
+            try {
+              const clientPlugin = window.Grid.PluginHost.getPluginByName(this.client.name)
+              this.pollForPluginChanges(clientPlugin)
+            } catch (error) {
+              console.log('error polling for state updates', error)
+            }
+          },
           methods: {
+            pollForPluginChanges: function(clientPlugin) {
+              setInterval(async () => {
+                this.isSwitched = await clientPlugin.isRunning
+                if (this.isSwitched) {
+                  this.listenForStateUpdates(clientPlugin)
+                }
+              }, 3000)
+            },
+            listenForStateUpdates: function(clientPlugin) {
+              clientPlugin.on('newState', (state) => {
+                console.log('new state', state)
+                this.state = state
+              })
+            },
             handleSwitchedOn: async function(clientPlugin) {
               // check if downloaded version is available
               let latestBinCached = await clientPlugin.getLatestCached()
@@ -301,10 +320,7 @@
 
               clientPlugin.start(latestBinCached, flags)
 
-              clientPlugin.on('newState', (state) => {
-                console.log('new state', state)
-                this.state = state
-              })
+              this.listenForStateUpdates(clientPlugin)
             },
             handleChange: function(ev) {
               // get reference to plugin                
