@@ -118,7 +118,7 @@ module.exports = {
       label: 'Enable GraphQL',
       default: 'false',
       options: [
-        { value: 'true', flag: '--graphql', label: 'Yes' },
+        { value: 'true', flag: '--graphql', label: 'Yes (v1.9.0 and later)' },
         { value: 'false', flag: '', label: 'No' }
       ]
     }
