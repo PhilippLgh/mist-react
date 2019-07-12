@@ -99,12 +99,6 @@ module.exports = {
       flag: '--syncmode %s'
     },
     {
-      id: 'cache',
-      default: '2048',
-      label: 'Cache',
-      flag: '--cache %s'
-    },
-    {
       id: 'console',
       label: 'Enable console',
       default: 'false',
