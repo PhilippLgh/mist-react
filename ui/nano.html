@@ -158,9 +158,11 @@
         color: #888;
       }
 
+      /*
       .icon-indicator.active {
         color: #5789d5cc;
       }
+      */
 
       .icon-indicator i {
         font-size: 1rem;
@@ -242,11 +244,7 @@
               isDownloading: false,
               downloadProgress: 0,
               checkbox: [],
-              terminalDisplayed: false,
-              settingsDisplayed: false,
-              uiDisplayed: false,
               terminalWindowId: undefined,
-              settingsWindowId: undefined,
               uiWindowId: undefined
             }
           },
@@ -254,14 +252,13 @@
           <div>
             <div class="client-item">
               <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
-              <span class="client-name centered" v-on:click="toggleUI(!uiDisplayed)">{{ client.displayName }}</span>
+              <span class="client-name centered" v-on:click="openUI()">{{ client.displayName }}</span>
               <span class="client-profile centered">{{ client.profile }}</span>
               <span class="client-info centered">
                 <span class="client-state">{{ state }}</span>
                 <span class="client-version">{{ clientVersion }}</span>
               </span>
-              <icon-indicator :active="terminalDisplayed" @change="toggleTerminal($event)" pack="far" icon="window-maximize"></icon-indicator>
-              <icon-indicator :active="settingsDisplayed" @change="toggleSettings($event)" pack="fas" icon="cog"></icon-indicator>
+              <icon-indicator :active="terminalDisplayed" @change="openTerminal()" pack="far" icon="window-maximize"></icon-indicator>
             </div>
             <progress v-if="isDownloading" max="100" class="progress is-small is-primary" :value="downloadProgress"></progress>
           </div>
@@ -334,68 +331,33 @@
                 }
               }
             },
-            toggleUI: async function(val) {
-              this.uiDisplayed = val
-              if (this.uiDisplayed) {
-                const settings = Grid.Config.getItem('settings')
-                const newSettings = Object.assign({}, settings, { selected: this.client.name })
-                Grid.Config.setItem('settings', newSettings)
+            openUI: async function() {
+              const settings = Grid.Config.getItem('settings')
+              const newSettings = Object.assign({}, settings, { selected: this.client.name })
+              Grid.Config.setItem('settings', newSettings)
 
-                this.uiWindowId = await window.Grid.AppManager.launch({
-                  name: 'grid-ui',
-                  id: this.uiWindowId,
-                  args: {
-                    scope: {
-                      component: 'ui',
-                      client: this.client.name
-                    }
+              this.uiWindowId = await window.Grid.AppManager.launch({
+                name: 'grid-ui',
+                id: this.uiWindowId,
+                args: {
+                  scope: {
+                    component: 'ui',
+                    client: this.client.name
                   }
-                })
-              } else {
-                if (this.uiWindowId) {
-                  await window.Grid.AppManager.hide(this.uiWindowId)
                 }
-              }
+              })
             },
-            toggleSettings: async function (val) {
-              this.settingsDisplayed = val
-              if (this.settingsDisplayed) {
-                this.settingsWindowId = await window.Grid.AppManager.launch({
-                  name: 'grid-ui',
-                  id: this.settingsWindowId,
-                  args: {
-                    scope: {
-                      component: 'settings',
-                      client: this.client.name
-                    }
+            openTerminal: async function() {
+              this.terminalWindowId = await window.Grid.AppManager.launch({
+                name: 'grid-ui',
+                id: this.terminalWindowId,
+                args: {
+                  scope: {
+                    component: 'terminal',
+                    client: this.client.name
                   }
-                })
-              } else {
-                if (this.settingsWindowId) {
-                  await window.Grid.AppManager.hide(this.settingsWindowId)
                 }
-              }
-            },
-            toggleTerminal: async function (val) {
-              this.terminalDisplayed = val
-              console.log('open terminal', val)
-              // TODO handle if window is closed outside of this logic
-              if (this.terminalDisplayed) {
-                this.terminalWindowId = await window.Grid.AppManager.launch({
-                  name: 'grid-ui',
-                  id: this.terminalWindowId,
-                  args: {
-                    scope: {
-                      component: 'terminal',
-                      client: this.client.name
-                    }
-                  }
-                })
-              } else {
-                if (this.terminalWindowId) {
-                  await window.Grid.AppManager.hide(this.terminalWindowId)
-                }
-              }
+              })
             }
           }
         })
