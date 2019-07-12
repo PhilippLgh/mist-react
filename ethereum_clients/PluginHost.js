@@ -40,19 +40,21 @@ class PluginHost extends EventEmitter {
       })
   }
   loadPluginFromFile(fullPath) {
+    const source = fs.readFileSync(fullPath, 'utf8')
     const pluginConfig = require(fullPath)
     // 2. TODO validate / verify
-    const plugin = new Plugin(pluginConfig)
+    const plugin = new Plugin(pluginConfig, source)
     return plugin
   }
   async loadPluginFromPackage(pluginManager, pkg) {
     const index = await pluginManager.getEntry(pkg, 'package/index.js')
-    const indexContent = await index.file.readContent()
+    const source = (await index.file.readContent()).toString()
+    // FIXME this needs to be separated into an installation step after user's has checked that code looks legit and everything is fine
     const pluginConfig = requireFromString(
-      indexContent.toString(),
+      source,
       `${pkg.location}/package/index.js`
     )
-    const plugin = new Plugin(pluginConfig)
+    const plugin = new Plugin(pluginConfig, source, pkg)
     return plugin
   }
   async getPluginsFromRegistries() {

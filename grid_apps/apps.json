@@ -24,5 +24,11 @@
     "description": "Grid app to test RPC endpoints",
     "screenshot": "https://i.imgur.com/zI5QLEv.png",
     "url": "package://github.com/ryanio/grid-rpc-app"
+  },
+  {
+    "name": "Geth GraphQL Explorer",
+    "description": "Ensure GraphQL option is enabled in geth settings for app to load.",
+    "screenshot": "https://camo.githubusercontent.com/36e1dff0883acf38171e88f2d71a60462a709197/68747470733a2f2f626c6f672e657468657265756d2e6f72672f696d672f323031392f30372f6772617068716c2e706e67",
+    "url": "http://localhost:8547"
   }
 ]
