@@ -99,17 +99,20 @@ module.exports = {
       flag: '--syncmode %s'
     },
     {
-      id: 'cache',
-      default: '2048',
-      label: 'Cache',
-      flag: '--cache %s'
-    },
-    {
       id: 'console',
       label: 'Enable console',
       default: 'false',
       options: [
         { value: 'true', flag: 'console', label: 'Yes' },
+        { value: 'false', flag: '', label: 'No' }
+      ]
+    },
+    {
+      id: 'graphql',
+      label: 'Enable GraphQL',
+      default: 'false',
+      options: [
+        { value: 'true', flag: '--graphql', label: 'Yes (v1.9.0 and later)' },
         { value: 'false', flag: '', label: 'No' }
       ]
     }
