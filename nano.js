@@ -12,6 +12,8 @@ registerGlobalUserConfig()
 // auto-launch may start process with --hidden
 const startMinimized = (process.argv || []).indexOf('--hidden') !== -1
 
+let keepWindowOpen = false
+
 const preloadPath = path.join(__dirname, 'preload.js')
 
 const makePath = p =>
@@ -62,11 +64,24 @@ mb.on('ready', () => {
     mode: 'detach'
   })
   */
+  mb.window.on('blur', function() {
+    // it prevents window from hiding if keepWindowOpen is checked on tray's context menu
+    !keepWindowOpen && mb.hideWindow()
+  })
 })
 
 // right-click menu for tray
 mb.on('after-create-window', function() {
   const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Keep window open',
+      type: 'checkbox',
+      checked: keepWindowOpen,
+      click: () => {
+        keepWindowOpen = !keepWindowOpen
+      }
+    },
+    { type: 'separator' },
     {
       label: 'Feedback',
       click: () => {
@@ -86,9 +101,5 @@ mb.on('after-create-window', function() {
   ])
   mb.tray.on('right-click', () => {
     mb.tray.popUpContextMenu(contextMenu)
-  })
-
-  mb.window.on('blur', function() {
-    mb.hideWindow()
   })
 })
