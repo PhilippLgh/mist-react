@@ -72,15 +72,30 @@
       }
 
       /* variant of the tip when the window is docked to the bottom */
-      body.docked-to-bottom #app {
+      body.is-docked-to-bottom #app {
         margin-top: 3px;
       }
-      body.docked-to-bottom .tip {
+      body.is-docked-to-bottom .tip {
         transform: rotate(180deg) translateX(50%);
         top: initial;
         bottom: 0;
         margin-left: -2px;
       }
+
+      /* 
+       * Removes windows and linux window tip.
+       * I'd rather remove the tip on W+L instead of 
+       * adding it only for mac, due to Mac shadow rendering reasons. 
+       */
+      body.is-windows .tip, body.is-linux .tip {
+        display: none;
+      }
+      body.is-windows #app, body.is-linux #app {
+        height: 100vh;
+        margin: 0;
+        border-radius: 2px;
+      }
+
 
       .client-item {
         padding: 5px;
@@ -229,7 +244,7 @@
     </script>
   </head>
 
-  <!-- <body class="docked-to-bottom"> -->
+  <!-- <body class="is-docked-to-bottom is-windows"> -->
   <body class="">
     <span class="tip"></span>
     <div id="app">
@@ -473,8 +488,22 @@
         window.screen.height - (window.screenTop + window.innerHeight)
       var distanceToTop = window.screenTop
       document.body.classList.add(
-        distanceToBottom < distanceToTop ? 'docked-to-bottom' : 'docked-to-top'
+        distanceToBottom < distanceToTop ? 'is-docked-to-bottom' : 'is-docked-to-top'
       )
+
+
+      // OS detection
+      var osClass;
+      function checkPlatform(pattern) { return pattern.test(window.navigator.platform) }
+      if (checkPlatform(/win/i)) {
+        osClass = 'is-windows';
+      } else if (checkPlatform(/mac/i)) {
+        osClass = 'is-mac';
+      } else {
+        osClass = 'is-linux'
+      }
+      document.body.classList.add(osClass)
+
     </script>
   </body>
 </html>
