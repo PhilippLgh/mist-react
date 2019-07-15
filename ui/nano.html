@@ -186,6 +186,13 @@
       .spacer {
         flex-grow: 1;
       }
+
+      .grid-config > div:not(.separator) {
+        padding: 5px;
+      }
+      .grid-config > .separator {
+        margin: 5px 0;
+      }
     </style>
 
     <script src="https://unpkg.com/vue"></script>
@@ -393,10 +400,11 @@
           }
         },
         template: `
-          <div>
+          <div class="grid-config">
             <div><a v-on:click="openApps()">View Apps</a></div>
             <div><a @click.prevent="openExternal('https://github.com/ethereum/grid')">Grid Repository</a></div>
-            <b-switch v-model="startOnBoot" size="is-small">Start on boot</b-switch>
+            <div class="separator"></div>
+            <div><b-switch v-model="startOnBoot" size="is-small">Start Grid on boot</b-switch></div>
           </div>
           `,
         methods: {
