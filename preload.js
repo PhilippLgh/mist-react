@@ -1,10 +1,11 @@
 const { ipcRenderer, remote, webFrame } = require('electron')
 const {
-  notify,
-  showOpenDialog,
-  openExternalLink,
   getLaunchOnBoot,
-  setLaunchOnBoot
+  hideWindow,
+  notify,
+  openExternalLink,
+  setLaunchOnBoot,
+  showOpenDialog
 } = require('./utils/renderer/electron')
 
 // Enabling spectron integration https://github.com/electron/spectron#node-integration
@@ -68,6 +69,7 @@ const Grid = {
   showOpenDialog,
   openExternalLink,
   getLaunchOnBoot,
+  hideWindow,
   setLaunchOnBoot
 }
 

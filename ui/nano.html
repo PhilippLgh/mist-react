@@ -475,6 +475,13 @@
       document.body.classList.add(
         distanceToBottom < distanceToTop ? 'docked-to-bottom' : 'docked-to-top'
       )
+
+
+      document.onkeydown = function(evt) {
+        if (evt && evt.key === "Escape") {
+          Grid.hideWindow()
+        }
+      };
     </script>
   </body>
 </html>

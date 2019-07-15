@@ -65,10 +65,16 @@ const setLaunchOnBoot = enable => {
   }
 }
 
+const hideWindow = () => {
+  const window = remote.getCurrentWindow()
+  window && window.hide()
+}
+
 module.exports = {
-  notify,
-  showOpenDialog,
-  openExternalLink,
   getLaunchOnBoot,
-  setLaunchOnBoot
+  hideWindow,
+  notify,
+  openExternalLink,
+  setLaunchOnBoot,
+  showOpenDialog
 }
