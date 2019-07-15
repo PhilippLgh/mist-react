@@ -9,6 +9,9 @@ const { registerPackageProtocol } = require('@philipplgh/electron-app-manager')
 registerPackageProtocol()
 registerGlobalUserConfig()
 
+// auto-launch may start process with --hidden
+const startMinimized = (process.argv || []).indexOf('--hidden') !== -1
+
 const preloadPath = path.join(__dirname, 'preload.js')
 
 const makePath = p =>
@@ -47,7 +50,10 @@ mb.on('ready', () => {
   })
   */
 
-  mb.showWindow()
+  if (!startMinimized) {
+    mb.showWindow()
+  }
+
   /*
   mb.window.webContents.openDevTools({
     mode: 'detach'
