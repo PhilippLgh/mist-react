@@ -87,4 +87,8 @@ mb.on('after-create-window', function() {
   mb.tray.on('right-click', () => {
     mb.tray.popUpContextMenu(contextMenu)
   })
+
+  mb.window.on('blur', function() {
+    mb.hideWindow()
+  })
 })
