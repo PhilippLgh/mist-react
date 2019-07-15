@@ -50,9 +50,12 @@ mb.on('ready', () => {
   })
   */
 
-  if (!startMinimized) {
-    mb.showWindow()
-  }
+  // Unsure of linux distros behavior with menubar
+  // so for now we will always show on launch
+  // if (!startMinimized) {
+  //   mb.showWindow()
+  // }
+  mb.showWindow()
 
   /*
   mb.window.webContents.openDevTools({
