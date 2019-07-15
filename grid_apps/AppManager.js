@@ -104,7 +104,7 @@ class AppManager extends EventEmitter {
 
     if (app.name === 'grid-ui') {
       const { args } = app
-      const appUrl = await getGridUiUrl()
+      let appUrl = await getGridUiUrl()
       const { scope } = args
       const { client: clientName, component } = scope
       if (component === 'terminal') {
