@@ -1,4 +1,4 @@
-const { remote } = require('electron')
+const { remote, shell } = require('electron')
 const { dialog } = require('electron').remote
 
 const notify = (title, body) => {
@@ -41,7 +41,12 @@ const showOpenDialog = (
   })
 }
 
+const openExternalLink = href => {
+  shell.openExternal(href)
+}
+
 module.exports = {
   notify,
-  showOpenDialog
+  showOpenDialog,
+  openExternalLink
 }

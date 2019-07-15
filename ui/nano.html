@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css" />
     <style>
-      html, body {
+      html,
+      body {
         padding: 0px;
         margin: 0px;
         background-color: transparent;
@@ -19,17 +20,17 @@
       .switch {
         margin-right: 4px;
       }
-      .switch input[type=checkbox]:checked+.check {
-          background: #57d57e;
+      .switch input[type='checkbox']:checked + .check {
+        background: #57d57e;
       }
-      .switch:hover input[type=checkbox]:checked+.check {
-          background: rgba(87,213, 126, .9);
+      .switch:hover input[type='checkbox']:checked + .check {
+        background: rgba(87, 213, 126, 0.9);
       }
-      .switch input[type=checkbox]:focus:checked+.check {
-        box-shadow: 0 0 0.5em rgba(87,213, 126,.8);
+      .switch input[type='checkbox']:focus:checked + .check {
+        box-shadow: 0 0 0.5em rgba(87, 213, 126, 0.8);
       }
 
-      .switch input[type=checkbox]+.check {
+      .switch input[type='checkbox'] + .check {
         background: #3e3e3e;
       }
 
@@ -38,7 +39,7 @@
         height: calc(100vh - 18px);
         margin-top: 18px;
         z-index: 1;
-        background-color: rgba(30,30,30,1);
+        background-color: rgba(30, 30, 30, 1);
         border-radius: 12px;
       }
 
@@ -58,14 +59,15 @@
         position: absolute;
         width: 50px;
         height: 50px;
-        background-color: rgba(30,30,30,1);
+        background-color: rgba(30, 30, 30, 1);
         border-radius: 8px;
         transform: rotate(-45deg) translateX(1px) translateY(11px);
         transform-origin: center;
       }
 
       /* they need to share the same border. DRY'ing */
-      #app, .tip::before {
+      #app,
+      .tip::before {
         border: 1px solid #262626;
       }
 
@@ -92,7 +94,7 @@
 
       .client-name:hover {
         cursor: pointer;
-        text-decoration: underline; 
+        text-decoration: underline;
       }
 
       .client-profile {
@@ -130,13 +132,13 @@
       .client-state {
         color: #555;
         margin-right: 5px;
-        font-size: .8rem;
+        font-size: 0.8rem;
         top: 0;
         opacity: 1;
       }
 
       .client-version {
-        font-size: .7rem;
+        font-size: 0.7rem;
         color: #555;
         white-space: nowrap;
         top: 1.85rem;
@@ -184,22 +186,23 @@
       .spacer {
         flex-grow: 1;
       }
-
     </style>
 
     <script src="https://unpkg.com/vue"></script>
     <!-- Full bundle -->
     <script src="https://unpkg.com/buefy/dist/buefy.min.js"></script>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
-    
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    />
+
     <script>
-                 
       Vue.component('icon-indicator', {
         props: ['icon', 'pack', 'active'],
         template: `
         <span class="icon-indicator" v-bind:class="{ active: active }" v-on:click="$emit('change', !active)">
           <b-icon :pack="pack" :icon="icon"></b-icon>
-        </span>  
+        </span>
         `
       })
 
@@ -217,39 +220,48 @@
           `
       })
     </script>
-</head>
+  </head>
 
-<!-- <body class="docked-to-bottom"> -->
-<body class=""> 
+  <!-- <body class="docked-to-bottom"> -->
+  <body class="">
     <span class="tip"></span>
     <div id="app">
       <div class="header">
         <span>Grid v1.0.0</span>
         <span class="spacer"></span>
-        <icon-indicator :active="configActive" @change="toggleSettings($event)" pack="fas" icon="cog"></icon-indicator>
+        <icon-indicator
+          :active="configActive"
+          @change="toggleSettings($event)"
+          pack="fas"
+          icon="cog"
+        ></icon-indicator>
       </div>
       <div class="separator"></div>
-      <client-item v-if="!configActive" v-for="client in clients" :client="client"></client-item>
+      <client-item
+        v-if="!configActive"
+        v-for="client in clients"
+        :client="client"
+      ></client-item>
       <grid-config v-if="configActive"></grid-config>
     </div>
 
     <script>
-        Vue.component('client-item', {
-          props: ['client'],
-          data: function() {
-            return {
-              isSwitched: false,
-              clientVersion: '',
-              state: '',
-              isDownloading: false,
-              downloadProgress: 0,
-              checkbox: [],
-              terminalWindowId: undefined,
-              uiWindowId: undefined,
-              polling: null
-            }
-          },
-          template: `
+      Vue.component('client-item', {
+        props: ['client'],
+        data: function() {
+          return {
+            isSwitched: false,
+            clientVersion: '',
+            state: '',
+            isDownloading: false,
+            downloadProgress: 0,
+            checkbox: [],
+            terminalWindowId: undefined,
+            uiWindowId: undefined,
+            polling: null
+          }
+        },
+        template: `
           <div>
             <div class="client-item">
               <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
@@ -264,176 +276,191 @@
             <progress v-if="isDownloading" max="100" class="progress is-small is-primary" :value="downloadProgress"></progress>
           </div>
           `,
-          created: function() {
-            try {
-              const clientPlugin = window.Grid.PluginHost.getPluginByName(this.client.name)
-              this.listenForStateUpdates(clientPlugin)
-            } catch (error) {
-              console.log('error polling for state updates', error)
-            }
-          },
-          beforeDestroy: function () {
-            const clientPlugin = window.Grid.PluginHost.getPluginByName(this.client.name)
-            clientPlugin.removeAllListeners('newState')
-          },
-          methods: {
-            listenForStateUpdates: function(clientPlugin) {
-              clientPlugin.on('newState', (state) => {
-                console.log('new state', state)
-                this.state = state
+        created: function() {
+          try {
+            const clientPlugin = window.Grid.PluginHost.getPluginByName(
+              this.client.name
+            )
+            this.listenForStateUpdates(clientPlugin)
+          } catch (error) {
+            console.log('error polling for state updates', error)
+          }
+        },
+        beforeDestroy: function() {
+          const clientPlugin = window.Grid.PluginHost.getPluginByName(
+            this.client.name
+          )
+          clientPlugin.removeAllListeners('newState')
+        },
+        methods: {
+          listenForStateUpdates: function(clientPlugin) {
+            clientPlugin.on('newState', state => {
+              console.log('new state', state)
+              this.state = state
 
-                if (['starting', 'started', 'connected'].includes(state)) {
-                  this.isSwitched = true
-                } else {
-                  this.isSwitched = false
-                }
-              })
-            },
-            handleSwitchedOn: async function(clientPlugin) {
-              // check if downloaded version is available
-              let latestBinCached = await clientPlugin.getLatestCached()
-              if (!latestBinCached) {
-                console.log('no client binary found --> download now')
-                const latestRemote = await clientPlugin.getLatestRemote()
-                // TODO handle no remote release found
-                try {
-                  this.state = "downloading"
-                  this.isDownloading = true
-                  latestBinCached = await clientPlugin.download(latestRemote, downloadProgress => {
+              if (['starting', 'started', 'connected'].includes(state)) {
+                this.isSwitched = true
+              } else {
+                this.isSwitched = false
+              }
+            })
+          },
+          handleSwitchedOn: async function(clientPlugin) {
+            // check if downloaded version is available
+            let latestBinCached = await clientPlugin.getLatestCached()
+            if (!latestBinCached) {
+              console.log('no client binary found --> download now')
+              const latestRemote = await clientPlugin.getLatestRemote()
+              // TODO handle no remote release found
+              try {
+                this.state = 'downloading'
+                this.isDownloading = true
+                latestBinCached = await clientPlugin.download(
+                  latestRemote,
+                  downloadProgress => {
                     console.log('download progress', downloadProgress)
                     this.downloadProgress = downloadProgress
                     this.state = `downloading ${downloadProgress}%`
-                  })
-                  this.isDownloading = false
-                  this.state = ""
-                } catch (error) {
-                  console.log('error during download', error)
-                  return //TODO handleDownloadError(error)
-                }
-              }
-
-              this.clientVersion = latestBinCached.version
-              
-              console.log('cached release found --> start now')
-              const persistedFlags = await Grid.Config.getItem('flags') || {}
-              const flags = persistedFlags[clientPlugin.name]
-
-              clientPlugin.start(latestBinCached, flags)
-            },
-            handleChange: function(ev) {
-              // get reference to plugin                
-              const clientPlugin = window.Grid.PluginHost.getPluginByName(this.client.name)
-              if (this.isSwitched) {
-                this.handleSwitchedOn(clientPlugin)
-              } else {
-                // TODO cancel download if currently running
-                if (['started', 'starting', 'connected'].includes(this.state)) {
-                  clientPlugin.stop()
-                }
-              }
-            },
-            openUI: async function() {
-              const settings = Grid.Config.getItem('settings')
-              const newSettings = Object.assign({}, settings, { selected: this.client.name })
-              Grid.Config.setItem('settings', newSettings)
-
-              this.uiWindowId = await window.Grid.AppManager.launch({
-                name: 'grid-ui',
-                id: this.uiWindowId,
-                args: {
-                  scope: {
-                    component: 'ui',
-                    client: this.client.name
                   }
-                }
-              })
-            },
-            openTerminal: async function() {
-              this.terminalWindowId = await window.Grid.AppManager.launch({
-                name: 'grid-ui',
-                id: this.terminalWindowId,
-                args: {
-                  scope: {
-                    component: 'terminal',
-                    client: this.client.name
-                  }
-                }
-              })
+                )
+                this.isDownloading = false
+                this.state = ''
+              } catch (error) {
+                console.log('error during download', error)
+                return //TODO handleDownloadError(error)
+              }
             }
-          }
-        })
 
-        Vue.component('grid-config', {
-          data: function(){
-            return {
-              startOnBoot: false
+            this.clientVersion = latestBinCached.version
+
+            console.log('cached release found --> start now')
+            const persistedFlags = (await Grid.Config.getItem('flags')) || {}
+            const flags = persistedFlags[clientPlugin.name]
+
+            clientPlugin.start(latestBinCached, flags)
+          },
+          handleChange: function(ev) {
+            // get reference to plugin
+            const clientPlugin = window.Grid.PluginHost.getPluginByName(
+              this.client.name
+            )
+            if (this.isSwitched) {
+              this.handleSwitchedOn(clientPlugin)
+            } else {
+              // TODO cancel download if currently running
+              if (['started', 'starting', 'connected'].includes(this.state)) {
+                clientPlugin.stop()
+              }
             }
           },
-          template:`
+          openUI: async function() {
+            const settings = Grid.Config.getItem('settings')
+            const newSettings = Object.assign({}, settings, {
+              selected: this.client.name
+            })
+            Grid.Config.setItem('settings', newSettings)
+
+            this.uiWindowId = await window.Grid.AppManager.launch({
+              name: 'grid-ui',
+              id: this.uiWindowId,
+              args: {
+                scope: {
+                  component: 'ui',
+                  client: this.client.name
+                }
+              }
+            })
+          },
+          openTerminal: async function() {
+            this.terminalWindowId = await window.Grid.AppManager.launch({
+              name: 'grid-ui',
+              id: this.terminalWindowId,
+              args: {
+                scope: {
+                  component: 'terminal',
+                  client: this.client.name
+                }
+              }
+            })
+          }
+        }
+      })
+
+      Vue.component('grid-config', {
+        data: function() {
+          return {
+            startOnBoot: false
+          }
+        },
+        template: `
           <div>
             <div><a v-on:click="openApps()">View Apps</a></div>
-            <div><a href="https://github.com/ethereum/grid">Grid Repository</a></div>
+            <div><a @click.prevent="openExternal('https://github.com/ethereum/grid')">Grid Repository</a></div>
             <b-switch v-model="startOnBoot" size="is-small">Start on boot</b-switch>
           </div>
           `,
-          methods: {
-            openApps: async function() {
-              this.appsWindowId = await window.Grid.AppManager.launch({
-                name: 'grid-ui',
-                id: this.appsWindowId,
-                args: {
-                  scope: {
-                    component: 'apps'
-                  }
+        methods: {
+          openApps: async function() {
+            this.appsWindowId = await window.Grid.AppManager.launch({
+              name: 'grid-ui',
+              id: this.appsWindowId,
+              args: {
+                scope: {
+                  component: 'apps'
                 }
-              })
-            }
+              }
+            })
+          },
+          openExternal: function(href) {
+            window.Grid.openExternalLink(href)
           }
-        })
+        }
+      })
 
-        new Vue({
-          el: '#app',
-          data: function() {
-            return {
-              clients: [],
-              isSwitched: false,
-              configActive: false
-            }
+      new Vue({
+        el: '#app',
+        data: function() {
+          return {
+            clients: [],
+            isSwitched: false,
+            configActive: false
+          }
+        },
+        methods: {
+          init: function() {
+            const plugins = window.Grid.PluginHost.getAllPlugins()
+            this.clients = plugins.map(p => ({
+              name: p.name,
+              displayName: p.displayName,
+              profile: '',
+              version: ''
+            }))
+            console.log('plugins loaded', plugins.length)
           },
-          methods: {
-            init: function() {
-              const plugins = window.Grid.PluginHost.getAllPlugins()
-              this.clients = plugins.map(p => ({
-                name: p.name,
-                displayName: p.displayName,
-                profile: '',
-                version: ''
-              }))
-              console.log('plugins loaded', plugins.length)
-            },
-            toggleSettings: function(val) {
-              console.log('set configActive to', val)
-              this.configActive = val
-            }
-          },
-          mounted: async function(){
-            try {
+          toggleSettings: function(val) {
+            console.log('set configActive to', val)
+            this.configActive = val
+          }
+        },
+        mounted: async function() {
+          try {
+            this.init()
+            window.Grid.PluginHost.on('plugins-loaded', () => {
               this.init()
-              window.Grid.PluginHost.on('plugins-loaded', () => {
-                this.init()
-              })
-            } catch (error) {
-              console.log('error loading plugins', error)          
-            }
-          } 
-        })
+            })
+          } catch (error) {
+            console.log('error loading plugins', error)
+          }
+        }
+      })
 
-        // Tip placement, only at startup
-        var distanceToBottom = window.screen.height - (window.screenTop + window.innerHeight)
-        var distanceToTop = window.screenTop;
-        document.body.classList.add(
-          (distanceToBottom < distanceToTop) ? 'docked-to-bottom' : 'docked-to-top'
-        );
+      // Tip placement, only at startup
+      var distanceToBottom =
+        window.screen.height - (window.screenTop + window.innerHeight)
+      var distanceToTop = window.screenTop
+      document.body.classList.add(
+        distanceToBottom < distanceToTop ? 'docked-to-bottom' : 'docked-to-top'
+      )
     </script>
-</body>
+  </body>
 </html>
