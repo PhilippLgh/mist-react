@@ -396,7 +396,7 @@
       Vue.component('grid-config', {
         data: function() {
           return {
-            startOnBoot: false
+            launchOnBoot: false
           }
         },
         template: `
@@ -404,7 +404,7 @@
             <div><a v-on:click="openApps()">View Apps</a></div>
             <div><a @click.prevent="openExternal('https://github.com/ethereum/grid')">Grid Repository</a></div>
             <div class="separator"></div>
-            <div><b-switch v-model="startOnBoot" size="is-small">Start Grid on boot</b-switch></div>
+            <div><b-switch v-model="launchOnBoot" @input="handleChangeLaunch($event)" size="is-small">Start Grid on boot</b-switch></div>
           </div>
           `,
         methods: {
@@ -421,7 +421,13 @@
           },
           openExternal: function(href) {
             window.Grid.openExternalLink(href)
+          },
+          handleChangeLaunch: function(event) {
+            window.Grid.setLaunchOnBoot(this.launchOnBoot)
           }
+        },
+        created: async function() {
+          this.launchOnBoot = await window.Grid.getLaunchOnBoot()
         }
       })
 

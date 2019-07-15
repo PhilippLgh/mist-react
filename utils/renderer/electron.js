@@ -1,5 +1,10 @@
 const { remote, shell } = require('electron')
 const { dialog } = require('electron').remote
+const AutoLaunch = require('auto-launch')
+
+const gridAutoLauncher = new AutoLaunch({
+  name: 'Grid'
+})
 
 const notify = (title, body) => {
   const notification = new Notification(title, { body })
@@ -45,8 +50,22 @@ const openExternalLink = href => {
   shell.openExternal(href)
 }
 
+const getLaunchOnBoot = async () => {
+  return gridAutoLauncher.isEnabled()
+}
+
+const setLaunchOnBoot = enable => {
+  if (enable) {
+    gridAutoLauncher.enable()
+  } else {
+    gridAutoLauncher.disable()
+  }
+}
+
 module.exports = {
   notify,
   showOpenDialog,
-  openExternalLink
+  openExternalLink,
+  getLaunchOnBoot,
+  setLaunchOnBoot
 }
