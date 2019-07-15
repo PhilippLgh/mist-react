@@ -1,10 +1,10 @@
 {
   "name": "grid",
-  "version": "1.1.1",
+  "version": "1.4.0",
   "description": "Ethereum Grid",
   "main": "index.js",
   "homepage": "https://github.com/ethereum/grid",
-  "author": "Mist team <mist@ethereum.org>",
+  "author": "Grid team <mist@ethereum.org>",
   "license": "ISC",
   "repository": "https://github.com/ethereum/grid",
   "scripts": {
@@ -12,7 +12,7 @@
     "start:dev": "cross-env NODE_ENV=development electron .",
     "start:dev:verbose": "cross-env NODE_ENV=development DEBUG=geth-js electron .",
     "test:mocha": "cross-env NODE_ENV=test mocha ./test",
-    "test:e2e": "ava ./test/e2e --verbose -s",
+    "test:e2e": "cross-env NODE_ENV=development ava ./test/e2e --verbose -s",
     "test:integration:watch": "cross-env NODE_ENV=test mocha ./test/integration --watch",
     "test:integration:parity": "cross-env NODE_ENV=test mocha ./test/integration/parity.test.js",
     "test:integration:geth": "cross-env NODE_ENV=test mocha ./test/integration/geth.test.js",
@@ -21,7 +21,7 @@
     "release": "env-cmd .env build"
   },
   "dependencies": {
-    "@philipplgh/electron-app-manager": "^0.32.0",
+    "@philipplgh/electron-app-manager": "^0.42.0",
     "debug": "^4.1.1"
   },
   "peerDependencies": {},
@@ -46,12 +46,9 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,json,css,md}": [
+    "*.{js,jsx,json,css}": [
       "prettier --no-semi --single-quote --write",
       "git add"
-    ],
-    "ignore": [
-      "docs/**/*.md"
     ]
   },
   "build": {
@@ -66,10 +63,16 @@
       "preload-webview.js",
       "WindowManager.js",
       "ui/download-splash.html",
+      "ui/json-editor.html",
       "public/error.html",
       "Menu.js",
+      "Config.js",
       "Rpc.js",
       "ethereum_clients/**/*.js",
+      "ethereum_clients/**/*.json",
+      "grid_apps/**/*.js",
+      "grid_apps/**/*.json",
+      "utils/**/*.js",
       "*.asar",
       "*.zip"
     ],

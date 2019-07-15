@@ -15,13 +15,14 @@ const getUserDataPath = () => {
 
 const getPluginCachePath = name => {
   let CLIENT_PLUGINS
+  const USER_DATA_PATH = getUserDataPath()
 
   if (process.env.NODE_ENV === 'test') {
     CLIENT_PLUGINS = path.join(__dirname, `client_plugins`)
   } else if (process.env.NODE_ENV === 'development') {
-    CLIENT_PLUGINS = path.join(__dirname, `client_plugins`)
+    // CLIENT_PLUGINS = path.join(__dirname, `client_plugins`)
+    CLIENT_PLUGINS = path.join(USER_DATA_PATH, `client_plugins`)
   } else {
-    const USER_DATA_PATH = getUserDataPath()
     CLIENT_PLUGINS = path.join(USER_DATA_PATH, `client_plugins`)
   }
 
@@ -75,6 +76,9 @@ const getBinaryUpdater = (repo, name, filter, prefix, cachePath) => {
     paths: [],
     cacheDir: cachePath,
     filter: ({ fileName }) => {
+      if (!fileName) {
+        return 0
+      }
       fileName = fileName.toLowerCase()
       return (
         (!includes || includes.every(val => fileName.indexOf(val) >= 0)) &&

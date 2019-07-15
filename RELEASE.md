@@ -10,6 +10,8 @@ If you include a new top-level file to be distributed with the application, it m
 
 `yarn build` will package up the app, with installers for each OS, and output them into a `release` directory.
 
+Note: on macOS, you'll get a warning if you don't sign the package with an Apple developer certificate, which happens within the `yarn build` step. See this [tutorial](https://9to5mac.com/2016/03/27/how-to-create-free-apple-developer-account-sideload-apps/) if you need help getting set up with a free account. A `Mac Development` certificate will suffice for local testing.
+
 ### Preparing a release (via CI)
 
 1. **Update the version number** of the release in `package.json`.

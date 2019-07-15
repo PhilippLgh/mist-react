@@ -1,12 +1,12 @@
 import test from 'ava'
-import ApplicationFactory from './_ApplicationFactory'
-import ClientAppBar from './_ClientAppBar'
-import MainAppBar from './_MainAppBar'
-import VersionList from './_VersionList'
-import { rmGethDir, clearBinDir } from './_TestUtils'
-import Node from './_Node'
-import ClientSettingsForm from './_ClientSettingsForm'
-import {getProcess, getProcessFlags} from './_ProcessMatcher'
+
+import { getProcess, getProcessFlags } from './helpers/_ProcessMatcher'
+import ApplicationFactory from './helpers/_ApplicationFactory'
+import ClientSettingsForm from './helpers/_ClientSettingsForm'
+import ClientAppBar from './helpers/_ClientAppBar'
+import { clearBinDir } from './helpers/_TestUtils'
+import VersionList from './helpers/_VersionList'
+import Node from './helpers/_Node'
 
 const init = async function(t) {
   const app = t.context.app
@@ -17,7 +17,6 @@ const init = async function(t) {
 }
 
 test.beforeEach(async t => {
-  // rmGethDir()
   clearBinDir()
 
   t.context.app = ApplicationFactory.development()
@@ -26,11 +25,13 @@ test.beforeEach(async t => {
 })
 
 test.afterEach.always(async t => {
-  await t.context.app.stop()
+  if (t.context.app.running === true) {
+    await t.context.app.stop()
+  }
 })
 
 test('As a user, I want to download a geth node', async t => {
-  const {app, client, win} = await init(t)
+  const { app } = await init(t)
   const versionList = new VersionList(app.client)
 
   await versionList.waitToLoad()
@@ -41,8 +42,9 @@ test('As a user, I want to download a geth node', async t => {
   t.pass()
 })
 
+// #38
 test('As a user, I want to start/stop my geth node from the app UI', async t => {
-  const {app, client, win} = await init(t)
+  const { app } = await init(t)
   const versionList = new VersionList(app.client)
   const node = new Node(app.client)
 
@@ -62,8 +64,9 @@ test('As a user, I want to start/stop my geth node from the app UI', async t => 
   t.pass()
 })
 
+// #37
 test('As a user, I want to configure Geth settings', async t => {
-  const {app, client, win} = await init(t)
+  const { app } = await init(t)
   const versionList = new VersionList(app.client)
   const node = new Node(app.client)
   const clientAppBar = new ClientAppBar(app.client)
@@ -85,7 +88,7 @@ test('As a user, I want to configure Geth settings', async t => {
 
   const gethFlags = await getProcessFlags('geth')
   const gf = gethFlags.join(' ')
-  // t.assert(gethFlags == '--datadir', '/tmp/datadir', '--syncmode', 'light', '--rpcapi', 'websockets', '--rinkeby', '--cache', '1337')
+
   t.assert(/--datadir \/tmp\/datadir/.test(gf))
   t.assert(/--syncmode light/.test(gf))
   t.assert(/--ws/.test(gf))
@@ -93,8 +96,9 @@ test('As a user, I want to configure Geth settings', async t => {
   t.assert(/--cache 1337/.test(gf))
 })
 
+// #22
 test('As a user, I want to know if my client is up to date', async t => {
-  const {app, client, win} = await init(t)
+  const { app, client } = await init(t)
   const versionList = new VersionList(app.client)
 
   await versionList.waitToLoad()
@@ -112,57 +116,41 @@ test('As a user, I want to know if my client is up to date', async t => {
   t.pass()
 })
 
-test('As a user, I want to see sync status visually', async t => {
-  t.fail('Not implemented.')
-})
+// #23
+test.failing(
+  'As a user, I want to have the connection details remembered',
+  async t => {
+    let { app, client } = await init(t)
+    const clientAppBar = new ClientAppBar(client)
+    const settings = new ClientSettingsForm(client)
 
-test('As a user, I want to have the connection details remembered', async t => {
-  const {app, client, win} = await init(t)
-  const versionList = new VersionList(app.client)
-  const clientAppBar = new ClientAppBar(app.client)
-  const settings = new ClientSettingsForm(app.client)
+    await clientAppBar.settings.click()
+    await settings.getPathInput('dataDir').setValue('/tmp/ac5718')
 
-  await versionList.waitToLoad()
-  await versionList.clickOnItem(0)
-  await versionList.waitUntilVersionSelected(0)
+    // Restart the app
+    await app.stop()
 
-  await clientAppBar.settings.click()
-  await settings.getPathInput('dataDir').setValue('/tmp/ac5718')
+    const app2 = ApplicationFactory.development()
+    t.context.app = app2
+    await app2.start()
+    const client2 = app2.client
+    await client2.waitUntilWindowLoaded(20000)
 
-  // Restart the app
-  await app.stop()
-  t.context.app = ApplicationFactory.development()
-  const app2 = t.context.app
-  await t.context.app.start()
+    const clientAppBar2 = new ClientAppBar(client2)
+    await clientAppBar2.settings.click()
 
-  const clientAppBar2 = new ClientAppBar(app2.client)
-  await clientAppBar2.settings.click()
+    const settings2 = new ClientSettingsForm(client2)
+    const dataDirValue = await settings2.getPathInput('dataDir').getValue()
 
-  const settings2 = new ClientSettingsForm(app2.client)
-  const dataDirValue = await settings2.getPathInput('dataDir').getValue()
+    t.is(dataDirValue, '/tmp/ac5718')
+  }
+)
 
-  t.is(dataDirValue, '/tmp/ac5718')
-})
-
-
-// OK - As a user, I want to download a geth node
-// OK - As a user, I want to start/stop my geth node from the app UI. #38
-// OK - As a user, I want to configure my node settings and options easily. #37
-// OK - As a user, I want to be notified when a new version of my node is available, so I don't fork. #22
-// OK - As a user, I want to provide an existing network data directory, so that I don't have two copies of the network. #35
-
-// As a user, I want to have the connection details remembered, so I can have a consistent use of the app #23
-
-// Waiting for PR
-// As a user, I want to see sync status visually, so I don't have to parse the logs and guess #73
-
-// Should be tested
-// As a user, I want to download codesigned applications, so it works without nasty warnings on my OS #114
-
-// As a developer, I want to test Grid-UI build channels from the Grid [shell] interface, so we can ensure app quality standards #87
-// - Spectron menu plugin
-// - Retrieve grid-ui version from renderer process
-
-// As a user, I want to be reminded of updates on the app itself, so I can get latest features and fixes. #33
-// - mock updater
-//
+test.todo('As a user, I want to see sync status visually #73')
+test.todo('As a user, I want to download codesigned applications #114')
+test.todo(
+  'As a developer, I want to test Grid-UI build channels from the Grid [shell] interface #87'
+)
+test.todo(
+  'As a user, I want to be reminded of Grid updates, so I can get latest features and fixes. #33'
+)

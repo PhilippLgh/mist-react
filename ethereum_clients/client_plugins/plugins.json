@@ -1,13 +1,13 @@
 [
   {
-    "name": "raiden",
-    "displayName": "Raiden Network",
-    "type": "tools",
+    "name": "ipfs",
+    "displayName": "IPFS",
+    "type": "storage",
     "author": {
-      "name": "Philipp Langhans",
-      "email": "philipp@ethereum.org",
-      "address": "02cd3ee7afec844b8f0d0065ba4ae86c2035dd3a"
+      "name": "Ryan Ghods",
+      "email": "ryan@ethereum.org",
+      "address": "84741b205fe071833b97b081a87dc39fae078ff3"
     },
-    "location": "https://github.com/PhilippLgh/grid-raiden-extension"
+    "location": "https://github.com/ryanio/grid-ipfs-plugin"
   }
 ]

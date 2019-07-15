@@ -1,5 +1,5 @@
 class ClientSettingsForm {
-  constructor (client) {
+  constructor(client) {
     this.client = client
   }
 
@@ -12,7 +12,9 @@ class ClientSettingsForm {
   }
 
   getSelect(name) {
-    return this.client.element(`[data-test-id=input-select-${name}] [role=button]`)
+    return this.client.element(
+      `[data-test-id=input-select-${name}] [role=button]`
+    )
   }
 
   async chooseSelectOption(name, value) {
@@ -26,7 +28,11 @@ class ClientSettingsForm {
   }
 
   waitUntilModalIsClosed() {
-    return this.client.waitUntil(async () => (await this.client.$('div[role=presentation]')).state === 'failure')
+    return this.client.waitUntil(
+      async () =>
+        (await this.client.$('div[role=presentation]')).state === 'failure',
+      1000
+    )
   }
 }
 

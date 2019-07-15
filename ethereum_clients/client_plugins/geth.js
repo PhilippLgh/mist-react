@@ -68,7 +68,7 @@ module.exports = {
       default: dataDir,
       label: 'Data Directory',
       flag: '--datadir %s',
-      type: 'path'
+      type: 'directory'
     },
     {
       id: 'api',
@@ -96,10 +96,12 @@ module.exports = {
     {
       id: 'network',
       default: 'main',
+      label: 'Network',
       options: [
         { value: 'main', label: 'Main', flag: '' },
         { value: 'ropsten', label: 'Ropsten (testnet)', flag: '--testnet' },
-        { value: 'rinkeby', label: 'Rinkeby (testnet)', flag: '--rinkeby' }
+        { value: 'rinkeby', label: 'Rinkeby (testnet)', flag: '--rinkeby' },
+        { value: 'goerli', label: 'Görli (testnet)', flag: '--goerli' }
       ]
     },
     {
@@ -110,10 +112,22 @@ module.exports = {
       flag: '--syncmode %s'
     },
     {
-      id: 'cache',
-      default: '2048',
-      label: 'Cache',
-      flag: '--cache %s'
+      id: 'console',
+      label: 'Enable console',
+      default: 'false',
+      options: [
+        { value: 'true', flag: 'console', label: 'Yes' },
+        { value: 'false', flag: '', label: 'No' }
+      ]
+    },
+    {
+      id: 'graphql',
+      label: 'Enable GraphQL',
+      default: 'false',
+      options: [
+        { value: 'true', flag: '--graphql', label: 'Yes (v1.9.0 and later)' },
+        { value: 'false', flag: '', label: 'No' }
+      ]
     }
   ]
 }

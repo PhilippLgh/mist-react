@@ -4,5 +4,6 @@ module.exports = {
   displayName: 'Aleth',
   name: 'aleth',
   repository: 'https://github.com/ethereum/aleth',
-  binaryName: 'aleth'
+  binaryName: 'aleth',
+  prefix: process.platform
 }

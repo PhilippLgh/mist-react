@@ -7,7 +7,7 @@ const ControlledProcess = require('./ControlledProcess')
 let rpcId = 1
 
 class Plugin extends EventEmitter {
-  constructor(config) {
+  constructor(config, source, meta) {
     super()
     const { name, repository, filter, prefix } = config
     if (!name || !repository) {
@@ -15,6 +15,8 @@ class Plugin extends EventEmitter {
         'plugin is missing required fields "name" or "repository"'
       )
     }
+    this._meta = meta
+    this._source = source
     this.updater = getBinaryUpdater(repository, name, filter, prefix)
     this.config = config
     this.process = undefined
@@ -51,6 +53,12 @@ class Plugin extends EventEmitter {
   get defaultConfig() {
     return this.config.config.default
   }
+  get source() {
+    return this._source
+  }
+  get metadata() {
+    return this._meta
+  }
   get state() {
     // FIXME ugly
     return this.process ? this.process.state : 'STOPPED'
@@ -67,14 +75,7 @@ class Plugin extends EventEmitter {
   registerEventListeners(sourceEmitter, destEmitter) {
     // FIXME memory leaks start here:
     // forward all events from the spawned process
-    let eventTypes = [
-      'starting',
-      'started',
-      'connected',
-      'error',
-      'stopped',
-      'log'
-    ]
+    let eventTypes = ['newState', 'error', 'log', 'notification']
     eventTypes.forEach(eventName => {
       sourceEmitter.on(eventName, arg => {
         if (eventName !== 'log') {
@@ -92,6 +93,12 @@ class Plugin extends EventEmitter {
     return this.updater.download(release, { onProgress })
   }
   async getLocalBinary(release) {
+    if (this.binPath) {
+      return {
+        binaryPath: this.binPath
+      }
+    }
+
     const extractBinary = async (pkg, binaryName) => {
       const entries = await this.updater.getEntries(pkg)
       let binaryEntry = undefined
@@ -129,7 +136,11 @@ class Plugin extends EventEmitter {
       fs.writeFileSync(destAbs, await binaryEntry.file.readContent(), {
         mode: parseInt('754', 8) // strict mode prohibits octal numbers in some cases
       })
-      return destAbs
+
+      // cache the binary path
+      this.binPath = destAbs
+
+      return this.binPath
     }
 
     release = release || (await this.updater.getLatestCached())
@@ -154,12 +165,18 @@ class Plugin extends EventEmitter {
       }
     }
     console.warn('no binary found for', release)
-    return {}
+    return undefined
   }
 
-  async start(release, flags, config) {
+  async start(release, flags) {
     // TODO do flag validation here based on proxy metadata
-
+    const { beforeStart } = this.config
+    if (beforeStart && beforeStart.execute) {
+      const cmds = beforeStart.execute
+      for (const cmd of cmds) {
+        await this.execute(cmd)
+      }
+    }
     const { binaryPath, packagePath } = await this.getLocalBinary(release)
     console.log(
       `client ${
@@ -169,7 +186,6 @@ class Plugin extends EventEmitter {
     try {
       this.process = new ControlledProcess(binaryPath, this.resolveIpc)
       this.registerEventListeners(this.process, this)
-
       await this.process.start(flags)
     } catch (error) {
       console.log('error start', error)
@@ -197,6 +213,58 @@ class Plugin extends EventEmitter {
     } catch (error) {
       return error
     }
+  }
+  write(payload) {
+    if (!this.process) {
+      return
+    }
+    this.process.write(payload)
+  }
+  async execute(command) {
+    const { binaryPath } = await this.getLocalBinary()
+    if (!binaryPath) {
+      console.log(
+        'execution error: binary not found. bad package path or missing/ambiguous binaryName'
+      )
+      return Promise.reject(new Error('execution error: binary not found'))
+    }
+
+    return new Promise((resolve, reject) => {
+      console.log('execute command:', command)
+      const { spawn } = require('child_process')
+      let flags = command
+      if (typeof command === 'string') {
+        flags = command.split(' ')
+      }
+      let proc = undefined
+      try {
+        proc = spawn(binaryPath, flags)
+      } catch (error) {
+        // console.log('spawn error', error)
+        reject(error)
+      }
+      const { stdout, stderr, stdin } = proc
+      proc.on('error', error => {
+        console.log('process error', error)
+      })
+      const procData = []
+      const onData = data => {
+        const log = data.toString()
+        if (log) {
+          let parts = log.split(/\r|\n/)
+          parts = parts.filter(p => p !== '')
+          //this.logs.push(...parts)
+          parts.map(l => this.emit('log', l))
+          procData.push(...parts)
+          console.log('process data:', parts)
+        }
+      }
+      stdout.on('data', onData)
+      stderr.on('data', onData)
+      proc.on('close', () => {
+        resolve(procData)
+      })
+    })
   }
   async checkForUpdates() {
     let result = await this.updater.checkForUpdates()
@@ -229,6 +297,12 @@ class PluginProxy extends EventEmitter {
   get config() {
     return this.plugin.defaultConfig
   }
+  get source() {
+    return this.plugin.source
+  }
+  get metadata() {
+    return this.plugin.metadata
+  }
   get isRunning() {
     return this.plugin.isRunning
   }
@@ -250,8 +324,8 @@ class PluginProxy extends EventEmitter {
   getLocalBinary(release) {
     return this.plugin.getLocalBinary(release)
   }
-  start(release, config) {
-    return this.plugin.start(release, config)
+  start(release, flags) {
+    return this.plugin.start(release, flags)
   }
   stop() {
     console.log(`client ${this.name} stopped`)
@@ -260,7 +334,12 @@ class PluginProxy extends EventEmitter {
   rpc(method, params = []) {
     return this.plugin.rpc(method, params)
   }
-
+  write(payload) {
+    return this.plugin.write(payload)
+  }
+  execute(command) {
+    return this.plugin.execute(command)
+  }
   checkForUpdates() {
     return this.plugin.checkForUpdates()
   }

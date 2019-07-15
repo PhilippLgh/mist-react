@@ -1,4 +1,5 @@
 const { app } = require('electron')
+const { startConfigEditor } = require('./Config')
 
 module.exports.getMenuTemplate = () => {
   const template = [
@@ -6,7 +7,14 @@ module.exports.getMenuTemplate = () => {
       label: 'Edit',
       submenu: [
         { role: 'undo' },
-        { role: 'redo' }
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'pasteandmatchstyle' },
+        { role: 'delete' },
+        { role: 'selectall' }
       ]
     },
     {
@@ -25,9 +33,32 @@ module.exports.getMenuTemplate = () => {
     },
     {
       role: 'window',
+      submenu: [{ role: 'minimize' }, { role: 'close' }]
+    },
+    {
+      label: 'Config',
       submenu: [
-        { role: 'minimize' },
-        { role: 'close' }
+        {
+          label: 'Edit',
+          click() {
+            startConfigEditor()
+          }
+        }
+      ]
+    },
+    {
+      label: 'Plugins',
+      submenu: [
+        {
+          label: 'Rescan',
+          click() {
+            if (!global.PluginHost) {
+              console.log('plugin host not ready')
+              return
+            }
+            global.PluginHost.loadUserRegistries()
+          }
+        }
       ]
     },
     {
@@ -41,7 +72,9 @@ module.exports.getMenuTemplate = () => {
       submenu: [
         {
           label: 'Learn More...',
-          click () { require('electron').shell.openExternal('https://grid.ethereum.org') }
+          click() {
+            require('electron').shell.openExternal('https://grid.ethereum.org')
+          }
         }
       ]
     }

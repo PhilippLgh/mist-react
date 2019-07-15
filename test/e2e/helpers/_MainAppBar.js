@@ -1,7 +1,7 @@
 import AppBar from './_AppBar'
 
 class MainAppBar extends AppBar {
-  constructor (client) {
+  constructor(client) {
     super(client)
   }
   get nodes() {

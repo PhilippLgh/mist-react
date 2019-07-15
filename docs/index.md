@@ -2,10 +2,10 @@
 Grid has the mission to empower users with the latest and greatest of the ethereum ecosystem toolset.
 <br>
 <br>
-It aims to greatly improve developer and user experience, enabling them to manage and run select tools at ease.
+It aims to greatly improve developer and user experience, enabling them to manage and run select tools with ease.
 </p>
 
-<style>.embed-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; } .embed-container iframe, .embed-container object, .embed-container embed { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }</style><div class='embed-container'><iframe src='https://www.youtube.com/embed/bYNc3tUui6A' frameborder='0' allowfullscreen></iframe></div>
+<style>.embed-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; } .embed-container iframe, .embed-container object, .embed-container embed { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }</style><div class='embed-container'><iframe src='https://www.youtube.com/embed/bYNc3tUui6A?start=22' frameborder='0' allowfullscreen></iframe></div>
 
 
 

@@ -3,6 +3,7 @@ const path = require('path')
 const { EventEmitter } = require('events')
 const { Plugin, PluginProxy } = require('./Plugin')
 const { getPluginCachePath } = require('./util')
+const { getUserConfig } = require('../Config')
 const { AppManager } = require('@philipplgh/electron-app-manager')
 
 function requireFromString(src, filename) {
@@ -11,6 +12,8 @@ function requireFromString(src, filename) {
   m._compile(src, filename)
   return m.exports
 }
+
+const UserConfig = getUserConfig()
 
 // TODO add file to electron packaged files
 class PluginHost extends EventEmitter {
@@ -37,32 +40,68 @@ class PluginHost extends EventEmitter {
       })
   }
   loadPluginFromFile(fullPath) {
+    const source = fs.readFileSync(fullPath, 'utf8')
     const pluginConfig = require(fullPath)
     // 2. TODO validate / verify
-    const plugin = new Plugin(pluginConfig)
+    const plugin = new Plugin(pluginConfig, source)
     return plugin
   }
   async loadPluginFromPackage(pluginManager, pkg) {
     const index = await pluginManager.getEntry(pkg, 'package/index.js')
-    const indexContent = await index.file.readContent()
+    const source = (await index.file.readContent()).toString()
+    // FIXME this needs to be separated into an installation step after user's has checked that code looks legit and everything is fine
     const pluginConfig = requireFromString(
-      indexContent.toString(),
+      source,
       `${pkg.location}/package/index.js`
     )
-    const plugin = new Plugin(pluginConfig)
+    const plugin = new Plugin(pluginConfig, source, pkg)
     return plugin
   }
-  async discoverRemote() {
-    const PLUGIN_DIR = path.join(__dirname, 'client_plugins')
-    let remotePluginList = []
+  async getPluginsFromRegistries() {
+    let plugins = []
     try {
-      remotePluginList = JSON.parse(
+      const registries = UserConfig.getItem('registries', [])
+      for (let index = 0; index < registries.length; index++) {
+        const registry = registries[index]
+        try {
+          const result = await AppManager.downloadJson(registry)
+          plugins = [...plugins, ...result.plugins]
+        } catch (error) {
+          console.log('could not load plugins from registry:', registry, error)
+        }
+      }
+    } catch (error) {
+      console.log('could not load plugins from registries', error)
+    }
+    return plugins
+  }
+  async getPluginsFromPluginsJson() {
+    let plugins = []
+    try {
+      const PLUGIN_DIR = path.join(__dirname, 'client_plugins')
+      plugins = JSON.parse(
         fs.readFileSync(path.join(PLUGIN_DIR, 'plugins.json'))
       )
     } catch (error) {
-      console.log('error: could not parse plugin list', error)
+      console.log('error: could not parse plugin.json list', error)
     }
-    let releases = remotePluginList.map(async pluginShortInfo => {
+    return plugins
+  }
+  async getPluginsFromConfig() {
+    const plugins = UserConfig.getItem('plugins', [])
+    return plugins
+  }
+  async discoverRemote() {
+    const configPlugins = await this.getPluginsFromConfig()
+    const pluginsJsonPlugins = await this.getPluginsFromPluginsJson()
+    const pluginsRegistries = await this.getPluginsFromRegistries()
+
+    const pluginList = [
+      ...pluginsJsonPlugins,
+      ...configPlugins,
+      ...pluginsRegistries
+    ]
+    let releases = pluginList.map(async pluginShortInfo => {
       try {
         const { name: pluginName, location } = pluginShortInfo
         if (!location) {

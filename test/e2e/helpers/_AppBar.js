@@ -1,6 +1,5 @@
-
 class AppBar {
-  constructor (client) {
+  constructor(client) {
     this.client = client
   }
   selectElement(el) {

@@ -40,8 +40,8 @@ class ControlledProcess extends EventEmitter {
   start(flags) {
     return new Promise((resolve, reject) => {
       this.state = STATES.STARTING
-      this.emit('starting')
-      this.debug('Emit: starting')
+      this.emit('newState', 'starting')
+      this.debug('Emit newState: starting')
       this.debug('Start: ', this.binaryPath)
       this.debug('Flags: ', flags)
 
@@ -58,7 +58,7 @@ class ControlledProcess extends EventEmitter {
 
       proc.on('error', error => {
         this.state = STATES.ERROR
-        this.emit('error', error)
+        this.emit('pluginError', error)
         this.debug('Emit: error', error)
         reject(error)
       })
@@ -66,15 +66,15 @@ class ControlledProcess extends EventEmitter {
       proc.on('close', code => {
         if (code === 0) {
           this.state = STATES.STOPPED
-          this.emit('stopped')
-          this.debug('Emit: stopped')
+          this.emit('newState', 'stopped')
+          this.debug('Emit newState: stopped')
           return
         }
         // Closing with any code other than 0 means there was an error
         const errorMessage = `${
           this.name
         } child process exited with code: ${code}`
-        // this.emit('error', errorMessage)
+        this.emit('pluginError', errorMessage)
         this.debug('Error: ', errorMessage)
         this.debug('DEBUG Last 10 log lines: ', this.logs.slice(-10))
         reject(errorMessage)
@@ -82,8 +82,8 @@ class ControlledProcess extends EventEmitter {
 
       const onStart = () => {
         this.state = STATES.STARTED
-        this.emit('started')
-        this.debug('Emit: started')
+        this.emit('newState', 'started')
+        this.debug('Emit newState: started')
         // Check for and connect IPC in 1s
         setTimeout(async () => {
           try {
@@ -117,13 +117,12 @@ class ControlledProcess extends EventEmitter {
         const log = data.toString()
         if (log) {
           let parts = log.split(/\r|\n/)
-          parts = parts.filter(p => p !== '')
+          parts = parts.filter(p => !['', '> '].includes(p))
           this.logs.push(...parts)
-          parts.map(l => {
-            this.emit('log', l)
-            if (l.toLowerCase().includes('error')) {
-              this.emit('error', l)
-              this.debug('Emit: error', l)
+          parts.map(logPart => {
+            this.emit('log', logPart)
+            if (logPart.toLowerCase().includes('error')) {
+              this.emit('pluginError', logPart)
             }
           })
         }
@@ -164,14 +163,16 @@ class ControlledProcess extends EventEmitter {
 
       const onIpcConnect = () => {
         this.state = STATES.CONNECTED
-        this.emit('connected')
-        this.debug('Emit: connected')
+        this.emit('newState', 'connected')
+        this.debug('Emit newState: connected')
         resolve(this.state)
         this.debug('IPC Connected')
       }
 
       const onIpcEnd = () => {
-        this.state = STATES.STOPPED
+        this.state = STATES.DISCONNECTED
+        this.emit('newState', 'disconnected')
+        this.debug('Emit newState: disconnected')
         this.ipc = null
         this.debug('IPC Connection Ended')
       }
@@ -179,6 +180,7 @@ class ControlledProcess extends EventEmitter {
       const onIpcError = error => {
         this.state = STATES.ERROR
         this.ipc = null
+        this.emit('pluginError', error)
         this.debug('IPC Connection Error: ', error)
       }
 
@@ -187,7 +189,7 @@ class ControlledProcess extends EventEmitter {
         this.ipc = null
         const errorMessage = 'IPC Connection Timeout'
         reject(new Error('IPC connection timed out'))
-        this.emit('error', errorMessage)
+        this.emit('pluginError', errorMessage)
         this.debug(errorMessage)
       }
 
@@ -199,22 +201,28 @@ class ControlledProcess extends EventEmitter {
     })
   }
   onIpcData(data) {
-    if (!data) {
+    if (!data) return
+    if (this.incompleteData) {
+      data = this.partialData.concat(data.toString())
+    }
+
+    let message
+    try {
+      message = JSON.parse(data.toString())
+      if (this.partialData) {
+        this.partialData = null
+      }
+    } catch (error) {
+      // this.debug('Error parsing JSON: ', error)
+      // TODO: handle multiple clients
+      this.partialData = data.toString()
       return
     }
 
     this.debug('IPC data: ', data.toString())
-    let message
-    try {
-      message = JSON.parse(data.toString())
-    } catch (error) {
-      this.debug('Error parsing JSON: ', error)
-    }
 
     // Return if not a jsonrpc response
-    if (!message || !message.jsonrpc) {
-      return
-    }
+    if (!message || !message.jsonrpc) return
 
     const { id, method, result } = message
 
@@ -232,14 +240,19 @@ class ControlledProcess extends EventEmitter {
         delete this.responsePromises[id]
       }
     } else {
-      // FIXME hardcoded business logic
-      if (method && method.includes('_subscription')) {
-        // Emit subscription notification
-        const { params } = message
-        const { subscription: subscriptionId } = params
-        this.emit(subscriptionId, params)
-      }
+      // All other messages grouped into 'notification' category
+      // It is the responsibility of the UI to filter for ID
+      const { params } = message
+      this.emit('notification', params)
     }
+  }
+  write(payload) {
+    if (!this.proc) {
+      return
+    }
+    const { stdin } = this.proc
+    stdin.write(payload + '\n')
+    debug('Wrote to stdin: ', payload)
   }
   // private low level ipc
   send(payload) {

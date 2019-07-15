@@ -6,8 +6,11 @@
 
 # Enter the Grid
 
-This is the hosting application for [Grid UI](https://github.com/ethereum/grid-ui) and can be considered a [Mist](https://github.com/ethereum/Mist) alternative in the long run.
-This project ensures that the user can update, configure and run the Grid UI web app and client binaries, such as geth.
+Ethereum Grid is a desktop application that allows you to securely download, configure and use various clients and tools in the Ethereum ecosystem. You can download the application from the GitHub [releases](https://github.com/ethereum/grid/releases) or from the [landing page](https://grid.ethereum.org/).
+
+## Development
+
+This repo is the hosting application for [Grid UI](https://github.com/ethereum/grid-ui).
 
 ### Quick Start
 
@@ -27,28 +30,32 @@ cd grid
 yarn && yarn start:dev
 ```
 
-## Dev Mode
+### Dev Mode
 
-The developer mode will try to load grid UI from a locally running web server on port `3080`. To run in dev mode you will have to follow the setup instructions on the Grid UI repo.
+`yarn start:dev`
 
-### Debugging
+The developer mode will try to load grid UI from a locally running web server on port `3080`.
+
+#### Debugging
 
 Enable debug logging to console with `DEBUG=geth-js yarn start:dev`.
 
 More namespaces will be added over time and listed here. We would appreciate contributions in adding more throughout our modules.
 
-## Production Mode
+### Production Mode
 
-In the the production mode a bundled app can be loaded from either `fs` or a remote location such as Grid UI's GitHub releases.
+`yarn start:prod`
 
-# Release Process
+In production mode, a bundled app can be loaded from either `fs` or a remote location such as Grid UI's GitHub releases.
+
+### Release Process
 
 See the developer guide [here](/RELEASE.md).
 
-# Landing page development guide
+### Landing page development guide
 
 See instructions at [/docs](/docs/).
 
-# Contributing
+### Contributing
 
 There are many ways to get involved with this project. Get started [here](/CONTRIBUTING.md).

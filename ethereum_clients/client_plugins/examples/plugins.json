@@ -1,0 +1,13 @@
+[
+  {
+    "name": "raiden",
+    "displayName": "Raiden Network",
+    "type": "tools",
+    "author": {
+      "name": "Philipp Langhans",
+      "email": "philipp@ethereum.org",
+      "address": "02cd3ee7afec844b8f0d0065ba4ae86c2035dd3a"
+    },
+    "location": "https://github.com/PhilippLgh/grid-raiden-extension"
+  }
+]
