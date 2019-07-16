@@ -18,7 +18,8 @@ const INITIAL_CONFIG = {
   registries: [],
   plugins: [],
   apps: [],
-  settings: {}
+  settings: {},
+  flags: {}
 }
 
 class Config {
