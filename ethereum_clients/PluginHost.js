@@ -48,7 +48,7 @@ class PluginHost extends EventEmitter {
     const newFlags = Object.assign({}, persistedFlags)
 
     this.plugins.forEach(plugin => {
-      if (!persistedFlags[plugin.name]) {
+      if (!persistedFlags || !persistedFlags[plugin.name]) {
         try {
           let pluginDefaults = {}
           const settings = plugin.config.settings
