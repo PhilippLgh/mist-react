@@ -364,7 +364,8 @@
           openUI: async function() {
             const settings = Grid.Config.getItem('settings')
             const newSettings = Object.assign({}, settings, {
-              selected: this.client.name
+              selected: this.client.name,
+              selectedTab: 0
             })
             Grid.Config.setItem('settings', newSettings)
 
@@ -380,12 +381,19 @@
             })
           },
           openTerminal: async function() {
+            const settings = Grid.Config.getItem('settings')
+            const newSettings = Object.assign({}, settings, {
+              selected: this.client.name,
+              selectedTab: 2
+            })
+            Grid.Config.setItem('settings', newSettings)
+
             this.terminalWindowId = await window.Grid.AppManager.launch({
               name: 'grid-ui',
               id: this.terminalWindowId,
               args: {
                 scope: {
-                  component: 'terminal',
+                  component: 'ui',
                   client: this.client.name
                 }
               }
