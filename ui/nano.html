@@ -279,8 +279,7 @@
             downloadProgress: 0,
             checkbox: [],
             terminalWindowId: undefined,
-            uiWindowId: undefined,
-            clientPlugin: null
+            uiWindowId: undefined
           }
         },
         template: `
@@ -299,15 +298,14 @@
           </div>
           `,
         created: function() {
-          this.clientPlugin = this.plugins.find(p => p.name === this.client.name)
           this.listenForStateUpdates()
         },
         beforeDestroy: function() {
-          this.clientPlugin.removeAllListeners('newState')
+          this.client.plugin.removeAllListeners('newState')
         },
         methods: {
           listenForStateUpdates: function() {
-            this.clientPlugin.on('newState', state => {
+            this.client.plugin.on('newState', state => {
               console.log('new state', state)
               this.state = state
 
@@ -318,17 +316,17 @@
               }
             })
           },
-          handleSwitchedOn: async function(clientPlugin) {
+          handleSwitchedOn: async function() {
             // check if downloaded version is available
-            let latestBinCached = await clientPlugin.getLatestCached()
+            let latestBinCached = await this.client.plugin.getLatestCached()
             if (!latestBinCached) {
               console.log('no client binary found --> download now')
-              const latestRemote = await clientPlugin.getLatestRemote()
+              const latestRemote = await this.client.plugin.getLatestRemote()
               // TODO handle no remote release found
               try {
                 this.state = 'downloading'
                 this.isDownloading = true
-                latestBinCached = await clientPlugin.download(
+                latestBinCached = await this.client.plugin.download(
                   latestRemote,
                   downloadProgress => {
                     console.log('download progress', downloadProgress)
@@ -348,21 +346,17 @@
 
             console.log('cached release found --> start now')
             const persistedFlags = (await Grid.Config.getItem('flags')) || {}
-            const flags = persistedFlags[clientPlugin.name]
+            const flags = persistedFlags[this.client.plugin.name]
 
-            clientPlugin.start(latestBinCached, flags)
+            this.client.plugin.start(latestBinCached, flags)
           },
           handleChange: function(ev) {
-            // get reference to plugin
-            const clientPlugin = window.Grid.PluginHost.getPluginByName(
-              this.client.name
-            )
             if (this.isSwitched) {
-              this.handleSwitchedOn(clientPlugin)
+              this.handleSwitchedOn()
             } else {
               // TODO cancel download if currently running
               if (['started', 'starting', 'connected'].includes(this.state)) {
-                clientPlugin.stop()
+                this.client.plugin.stop()
               }
             }
           },
@@ -449,11 +443,12 @@
         methods: {
           init: function() {
             const plugins = window.Grid.PluginHost.getAllPlugins()
-            this.clients = plugins.map(p => ({
-              name: p.name,
-              displayName: p.displayName,
+            this.clients = plugins.map(plugin => ({
+              name: plugin.name,
+              displayName: plugin.displayName,
               profile: '',
-              version: ''
+              version: '',
+              plugin
             }))
             console.log('plugins loaded', plugins.length)
           },
