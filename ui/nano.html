@@ -84,8 +84,7 @@
 
       /*
        * Removes windows and linux window tip.
-       * I'd rather remove the tip on W+L instead of
-       * adding it only for mac, due to Mac shadow rendering reasons.
+       * Mac on by default for shadow rendering reasons.
        */
       body.is-windows .tip,
       body.is-linux .tip {
@@ -281,7 +280,6 @@
             checkbox: [],
             terminalWindowId: undefined,
             uiWindowId: undefined,
-            polling: null,
             clientPlugin: null
           }
         },
@@ -301,14 +299,8 @@
           </div>
           `,
         created: function() {
-          try {
-            this.clientPlugin = this.plugins.find(
-              p => p.name === this.client.name
-            )
-            this.listenForStateUpdates()
-          } catch (error) {
-            console.log('error polling for state updates', error)
-          }
+          this.clientPlugin = this.plugins.find(p => p.name === this.client.name)
+          this.listenForStateUpdates()
         },
         beforeDestroy: function() {
           this.clientPlugin.removeAllListeners('newState')
