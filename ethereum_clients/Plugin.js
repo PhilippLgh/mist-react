@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const { EventEmitter } = require('events')
-const { getBinaryUpdater } = require('./util')
+const { getBinaryUpdater } = require('../utils/main/util')
 const ControlledProcess = require('./ControlledProcess')
 const pty = require('node-pty')
 
@@ -197,7 +197,7 @@ class Plugin extends EventEmitter {
     return ptyProcess
   }
 
-async start(release, flags) {
+  async start(release, flags) {
     // TODO do flag validation here based on proxy metadata
     const { beforeStart } = this.config
     if (beforeStart && beforeStart.execute) {
