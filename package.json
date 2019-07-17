@@ -85,7 +85,8 @@
       "grid_apps/**/*.json",
       "utils/**/*.js",
       "*.asar",
-      "*.zip"
+      "*.zip",
+      "shipped-grid-ui/**/*.zip"
     ],
     "mac": {
       "category": "public.app-category.productivity",
