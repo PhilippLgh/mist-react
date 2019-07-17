@@ -116,7 +116,7 @@ class AppManager extends EventEmitter {
         {
           x: 400,
           y: 400,
-          backgroundColor: component === 'terminal' ? '#1E1E1E' : '#ffffff'
+          backgroundColor: component === 'terminal' ? '#1E1E1E' : '#202225'
         },
         {
           scope
