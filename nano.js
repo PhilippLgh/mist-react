@@ -16,24 +16,6 @@ let keepWindowOpen = false
 
 const preloadPath = path.join(__dirname, 'preload.js')
 
-// make sure every webview has nodeIntegration turned off and has only access to the API defined by
-// preload-webview.js
-app.on('web-contents-created', (event, contents) => {
-  // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
-  contents.on('will-attach-webview', (event, webPreferences, params) => {
-    // Strip away preload scripts if unused or verify their location is legitimate
-    delete webPreferences.preload
-    delete webPreferences.preloadURL
-
-    // console.log('will attach webview')
-
-    webPreferences.preload = path.join(__dirname, 'preload-webview')
-
-    // Disable Node.js integration
-    webPreferences.nodeIntegration = false
-  })
-})
-
 const makePath = p =>
   (process.os !== 'windows' ? 'file://' : '') + path.normalize(p)
 
@@ -52,6 +34,25 @@ const mb = menubar({
     }
   },
   icon: path.resolve(`${__dirname}/build/IconTemplate.png`)
+})
+
+const app = mb.app
+// make sure every webview has nodeIntegration turned off and has only access to the API defined by
+// preload-webview.js
+app.on('web-contents-created', (event, contents) => {
+  // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
+  contents.on('will-attach-webview', (event, webPreferences, params) => {
+    // Strip away preload scripts if unused or verify their location is legitimate
+    delete webPreferences.preload
+    delete webPreferences.preloadURL
+
+    // console.log('will attach webview')
+
+    webPreferences.preload = path.join(__dirname, 'preload-webview')
+
+    // Disable Node.js integration
+    webPreferences.nodeIntegration = false
+  })
 })
 
 mb.on('ready', () => {
