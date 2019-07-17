@@ -40,7 +40,7 @@ const getCachePath = name => {
     cachePath = path.join(__dirname, '/../test', 'fixtures')
   } else {
     const USER_DATA_PATH = getUserDataPath()
-    cachePath = path.join(USER_DATA_PATH, 'cache')
+    cachePath = path.join(USER_DATA_PATH, 'app_cache')
   }
   if (name) {
     cachePath = path.join(cachePath, name)
@@ -49,6 +49,18 @@ const getCachePath = name => {
     fs.mkdirSync(cachePath, { recursive: true })
   }
   return cachePath
+}
+
+/**
+ * when grid is built, we copy the latest version of grid-ui to the repo and include it in the installer for a fast start
+ * the path needs to be in the repo scope but those packages are not checked in
+ */
+const getShippedGridUiPath = () => {
+  const GRID_UI_CACHE = path.join(__dirname, '..', '..', 'shipped-grid-ui')
+  if (!fs.existsSync(GRID_UI_CACHE)) {
+    fs.mkdirSync(GRID_UI_CACHE, { recursive: true })
+  }
+  return GRID_UI_CACHE
 }
 
 const getBinaryUpdater = (repo, name, filter, prefix, cachePath) => {
@@ -104,6 +116,7 @@ const checkConnection = async (host, port, timeout = 2000) => {
 
 module.exports = {
   checkConnection,
+  getShippedGridUiPath,
   getCachePath,
   getUserDataPath,
   getPluginCachePath,
