@@ -43,7 +43,8 @@ const getCachePath = name => {
   if (process.env.NODE_ENV === 'test') {
     cachePath = path.join(__dirname, '/../test', 'fixtures', `bin_${name}`)
   } else if (process.env.NODE_ENV === 'development') {
-    cachePath = path.join(__dirname, `bin_${name}`)
+    cachePath = path.join(__dirname, '..', '..', 'ethereum_clients')
+    cachePath = path.join(cachePath, `bin_${name}`)
   } else {
     const USER_DATA_PATH = getUserDataPath()
     cachePath = path.join(USER_DATA_PATH, `bin_${name}`)
