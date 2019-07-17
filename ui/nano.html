@@ -82,20 +82,21 @@
         margin-left: -2px;
       }
 
-      /* 
+      /*
        * Removes windows and linux window tip.
-       * I'd rather remove the tip on W+L instead of 
-       * adding it only for mac, due to Mac shadow rendering reasons. 
+       * I'd rather remove the tip on W+L instead of
+       * adding it only for mac, due to Mac shadow rendering reasons.
        */
-      body.is-windows .tip, body.is-linux .tip {
+      body.is-windows .tip,
+      body.is-linux .tip {
         display: none;
       }
-      body.is-windows #app, body.is-linux #app {
+      body.is-windows #app,
+      body.is-linux #app {
         height: 100vh;
         margin: 0;
         border-radius: 2px;
       }
-
 
       .client-item {
         padding: 5px;
@@ -280,7 +281,8 @@
             checkbox: [],
             terminalWindowId: undefined,
             uiWindowId: undefined,
-            polling: null
+            polling: null,
+            clientPlugin: null
           }
         },
         template: `
@@ -300,23 +302,20 @@
           `,
         created: function() {
           try {
-            const clientPlugin = window.Grid.PluginHost.getPluginByName(
-              this.client.name
+            this.clientPlugin = this.plugins.find(
+              p => p.name === this.client.name
             )
-            this.listenForStateUpdates(clientPlugin)
+            this.listenForStateUpdates()
           } catch (error) {
             console.log('error polling for state updates', error)
           }
         },
         beforeDestroy: function() {
-          const clientPlugin = window.Grid.PluginHost.getPluginByName(
-            this.client.name
-          )
-          clientPlugin.removeAllListeners('newState')
+          this.clientPlugin.removeAllListeners('newState')
         },
         methods: {
-          listenForStateUpdates: function(clientPlugin) {
-            clientPlugin.on('newState', state => {
+          listenForStateUpdates: function() {
+            this.clientPlugin.on('newState', state => {
               console.log('new state', state)
               this.state = state
 
@@ -483,33 +482,35 @@
         }
       })
 
-      
       // Tip placement, only at startup
       var distanceToBottom =
         window.screen.height - (window.screenTop + window.innerHeight)
       var distanceToTop = window.screenTop
       document.body.classList.add(
-        distanceToBottom < distanceToTop ? 'is-docked-to-bottom' : 'is-docked-to-top'
+        distanceToBottom < distanceToTop
+          ? 'is-docked-to-bottom'
+          : 'is-docked-to-top'
       )
 
       // OS detection
-      var osClass;
-      function checkPlatform(pattern) { return pattern.test(window.navigator.platform) }
+      var osClass
+      function checkPlatform(pattern) {
+        return pattern.test(window.navigator.platform)
+      }
       if (checkPlatform(/win/i)) {
-        osClass = 'is-windows';
+        osClass = 'is-windows'
       } else if (checkPlatform(/mac/i)) {
-        osClass = 'is-mac';
+        osClass = 'is-mac'
       } else {
         osClass = 'is-linux'
       }
       document.body.classList.add(osClass)
 
       document.onkeydown = function(evt) {
-        if (evt && evt.key === "Escape") {
+        if (evt && evt.key === 'Escape') {
           Grid.hideWindow()
         }
-      };
-
+      }
     </script>
   </body>
 </html>

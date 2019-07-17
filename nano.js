@@ -1,4 +1,3 @@
-require('events').EventEmitter.defaultMaxListeners = 55
 const path = require('path')
 const { menubar } = require('menubar')
 const { Menu, shell } = require('electron')
