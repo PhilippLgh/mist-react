@@ -10,10 +10,14 @@ const { getUserConfig } = require('../Config')
 const UserConfig = getUserConfig()
 
 const is = require('../utils/main/is')
+const { checkConnection } = require('../utils/main/util')
 
 const gridUiManager = new PackageManager({
   repository: 'https://github.com/ethereum/grid-ui',
-  auto: false,
+  auto: true, // this will automatically check for new packages...
+  intervalMins: 60, // ...every 60 minutes. the first check will be after 1 minute though
+  cacheDir: path.join(__dirname, '..', 'cached-grid-ui'),
+  searchpaths: [path.join(__dirname, '..', 'cached-grid-ui')],
   logger: require('debug')('GridPackageManager'),
   policy: {
     onlySigned: false
@@ -21,16 +25,52 @@ const gridUiManager = new PackageManager({
 })
 
 const getGridUiUrl = async () => {
-  const useHotLoading = false
+  let useHotLoading = false
+  const HOT_LOAD_URL = 'package://github.com/ethereum/grid-ui'
   if (is.dev()) {
-    let appUrl = 'http://localhost:3080/'
-    return appUrl
-  } else {
-    if (useHotLoading) {
-      return 'package://github.com/ethereum/grid-ui'
+    const PORT = '3080'
+    const appUrl = `http://localhost:${PORT}/index.html`
+    const isServerRunning = await checkConnection('localhost', PORT)
+    /**
+     * check if grid-ui is started and the server is running.
+     * otherwise load latest grid-ui package from github ("hot-load")
+     */
+    if (isServerRunning) {
+      return appUrl
+    } else {
+      console.log(
+        'WARNING: grid ui webserver not running - fallback to hot-loading'
+      )
+      return HOT_LOAD_URL
     }
-    // else: use caching
-    let packagePath = 'TODO'
+  } else {
+    // production:
+    if (useHotLoading) {
+      return HOT_LOAD_URL
+    } // else: use caching
+    console.log('check for cached packages')
+    let packagePath = ''
+    try {
+      // with the argument we can provide additional search paths besides cache
+      const cached = await gridUiManager.getLatestCached()
+      if (!cached) {
+        console.warn(
+          'WARNING: no cached packages found. fallback to hot-loading'
+        )
+        useHotLoading = true
+      } else {
+        console.log('package location', cached.location)
+        packagePath = cached.location
+      }
+    } catch (error) {
+      console.log('error during check', error)
+    }
+
+    // fallback necessary?
+    if (useHotLoading || !packagePath) {
+      return HOT_LOAD_URL
+    }
+
     let appUrl = await gridUiManager.load(packagePath)
     console.log('app url: ' + appUrl)
     return appUrl
