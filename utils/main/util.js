@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { AppManager } = require('@philipplgh/electron-app-manager')
+const net = require('net')
 
 const getUserDataPath = () => {
   const USER_DATA_PATH =
@@ -25,14 +26,9 @@ const getPluginCachePath = name => {
   } else {
     CLIENT_PLUGINS = path.join(USER_DATA_PATH, `client_plugins`)
   }
-
-  if (!fs.existsSync(CLIENT_PLUGINS)) {
-    fs.mkdirSync(CLIENT_PLUGINS)
-  }
-
   const cachePath = path.join(CLIENT_PLUGINS, name)
   if (!fs.existsSync(cachePath)) {
-    fs.mkdirSync(cachePath)
+    fs.mkdirSync(cachePath, { recursive: true })
   }
 
   return cachePath
@@ -41,19 +37,17 @@ const getPluginCachePath = name => {
 const getCachePath = name => {
   let cachePath
   if (process.env.NODE_ENV === 'test') {
-    cachePath = path.join(__dirname, '/../test', 'fixtures', `bin_${name}`)
-  } else if (process.env.NODE_ENV === 'development') {
-    cachePath = path.join(__dirname, '..', '..', 'ethereum_clients')
-    cachePath = path.join(cachePath, `bin_${name}`)
+    cachePath = path.join(__dirname, '/../test', 'fixtures')
   } else {
     const USER_DATA_PATH = getUserDataPath()
-    cachePath = path.join(USER_DATA_PATH, `bin_${name}`)
+    cachePath = path.join(USER_DATA_PATH, 'cache')
   }
-
+  if (name) {
+    cachePath = path.join(cachePath, name)
+  }
   if (!fs.existsSync(cachePath)) {
-    fs.mkdirSync(cachePath)
+    fs.mkdirSync(cachePath, { recursive: true })
   }
-
   return cachePath
 }
 
@@ -68,7 +62,7 @@ const getBinaryUpdater = (repo, name, filter, prefix, cachePath) => {
   }
 
   if (!cachePath) {
-    cachePath = getCachePath(name)
+    cachePath = getCachePath(`bin/bin_${name}`)
   }
 
   return new AppManager({
@@ -109,6 +103,7 @@ const checkConnection = async (host, port, timeout = 2000) => {
 }
 
 module.exports = {
+  checkConnection,
   getCachePath,
   getUserDataPath,
   getPluginCachePath,
