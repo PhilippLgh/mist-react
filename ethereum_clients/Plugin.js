@@ -4,7 +4,6 @@ const os = require('os')
 const { EventEmitter } = require('events')
 const { getBinaryUpdater } = require('./util')
 const ControlledProcess = require('./ControlledProcess')
-const pty = require('node-pty')
 
 let rpcId = 1
 
@@ -182,22 +181,8 @@ class Plugin extends EventEmitter {
     console.warn('no binary found for', release)
     return undefined
   }
-  async startPtyProcess() {
-    // FIXME only a test
-    // Initialize node-pty with an appropriate shell
-    const { binaryPath } = await this.getLocalBinary()
-    const shell = process.env[os.platform() === 'win32' ? 'COMSPEC' : 'SHELL']
-    const ptyProcess = pty.spawn(shell, [], {
-      name: 'xterm-color',
-      cols: 80,
-      rows: 30,
-      cwd: path.join(binaryPath, '..'),
-      env: process.env
-    })
-    return ptyProcess
-  }
 
-async start(release, flags) {
+  async start(release, flags) {
     // TODO do flag validation here based on proxy metadata
     const { beforeStart } = this.config
     if (beforeStart && beforeStart.execute) {
@@ -362,9 +347,6 @@ class PluginProxy extends EventEmitter {
   }
   getLocalBinary(release) {
     return this.plugin.getLocalBinary(release)
-  }
-  startPtyProcess() {
-    return this.plugin.startPtyProcess()
   }
   start(release, config) {
     return this.plugin.start(release, config)

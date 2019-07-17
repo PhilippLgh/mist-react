@@ -19,16 +19,13 @@
     "test:integration:geth": "cross-env NODE_ENV=test mocha ./test/integration/geth.test.js",
     "prepare-release": "node ./scripts/copyApp.js",
     "build": "yarn run prepare-release && build",
-    "release": "env-cmd .env build",
-    "rebuild": "electron-rebuild -f -o node-pty",
-    "postinstall": "yarn rebuild"
+    "release": "env-cmd .env build"
   },
   "dependencies": {
     "@philipplgh/electron-app-manager": "^0.42.0",
     "auto-launch": "^5.0.5",
     "debug": "^4.1.1",
     "menubar": "^6.0.6",
-    "node-pty": "^0.9.0-beta19",
     "xterm": "^3.14.4"
   },
   "peerDependencies": {},
