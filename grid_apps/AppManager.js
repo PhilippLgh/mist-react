@@ -10,18 +10,31 @@ const { getUserConfig } = require('../Config')
 const UserConfig = getUserConfig()
 
 const is = require('../utils/main/is')
-const { checkConnection } = require('../utils/main/util')
+const {
+  checkConnection,
+  getShippedGridUiPath,
+  getCachePath
+} = require('../utils/main/util')
+
+const GRID_UI_CACHE = getCachePath('grid-ui')
+
+// console.log('grid ui cache created at', GRID_UI_CACHE)
 
 const gridUiManager = new PackageManager({
   repository: 'https://github.com/ethereum/grid-ui',
   auto: true, // this will automatically check for new packages...
   intervalMins: 60, // ...every 60 minutes. the first check will be after 1 minute though
-  cacheDir: path.join(__dirname, '..', 'cached-grid-ui'),
-  searchpaths: [path.join(__dirname, '..', 'cached-grid-ui')],
+  cacheDir: GRID_UI_CACHE, // updates are automatically downloaded to this path
+  searchPaths: is.prod() ? [getShippedGridUiPath()] : undefined, // tell app-manager also to look for shipped packages
   logger: require('debug')('GridPackageManager'),
   policy: {
     onlySigned: false
   }
+})
+
+gridUiManager.on('update-downloaded', release => {
+  console.log('a new grid-ui version was downloaded:', release.version)
+  // TODO we can use this event to inform the user to restart
 })
 
 const getGridUiUrl = async () => {
