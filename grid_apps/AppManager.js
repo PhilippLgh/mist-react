@@ -102,6 +102,30 @@ class AppManager extends EventEmitter {
       }
     }
 
+    const { dependencies } = app
+    if (dependencies) {
+      for (const dependency of dependencies) {
+        console.log('found dependency', dependency)
+        const plugin = global.PluginHost.getPluginByName(dependency.name)
+        console.log('plugin found?', plugin.name, plugin.isRunning)
+        if (plugin.isRunning) {
+          // ignore - good enough for now but not correct behavior
+          console.log('nothing to do')
+        } else {
+          // const persistedFlags = (await Grid.Config.getItem('flags')) || {}
+          // const flags = persistedFlags[this.client.plugin.name]
+          console.log('request start')
+          try {
+            await plugin.requestStart(app)
+          } catch (error) {
+            // e.g. user cancelled
+            console.log('error', error)
+            return // do NOT start in this case
+          }
+        }
+      }
+    }
+
     if (app.name === 'grid-ui') {
       const { args } = app
       let appUrl = await getGridUiUrl()
