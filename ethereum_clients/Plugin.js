@@ -184,24 +184,27 @@ class Plugin extends EventEmitter {
   }
 
   async requestStart(app, flags, release) {
-    // TODO move dialog code to different module
-    dialog.showMessageBox(
-      // currentWindow,
-      {
-        title: 'Start requested',
-        buttons: ['Ok', 'Cancel'],
-        message: `
-      The application "${app.name}" requests to start the client or service "${this.displayName}". 
-      Press 'OK' to allow this time.
-      `
-      },
-      response => {
-        const userPermission = response !== 1 // = index of 'cancel'
-        if (userPermission) {
-          this.start(flags, release)
+    return new Promise((resolve, reject) => {
+      // TODO move dialog code to different module
+      dialog.showMessageBox(
+        // currentWindow,
+        {
+          title: 'Start requested',
+          buttons: ['Ok', 'Cancel'],
+          message: `The application "${app.name}" requests to start the client or service "${this.displayName}".\nPress 'OK' to allow this time.
+        `
+        },
+        async response => {
+          const userPermission = response !== 1 // = index of 'cancel'
+          if (userPermission) {
+            await this.start(flags, release)
+            resolve()
+          } else {
+            reject(new Error('user permission denied'))
+          }
         }
-      }
-    )
+      )
+    })
   }
 
   async start(flags, release) {
