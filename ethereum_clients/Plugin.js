@@ -4,6 +4,7 @@ const os = require('os')
 const { EventEmitter } = require('events')
 const { getBinaryUpdater } = require('./util')
 const ControlledProcess = require('./ControlledProcess')
+const { dialog } = require('electron')
 
 let rpcId = 1
 
@@ -182,7 +183,28 @@ class Plugin extends EventEmitter {
     return undefined
   }
 
-  async start(release, flags) {
+  async requestStart(app, flags, release) {
+    // TODO move dialog code to different module
+    dialog.showMessageBox(
+      // currentWindow,
+      {
+        title: 'Start requested',
+        buttons: ['Ok', 'Cancel'],
+        message: `
+      The application "${app.name}" requests to start the client or service "${this.displayName}". 
+      Press 'OK' to allow this time.
+      `
+      },
+      response => {
+        const userPermission = response !== 1 // = index of 'cancel'
+        if (userPermission) {
+          this.start(flags, release)
+        }
+      }
+    )
+  }
+
+  async start(flags, release) {
     // TODO do flag validation here based on proxy metadata
     const { beforeStart } = this.config
     if (beforeStart && beforeStart.execute) {
@@ -348,8 +370,12 @@ class PluginProxy extends EventEmitter {
   getLocalBinary(release) {
     return this.plugin.getLocalBinary(release)
   }
-  start(release, config) {
-    return this.plugin.start(release, config)
+  requestStart(app, flags, release) {
+    return this.plugin.requestStart(app, release, flags)
+  }
+  // TODO reverse arg order
+  start(release, flags) {
+    return this.plugin.start(flags, release)
   }
   stop() {
     console.log(`client ${this.name} stopped`)

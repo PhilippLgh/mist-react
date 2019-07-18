@@ -22,25 +22,7 @@ const clientInterface = client => {
       return client.execute(command)
     },
     start: () => {
-      dialog.showMessageBox(
-        currentWindow,
-        {
-          title: 'Start requested',
-          buttons: ['Ok', 'Cancel'],
-          message: `
-        The application "${
-          app.name
-        }" requests to start the client or service "${client.displayName}". 
-        Press 'OK' to allow this time.
-        `
-        },
-        response => {
-          const userPermission = response !== 1 // = index of 'cancel'
-          if (userPermission) {
-            client.start()
-          }
-        }
-      )
+      client.requestStart(app)
     },
     stop: () => {
       console.log('app requested stop')
