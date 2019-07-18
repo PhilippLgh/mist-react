@@ -1,6 +1,6 @@
 {
   "name": "grid",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Ethereum Grid",
   "main": "nano.js",
   "homepage": "https://github.com/ethereum/grid",
@@ -71,6 +71,7 @@
       "preload.js",
       "preload-webview.js",
       "WindowManager.js",
+      "build/**/*.png",
       "ui/download-splash.html",
       "ui/json-editor.html",
       "ui/nano.html",

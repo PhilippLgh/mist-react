@@ -20,7 +20,6 @@ const makePath = p =>
   (process.os !== 'windows' ? 'file://' : '') + path.normalize(p)
 
 const mb = menubar({
-  index: makePath(`${__dirname}/ui/nano.html`),
   browserWindow: {
     alwaysOnTop: true, // good for debugging
     transparent: true,
@@ -33,7 +32,9 @@ const mb = menubar({
       preload: preloadPath
     }
   },
-  icon: path.resolve(`${__dirname}/build/IconTemplate.png`)
+  icon: path.resolve(`${__dirname}/build/IconTemplate.png`),
+  index: makePath(`${__dirname}/ui/nano.html`),
+  showDockIcon: true
 })
 
 const app = mb.app
