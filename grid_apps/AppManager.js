@@ -92,7 +92,7 @@ class AppManager extends EventEmitter {
     return apps
   }
   async launch(app) {
-    console.log('launch', app.name)
+    console.log('launch app: ', app.name)
 
     if (app.id) {
       const win = WindowManager.getById(app.id)
@@ -134,7 +134,7 @@ class AppManager extends EventEmitter {
 
     let url = app.url || 'http://localhost:3000'
     const mainWindow = createRenderer(
-      WindowManager.getMainUrl(),
+      await getGridUiUrl(), // FIXME might be very inefficient. might load many grid-ui packages into memory!!
       {},
       {
         url,
