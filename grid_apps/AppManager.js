@@ -10,6 +10,7 @@ const { getUserConfig } = require('../Config')
 const UserConfig = getUserConfig()
 
 const is = require('../utils/main/is')
+const generateFlags = require('../utils/flags')
 
 const gridUiManager = new PackageManager({
   repository: 'https://github.com/ethereum/grid-ui',
@@ -112,11 +113,22 @@ class AppManager extends EventEmitter {
           // ignore - good enough for now but not correct behavior
           console.log('nothing to do')
         } else {
+          // TODO respect flags?
           // const persistedFlags = (await Grid.Config.getItem('flags')) || {}
           // const flags = persistedFlags[this.client.plugin.name]
-          console.log('request start')
+          // TODO error handling of malformed settings
+          const config = {}
+          dependency.settings.forEach(setting => {
+            config[setting.id] = setting.value
+          })
+          const settings = plugin.settings
+          const flags = generateFlags(config, settings)
+          const release = undefined // TODO allow apps to choose specific release?
+          console.log('request start', flags)
           try {
-            await plugin.requestStart(app)
+            // TODO show progress to user
+            await plugin.requestStart(app, flags, release)
+            // console.log('client started -> launch app now')
           } catch (error) {
             // e.g. user cancelled
             console.log('error', error)
