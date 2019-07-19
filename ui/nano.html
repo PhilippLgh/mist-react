@@ -218,6 +218,13 @@
       .grid-logo {
         transform: translateX(12px) /* half of cog icon's width */
       }
+      #grid-version {
+        font-size: 0.8rem;
+        position: absolute;
+        bottom: 3px;
+        right: 7px;
+        opacity: .5;
+      }
     </style>
 
     <script src="https://unpkg.com/vue"></script>
@@ -291,6 +298,7 @@
         :client="client"
       ></client-item>
       <grid-config v-if="configActive"></grid-config>
+      <div id="grid-version"></div>
     </div>
 
     <script>
@@ -532,6 +540,11 @@
           Grid.hideWindow()
         }
       }
+
+      var gridVersion = navigator.userAgent.match(/grid\/([\d\.]+)/)
+      var versionString = (gridVersion.length > 0)? `v${gridVersion[1]}` : ''
+      document.getElementById('grid-version').innerText = versionString
+
     </script>
   </body>
 </html>
