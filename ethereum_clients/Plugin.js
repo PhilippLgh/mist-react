@@ -69,7 +69,7 @@ class Plugin extends EventEmitter {
     return this.process ? this.process.state : 'STOPPED'
   }
   get isRunning() {
-    return this.process && this.process.isRunning
+    return (this.process && this.process.isRunning) || false
   }
   getLogs() {
     return this.process ? this.process.logs : []
@@ -191,7 +191,13 @@ class Plugin extends EventEmitter {
         {
           title: 'Start requested',
           buttons: ['Ok', 'Cancel'],
-          message: `The application "${app.name}" requests to start the client or service "${this.displayName}".\nPress 'OK' to allow this time.
+          message: `The application "${
+            app.name
+          }" requests to start the client or service "${
+            this.displayName
+          }" with flags [${
+            flags ? flags.join('') : ''
+          }].\nPress 'OK' to allow this time.
         `
         },
         async response => {
@@ -374,7 +380,7 @@ class PluginProxy extends EventEmitter {
     return this.plugin.getLocalBinary(release)
   }
   requestStart(app, flags, release) {
-    return this.plugin.requestStart(app, release, flags)
+    return this.plugin.requestStart(app, flags, release)
   }
   // TODO reverse arg order
   start(release, flags) {
