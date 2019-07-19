@@ -196,8 +196,8 @@ class Plugin extends EventEmitter {
           }" requests to start the client or service "${
             this.displayName
           }" with flags [${
-            flags ? flags.join('') : ''
-          }].\nPress 'OK' to allow this time.
+            flags ? flags.join(' ') : ''
+          }].\n\nPress 'OK' to allow this time.
         `
         },
         async response => {
