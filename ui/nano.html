@@ -253,6 +253,11 @@
         <span>Grid v1.0.0</span>
         <span class="spacer"></span>
         <icon-indicator
+          @change="openApps($event)"
+          pack="fas"
+          icon="th"
+        ></icon-indicator>
+        <icon-indicator
           :active="configActive"
           @change="toggleSettings($event)"
           pack="fas"
@@ -464,6 +469,16 @@
           toggleSettings: function(val) {
             console.log('set configActive to', val)
             this.configActive = val
+          },
+          openApps: async function() {
+            this.appsWindowId = await window.Grid.AppManager.launch({
+              name: 'grid-ui',
+              args: {
+                scope: {
+                  component: 'apps'
+                }
+              }
+            })
           }
         },
         mounted: async function() {
