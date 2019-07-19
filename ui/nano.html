@@ -11,12 +11,18 @@
         margin: 0px;
         background-color: transparent;
         overflow: hidden;
+        user-select: none;
       }
       body {
         min-height: 100vh;
       }
-    </style>
-    <style>
+      a {
+        color: rgba(84, 182, 132, 0.8);
+      }
+      a:hover {
+        color: rgba(84, 182, 132, 1);
+      }
+
       .switch {
         margin-right: 4px;
       }
@@ -66,10 +72,10 @@
         transform-origin: center;
       }
 
-      /* they need to share the same border. DRY'ing */
+      /* app container and tip need to share the same border */
       #app,
       .tip::before {
-        border: 1px solid #262626;
+        border: 1px solid #303030;
       }
 
       /* variant of the tip when the window is docked to the bottom */
@@ -248,8 +254,17 @@
     </script>
   </head>
 
-  <!-- <body class="is-docked-to-bottom is-windows"> -->
-  <body class="">
+  <!-- 
+    Possible classes:
+    dock position: 
+      is-docked-to-top, is-docked-to-bottom
+    OS: 
+      is-windows, is-mac, is-linux
+
+    <body class="is-docked-to-bottom is-windows">
+    <body class="is-docked-to-top is-mac">
+  -->
+  <body>
     <span class="tip"></span>
     <div id="app">
       <div class="header">
@@ -423,7 +438,7 @@
             <div><a v-on:click="openApps()">View Apps</a></div>
             <div><a @click.prevent="openExternal('https://github.com/ethereum/grid')">Grid Repository</a></div>
             <div class="separator"></div>
-            <div><b-switch v-model="launchOnBoot" @input="handleChangeLaunch($event)" size="is-small">Start Grid on boot</b-switch></div>
+            <div><b-switch v-model="launchOnBoot" @input="handleChangeLaunch($event)" size="is-small">Start Grid at log in</b-switch></div>
           </div>
           `,
         methods: {
