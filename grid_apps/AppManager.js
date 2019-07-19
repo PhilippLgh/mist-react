@@ -113,15 +113,22 @@ class AppManager extends EventEmitter {
           // ignore - good enough for now but not correct behavior
           console.log('nothing to do')
         } else {
-          // TODO respect flags?
           // const persistedFlags = (await Grid.Config.getItem('flags')) || {}
           // const flags = persistedFlags[this.client.plugin.name]
           // TODO error handling of malformed settings
+          const settings = plugin.settings || []
           const config = {}
+          // 1. set default => check buildClientDefaults in grid-ui TODO this code should not be duplicated
+          settings.forEach(setting => {
+            if ('default' in setting) {
+              config[setting.id] = setting.default
+            }
+          })
+          // 2. TODO respect persisted user default flags?
+          // 3. overwrite defaults if necessary with app settings
           dependency.settings.forEach(setting => {
             config[setting.id] = setting.value
           })
-          const settings = plugin.settings
           const flags = generateFlags(config, settings)
           const release = undefined // TODO allow apps to choose specific release?
           console.log('request start', flags)
