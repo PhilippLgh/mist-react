@@ -190,12 +190,12 @@ class Plugin extends EventEmitter {
         // currentWindow,
         {
           title: 'Start requested',
-          buttons: ['Ok', 'Cancel'],
+          buttons: ['OK', 'Cancel'],
           message: `The application "${
             app.name
           }" requests to start the client or service "${
             this.displayName
-          }" with flags [${
+          }" with flags: [${
             flags ? flags.join(' ') : ''
           }].\n\nPress 'OK' to allow this time.
         `

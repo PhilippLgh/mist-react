@@ -108,34 +108,40 @@ class AppManager extends EventEmitter {
       for (const dependency of dependencies) {
         console.log('found dependency', dependency)
         const plugin = global.PluginHost.getPluginByName(dependency.name)
-        console.log('plugin found?', plugin.name, plugin.isRunning)
-        if (plugin.isRunning) {
-          // ignore - good enough for now but not correct behavior
-          console.log('nothing to do')
+        if (!plugin) {
+          console.log('Could not find necessary plugin')
+        } else if (plugin.isRunning) {
+          console.log(`Plugin ${plugin.name} already running`)
         } else {
-          // const persistedFlags = (await Grid.Config.getItem('flags')) || {}
-          // const flags = persistedFlags[this.client.plugin.name]
-          // TODO error handling of malformed settings
+          // TODO: error handling of malformed settings
           const settings = plugin.settings || []
-          const config = {}
-          // 1. set default => check buildClientDefaults in grid-ui TODO this code should not be duplicated
+          let config = {}
+
+          // 1. set default => check buildClientDefaults in grid-ui
+          // TODO: this code should not be duplicated
           settings.forEach(setting => {
             if ('default' in setting) {
               config[setting.id] = setting.default
             }
           })
-          // 2. TODO respect persisted user default flags?
-          // 3. overwrite defaults if necessary with app settings
+
+          // 2. respect persisted user settings
+          const persistedConfig = (await UserConfig.getItem('settings')) || {}
+          const persistedPluginConfig = persistedConfig[plugin.name]
+          config = Object.assign({}, config, persistedPluginConfig)
+
+          // 3. overwrite configs with required app settings
           dependency.settings.forEach(setting => {
             config[setting.id] = setting.value
           })
+
           const flags = generateFlags(config, settings)
-          const release = undefined // TODO allow apps to choose specific release?
+          const release = undefined // TODO: allow apps to choose specific release?
           console.log('request start', flags)
+
           try {
-            // TODO show progress to user
+            // TODO: show progress to user
             await plugin.requestStart(app, flags, release)
-            // console.log('client started -> launch app now')
           } catch (error) {
             // e.g. user cancelled
             console.log('error', error)
