@@ -1,4 +1,5 @@
-const { BrowserWindow, ipcMain } = require('electron')
+const electron = require('electron')
+const { BrowserWindow, ipcMain } = electron
 const path = require('path')
 const fs = require('fs')
 
@@ -30,13 +31,13 @@ class WindowManager {
       height: 658
     }
 
-    // Open new window in offset to existing window if exists
-    const focusedWindow = BrowserWindow.getFocusedWindow()
-    if (focusedWindow) {
-      const position = focusedWindow.getPosition()
-      baseOptions.x = position[0] + 35
-      baseOptions.y = position[1] + 35
-    }
+    // Open new window in center with offset
+    const offset = 35 * (BrowserWindow.getAllWindows().length - 1)
+    let bounds = electron.screen.getPrimaryDisplay().bounds
+    baseOptions.x =
+      Math.ceil(bounds.x + (bounds.width - baseOptions.width) / 2) + offset
+    baseOptions.y =
+      Math.ceil(bounds.y + (bounds.height - baseOptions.height) / 2) + offset
 
     if (options.title) {
       baseOptions.title = options.title

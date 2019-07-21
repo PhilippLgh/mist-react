@@ -30,7 +30,8 @@ const mb = menubar({
     height: 420,
     webPreferences: {
       preload: preloadPath
-    }
+    },
+    title: 'Grid Nano'
   },
   icon: path.resolve(`${__dirname}/build/IconTemplate.png`)
 })

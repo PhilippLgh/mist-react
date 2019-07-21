@@ -92,7 +92,7 @@ class AppManager extends EventEmitter {
     return apps
   }
   async launch(app) {
-    console.log('launch', app.name)
+    console.log(`Launch: ${app.name}`)
 
     if (app.id) {
       const win = WindowManager.getById(app.id)
@@ -110,17 +110,13 @@ class AppManager extends EventEmitter {
       if (component === 'terminal') {
         appUrl = `file://${path.join(__dirname, '..', 'ui', 'terminal.html')}`
       }
-      const clientDisplayName = 'Geth'
       let mainWindow = createRenderer(
         appUrl,
         {
-          x: 400,
-          y: 400,
-          backgroundColor: component === 'terminal' ? '#1E1E1E' : '#202225'
+          backgroundColor: component === 'terminal' ? '#1E1E1E' : '#202225',
+          title: 'Grid'
         },
-        {
-          scope
-        }
+        { scope }
       )
       mainWindow.setMenu(null)
       /*
@@ -128,7 +124,6 @@ class AppManager extends EventEmitter {
         mode: 'detach'
       })
       */
-      mainWindow.setTitle('Ethereum Grid Terminal for ' + clientDisplayName)
       return mainWindow.id
     }
 
