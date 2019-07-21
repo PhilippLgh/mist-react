@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const os = require('os')
 const { EventEmitter } = require('events')
 const { getBinaryUpdater } = require('./util')
 const ControlledProcess = require('./ControlledProcess')
@@ -50,6 +51,9 @@ class Plugin extends EventEmitter {
   get displayName() {
     return this.config.displayName
   }
+  get settings() {
+    return this.config.settings
+  }
   get defaultConfig() {
     return this.config.config.default
   }
@@ -88,6 +92,16 @@ class Plugin extends EventEmitter {
   async getReleases() {
     const releases = await this.updater.getReleases()
     return releases
+  }
+  async getCachedReleases() {
+    const releases = await this.updater.getCachedReleases()
+    return releases
+  }
+  async getLatestCached() {
+    return this.updater.getLatestCached()
+  }
+  async getLatestRemote() {
+    return this.updater.getLatestRemote()
   }
   download(release, onProgress) {
     return this.updater.download(release, { onProgress })
@@ -179,9 +193,7 @@ class Plugin extends EventEmitter {
     }
     const { binaryPath, packagePath } = await this.getLocalBinary(release)
     console.log(
-      `client ${
-        this.name
-      } / ${packagePath} about to start - binary: ${binaryPath}`
+      `client ${this.name} / ${packagePath} about to start - binary: ${binaryPath}`
     )
     try {
       this.process = new ControlledProcess(binaryPath, this.resolveIpc)
@@ -294,6 +306,9 @@ class PluginProxy extends EventEmitter {
   get state() {
     return this.plugin.state
   }
+  get settings() {
+    return this.plugin.settings
+  }
   get config() {
     return this.plugin.defaultConfig
   }
@@ -316,6 +331,15 @@ class PluginProxy extends EventEmitter {
   getReleases() {
     return this.plugin.getReleases()
   }
+  getCachedReleases() {
+    return this.plugin.getCachedReleases()
+  }
+  getLatestCached() {
+    return this.plugin.getLatestCached()
+  }
+  getLatestRemote() {
+    return this.plugin.getLatestRemote()
+  }
   download(release, onProgress = () => {}) {
     return this.plugin.download(release, progress => {
       onProgress(progress)
@@ -324,8 +348,8 @@ class PluginProxy extends EventEmitter {
   getLocalBinary(release) {
     return this.plugin.getLocalBinary(release)
   }
-  start(release, flags) {
-    return this.plugin.start(release, flags)
+  start(release, config) {
+    return this.plugin.start(release, config)
   }
   stop() {
     console.log(`client ${this.name} stopped`)

@@ -1,5 +1,13 @@
-const { remote } = require('electron')
+const { remote, shell } = require('electron')
 const { dialog } = require('electron').remote
+const AutoLaunch = require('auto-launch')
+
+const gridAutoLauncher = new AutoLaunch({
+  name: 'Grid'
+  // Unsure of linux distros behavior with menubar
+  // so for now we will always show on launch
+  // isHidden: true
+})
 
 const notify = (title, body) => {
   const notification = new Notification(title, { body })
@@ -41,7 +49,32 @@ const showOpenDialog = (
   })
 }
 
+const openExternalLink = href => {
+  shell.openExternal(href)
+}
+
+const getLaunchOnBoot = async () => {
+  return gridAutoLauncher.isEnabled()
+}
+
+const setLaunchOnBoot = enable => {
+  if (enable) {
+    gridAutoLauncher.enable()
+  } else {
+    gridAutoLauncher.disable()
+  }
+}
+
+const hideWindow = () => {
+  const window = remote.getCurrentWindow()
+  window && window.hide()
+}
+
 module.exports = {
+  getLaunchOnBoot,
+  hideWindow,
   notify,
+  openExternalLink,
+  setLaunchOnBoot,
   showOpenDialog
 }

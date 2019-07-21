@@ -9,6 +9,19 @@ class WindowManager {
     return main ? main.webContents.getURL() : undefined
   }
 
+  getById(windowId) {
+    return BrowserWindow.fromId(windowId)
+  }
+
+  hide(windowId) {
+    const win = this.getById(windowId)
+    if (win) {
+      win.hide()
+      return true
+    }
+    return false
+  }
+
   createWindow(options = {}, data = {}) {
     const preloadPath = path.join(__dirname, 'preload.js')
 

@@ -1,10 +1,11 @@
 const fs = require('fs')
 const path = require('path')
 const { EventEmitter } = require('events')
+const { AppManager } = require('@philipplgh/electron-app-manager')
 const { Plugin, PluginProxy } = require('./Plugin')
 const { getPluginCachePath } = require('./util')
 const { getUserConfig } = require('../Config')
-const { AppManager } = require('@philipplgh/electron-app-manager')
+const generateFlags = require('../utils/flags')
 
 function requireFromString(src, filename) {
   var Module = module.constructor
@@ -20,6 +21,7 @@ class PluginHost extends EventEmitter {
   constructor() {
     super()
     this.plugins = []
+    this.pluginProxies = {}
     this.discover()
       .then(plugins => {
         this.plugins = this.plugins.concat(plugins)
@@ -35,9 +37,40 @@ class PluginHost extends EventEmitter {
       .catch(err => {
         console.log('remote plugins could not be loaded', err)
       })
+      .then(() => {
+        this.setDefaultFlags()
+      })
       .finally(() => {
         this.emit('plugins-loaded')
       })
+  }
+  setDefaultFlags() {
+    const persistedFlags = UserConfig.getItem('flags')
+    const newFlags = Object.assign({}, persistedFlags)
+
+    this.plugins.forEach(plugin => {
+      if (!persistedFlags || !persistedFlags[plugin.name]) {
+        try {
+          let pluginDefaults = {}
+          const settings = plugin.config.settings
+          settings.forEach(setting => {
+            if ('default' in setting) {
+              pluginDefaults[setting.id] = setting.default
+            }
+          })
+          const flags = generateFlags(pluginDefaults, settings)
+          console.log(`Generated flags for ${plugin.name}:`, flags)
+
+          newFlags[plugin.name] = flags
+        } catch (e) {
+          console.log('Insufficient settings to build flags for', plugin.name)
+        }
+      } else {
+        console.log(`Flags found for ${plugin.name}`)
+      }
+    })
+
+    UserConfig.setItem('flags', newFlags)
   }
   loadPluginFromFile(fullPath) {
     const source = fs.readFileSync(fullPath, 'utf8')
@@ -198,11 +231,19 @@ class PluginHost extends EventEmitter {
     return this.plugins.map(p => p.config)
   }
   // called from renderer
-  getAllPlugins() {
-    return this.plugins.map(p => new PluginProxy(p))
+  getAllPlugins(bustCache = false) {
+    return this.plugins.map(plugin => {
+      if (this.pluginProxies[plugin.name] && !bustCache) {
+        return this.pluginProxies[plugin.name]
+      } else {
+        const pluginProxy = new PluginProxy(plugin)
+        this.pluginProxies[plugin.name] = pluginProxy
+        return pluginProxy
+      }
+    })
   }
   getPluginByName(name) {
-    return this.getAllPlugins().find(p => p.name === name)
+    return this.getAllPlugins().find(plugin => plugin.name === name)
   }
   start(name) {
     console.log('start plugin', name)
