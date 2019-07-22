@@ -64,11 +64,38 @@ module.exports = {
   resolveIpc: logs => findIpcPathInLogs(logs),
   settings: [
     {
+      id: 'network',
+      default: 'main',
+      label: 'Network',
+      options: [
+        { value: 'main', label: 'Main', flag: '' },
+        { value: 'ropsten', label: 'Ropsten (testnet)', flag: '--testnet' },
+        { value: 'rinkeby', label: 'Rinkeby (testnet)', flag: '--rinkeby' },
+        { value: 'goerli', label: 'Görli (testnet)', flag: '--goerli' }
+      ]
+    },
+    {
+      id: 'syncMode',
+      default: 'light',
+      label: 'Sync Mode',
+      options: ['fast', 'full', 'light'],
+      flag: '--syncmode %s'
+    },
+    {
       id: 'dataDir',
       default: dataDir,
       label: 'Data Directory',
       flag: '--datadir %s',
       type: 'directory'
+    },
+    {
+      id: 'console',
+      label: 'Enable console',
+      default: 'false',
+      options: [
+        { value: 'true', flag: 'console', label: 'Yes' },
+        { value: 'false', flag: '', label: 'No' }
+      ]
     },
     {
       id: 'rpc',
@@ -100,33 +127,6 @@ module.exports = {
           label: 'On for all origins',
           flag: '--ws --wsorigins=*'
         }
-      ]
-    },
-    {
-      id: 'network',
-      default: 'main',
-      label: 'Network',
-      options: [
-        { value: 'main', label: 'Main', flag: '' },
-        { value: 'ropsten', label: 'Ropsten (testnet)', flag: '--testnet' },
-        { value: 'rinkeby', label: 'Rinkeby (testnet)', flag: '--rinkeby' },
-        { value: 'goerli', label: 'Görli (testnet)', flag: '--goerli' }
-      ]
-    },
-    {
-      id: 'syncMode',
-      default: 'light',
-      label: 'Sync Mode',
-      options: ['fast', 'full', 'light'],
-      flag: '--syncmode %s'
-    },
-    {
-      id: 'console',
-      label: 'Enable console',
-      default: 'false',
-      options: [
-        { value: 'true', flag: 'console', label: 'Yes' },
-        { value: 'false', flag: '', label: 'No' }
       ]
     },
     {
