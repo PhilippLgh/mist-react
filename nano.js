@@ -1,4 +1,3 @@
-require('events').EventEmitter.defaultMaxListeners = 55
 const path = require('path')
 const { menubar } = require('menubar')
 const { Menu, shell } = require('electron')
@@ -30,7 +29,8 @@ const mb = menubar({
     height: 420,
     webPreferences: {
       preload: preloadPath
-    }
+    },
+    title: 'Grid Nano'
   },
   icon: path.resolve(`${__dirname}/build/IconTemplate.png`),
   index: makePath(`${__dirname}/ui/nano.html`),

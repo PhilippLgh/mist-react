@@ -21,6 +21,7 @@ class PluginHost extends EventEmitter {
   constructor() {
     super()
     this.plugins = []
+    this.pluginProxies = {}
     this.discover()
       .then(plugins => {
         this.plugins = this.plugins.concat(plugins)
@@ -230,11 +231,19 @@ class PluginHost extends EventEmitter {
     return this.plugins.map(p => p.config)
   }
   // called from renderer
-  getAllPlugins() {
-    return this.plugins.map(p => new PluginProxy(p))
+  getAllPlugins(bustCache = false) {
+    return this.plugins.map(plugin => {
+      if (this.pluginProxies[plugin.name] && !bustCache) {
+        return this.pluginProxies[plugin.name]
+      } else {
+        const pluginProxy = new PluginProxy(plugin)
+        this.pluginProxies[plugin.name] = pluginProxy
+        return pluginProxy
+      }
+    })
   }
   getPluginByName(name) {
-    return this.getAllPlugins().find(p => p.name === name)
+    return this.getAllPlugins().find(plugin => plugin.name === name)
   }
   start(name) {
     console.log('start plugin', name)

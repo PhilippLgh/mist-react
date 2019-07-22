@@ -11,23 +11,29 @@
         margin: 0px;
         background-color: transparent;
         overflow: hidden;
+        user-select: none;
       }
       body {
         min-height: 100vh;
       }
-    </style>
-    <style>
+      a {
+        color: rgba(84, 182, 132, 0.8);
+      }
+      a:hover {
+        color: rgba(84, 182, 132, 1);
+      }
+
       .switch {
         margin-right: 4px;
       }
       .switch input[type='checkbox']:checked + .check {
-        background: #57d57e;
+        background: #54B684;
       }
       .switch:hover input[type='checkbox']:checked + .check {
-        background: rgba(87, 213, 126, 0.9);
+        background: rgba(84, 182, 132, 0.9);
       }
       .switch input[type='checkbox']:focus:checked + .check {
-        box-shadow: 0 0 0.5em rgba(87, 213, 126, 0.8);
+        box-shadow: 0 0 0.5em rgba(84, 182, 132, 0.8);
       }
 
       .switch input[type='checkbox'] + .check {
@@ -39,8 +45,10 @@
         height: calc(100vh - 18px);
         margin-top: 18px;
         z-index: 1;
-        background-color: rgba(30, 30, 30, 1);
         border-radius: 12px;
+      }
+      #app, .tip::before {
+        background-color: rgba(32, 34, 37, 1);
       }
 
       .tip {
@@ -59,16 +67,15 @@
         position: absolute;
         width: 50px;
         height: 50px;
-        background-color: rgba(30, 30, 30, 1);
         border-radius: 8px;
         transform: rotate(-45deg) translateX(1px) translateY(11px);
         transform-origin: center;
       }
 
-      /* they need to share the same border. DRY'ing */
+      /* app container and tip need to share the same border */
       #app,
       .tip::before {
-        border: 1px solid #262626;
+        border: 1px solid #303030;
       }
 
       /* variant of the tip when the window is docked to the bottom */
@@ -82,20 +89,20 @@
         margin-left: -2px;
       }
 
-      /* 
+      /*
        * Removes windows and linux window tip.
-       * I'd rather remove the tip on W+L instead of 
-       * adding it only for mac, due to Mac shadow rendering reasons. 
+       * Mac on by default for shadow rendering reasons.
        */
-      body.is-windows .tip, body.is-linux .tip {
+      body.is-windows .tip,
+      body.is-linux .tip {
         display: none;
       }
-      body.is-windows #app, body.is-linux #app {
+      body.is-windows #app,
+      body.is-linux #app {
         height: 100vh;
         margin: 0;
         border-radius: 2px;
       }
-
 
       .client-item {
         padding: 5px;
@@ -208,6 +215,16 @@
       .grid-config > .separator {
         margin: 5px 0;
       }
+      .grid-logo {
+        transform: translateX(12px) /* half of cog icon's width */
+      }
+      #grid-version {
+        font-size: 0.8rem;
+        position: absolute;
+        bottom: 3px;
+        right: 7px;
+        opacity: .8;
+      }
     </style>
 
     <script src="https://unpkg.com/vue"></script>
@@ -244,12 +261,28 @@
     </script>
   </head>
 
-  <!-- <body class="is-docked-to-bottom is-windows"> -->
-  <body class="">
+  <!-- 
+    Possible classes:
+    dock position: 
+      is-docked-to-top, is-docked-to-bottom
+    OS: 
+      is-windows, is-mac, is-linux
+
+    <body class="is-docked-to-bottom is-windows">
+    <body class="is-docked-to-top is-mac">
+  -->
+  <body>
     <span class="tip"></span>
     <div id="app">
       <div class="header">
-        <span>Grid v1.0.0</span>
+        <span class="spacer"></span>
+        <span class="grid-logo">
+          <svg width="44px" height="27px" viewBox="0 0 44 27" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g id="Views" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                <path d="M9.968,9.504 C10.2666682,9.504 10.416,9.65333184 10.416,9.952 L10.416,22.752 C10.416,22.944001 10.3413341,23.2213315 10.192,23.584 C9.46666304,25.376009 7.8773456,26.272 5.424,26.272 C4.76266336,26.272 4.02667072,26.1333347 3.216,25.856 C2.27732864,25.5573318 1.62666848,25.1840022 1.264,24.736 C1.1573328,24.6293328 1.104,24.5226672 1.104,24.416 C1.104,24.1173318 1.25333184,23.968 1.552,23.968 C1.48799968,23.968 1.89332896,24.2026643 2.768,24.672 C3.64267104,25.1413357 4.52799552,25.376 5.424,25.376 C7.42934336,25.376 8.73066368,24.7146733 9.328,23.392 C9.45600064,23.1146653 9.52,22.9013341 9.52,22.752 L9.52,17.856 C8.49599488,19.5413418 7.05600928,20.384 5.2,20.384 C3.72799264,20.384 2.50133824,19.8240056 1.52,18.704 C0.53866176,17.5839944 0.048,16.2880074 0.048,14.816 C0.048,13.3226592 0.53866176,12.0213389 1.52,10.912 C2.50133824,9.80266112 3.72799264,9.248 5.2,9.248 C7.05600928,9.248 8.49599488,10.0906582 9.52,11.776 L9.52,9.952 C9.52,9.65333184 9.66933184,9.504 9.968,9.504 Z M5.2,19.488 C6.41600608,19.488 7.42932928,19.0186714 8.24,18.08 C9.05067072,17.1413286 9.456,16.0533395 9.456,14.816 C9.456,13.5786605 9.05067072,12.4906714 8.24,11.552 C7.42932928,10.6133286 6.41600608,10.144 5.2,10.144 C3.98399392,10.144 2.97067072,10.6133286 2.16,11.552 C1.34932928,12.4906714 0.944,13.5786605 0.944,14.816 C0.944,16.0533395 1.34932928,17.1413286 2.16,18.08 C2.97067072,19.0186714 3.98399392,19.488 5.2,19.488 Z M20.6148567,9.504 C20.9348583,9.504 21.0948567,9.64266528 21.0948567,9.92 C21.0948567,10.1973347 20.9561914,10.3573331 20.6788567,10.4 C19.4201838,10.5706675 18.4601934,11.1466618 17.7988567,12.128 C17.180187,13.002671 16.8708567,14.1013267 16.8708567,15.424 L16.8708567,19.712 C16.8708567,20.0106682 16.7215249,20.16 16.4228567,20.16 C16.1241886,20.16 15.9748567,20.0106682 15.9748567,19.712 L15.9748567,9.952 C15.9748567,9.65333184 16.1241886,9.504 16.4228567,9.504 C16.7215249,9.504 16.8708567,9.65333184 16.8708567,9.952 L16.8708567,11.936 C17.2761921,11.2533299 17.7988535,10.6880022 18.4388567,10.24 C19.1641937,9.74933088 19.8895198,9.504 20.6148567,9.504 Z M27.9657134,6.432 C27.9657134,6.90133568 27.7203826,7.136 27.2297134,7.136 C26.7390443,7.136 26.4937134,6.90133568 26.4937134,6.432 C26.4937134,5.94133088 26.7390443,5.696 27.2297134,5.696 C27.7203826,5.696 27.9657134,5.94133088 27.9657134,6.432 Z M27.2297134,9.568 C27.5283816,9.568 27.6777134,9.71733184 27.6777134,10.016 L27.6777134,19.744 C27.6777134,20.0426682 27.5283816,20.192 27.2297134,20.192 C26.9310453,20.192 26.7817134,20.0426682 26.7817134,19.744 L26.7817134,10.016 C26.7817134,9.71733184 26.9310453,9.568 27.2297134,9.568 Z M43.4445702,0.544 C43.7432383,0.544 43.8925702,0.69333184 43.8925702,0.992 L43.8925702,19.712 C43.8925702,20.0106682 43.7432383,20.16 43.4445702,20.16 C43.145902,20.16 42.9965702,20.0106682 42.9965702,19.712 L42.9965702,17.664 C41.9938985,19.5200093 40.5005801,20.448 38.5165702,20.448 C37.0658962,20.448 35.8445751,19.8933389 34.8525702,18.784 C33.8605652,17.6746611 33.3645702,16.3733408 33.3645702,14.88 C33.3645702,13.4079926 33.8552319,12.1120056 34.8365702,10.992 C35.8179084,9.8719944 37.0445628,9.312 38.5165702,9.312 C40.5005801,9.312 41.9938985,10.2506573 42.9965702,12.128 L42.9965702,0.992 C42.9965702,0.69333184 43.145902,0.544 43.4445702,0.544 Z M38.5165702,19.552 C39.7325762,19.552 40.7458994,19.0826714 41.5565702,18.144 C42.3672409,17.2053286 42.7725702,16.1173395 42.7725702,14.88 C42.7725702,13.6426605 42.3672409,12.5546714 41.5565702,11.616 C40.7458994,10.6773286 39.7325762,10.208 38.5165702,10.208 C37.3005641,10.208 36.2872409,10.6773286 35.4765702,11.616 C34.6658994,12.5546714 34.2605702,13.6426605 34.2605702,14.88 C34.2605702,16.1173395 34.6658994,17.2053286 35.4765702,18.144 C36.2872409,19.0826714 37.3005641,19.552 38.5165702,19.552 Z" id="grid" fill="#DADADA"></path>
+            </g>
+        </svg>
+        </span>
         <span class="spacer"></span>
         <icon-indicator
           :active="configActive"
@@ -265,6 +298,7 @@
         :client="client"
       ></client-item>
       <grid-config v-if="configActive"></grid-config>
+      <div id="grid-version"></div>
     </div>
 
     <script>
@@ -279,8 +313,7 @@
             downloadProgress: 0,
             checkbox: [],
             terminalWindowId: undefined,
-            uiWindowId: undefined,
-            polling: null
+            uiWindowId: undefined
           }
         },
         template: `
@@ -299,24 +332,14 @@
           </div>
           `,
         created: function() {
-          try {
-            const clientPlugin = window.Grid.PluginHost.getPluginByName(
-              this.client.name
-            )
-            this.listenForStateUpdates(clientPlugin)
-          } catch (error) {
-            console.log('error polling for state updates', error)
-          }
+          this.listenForStateUpdates()
         },
         beforeDestroy: function() {
-          const clientPlugin = window.Grid.PluginHost.getPluginByName(
-            this.client.name
-          )
-          clientPlugin.removeAllListeners('newState')
+          this.client.plugin.removeAllListeners('newState')
         },
         methods: {
-          listenForStateUpdates: function(clientPlugin) {
-            clientPlugin.on('newState', state => {
+          listenForStateUpdates: function() {
+            this.client.plugin.on('newState', state => {
               console.log('new state', state)
               this.state = state
 
@@ -327,17 +350,17 @@
               }
             })
           },
-          handleSwitchedOn: async function(clientPlugin) {
+          handleSwitchedOn: async function() {
             // check if downloaded version is available
-            let latestBinCached = await clientPlugin.getLatestCached()
+            let latestBinCached = await this.client.plugin.getLatestCached()
             if (!latestBinCached) {
               console.log('no client binary found --> download now')
-              const latestRemote = await clientPlugin.getLatestRemote()
+              const latestRemote = await this.client.plugin.getLatestRemote()
               // TODO handle no remote release found
               try {
                 this.state = 'downloading'
                 this.isDownloading = true
-                latestBinCached = await clientPlugin.download(
+                latestBinCached = await this.client.plugin.download(
                   latestRemote,
                   downloadProgress => {
                     console.log('download progress', downloadProgress)
@@ -357,28 +380,25 @@
 
             console.log('cached release found --> start now')
             const persistedFlags = (await Grid.Config.getItem('flags')) || {}
-            const flags = persistedFlags[clientPlugin.name]
+            const flags = persistedFlags[this.client.plugin.name]
 
-            clientPlugin.start(latestBinCached, flags)
+            this.client.plugin.start(latestBinCached, flags)
           },
           handleChange: function(ev) {
-            // get reference to plugin
-            const clientPlugin = window.Grid.PluginHost.getPluginByName(
-              this.client.name
-            )
             if (this.isSwitched) {
-              this.handleSwitchedOn(clientPlugin)
+              this.handleSwitchedOn()
             } else {
               // TODO cancel download if currently running
               if (['started', 'starting', 'connected'].includes(this.state)) {
-                clientPlugin.stop()
+                this.client.plugin.stop()
               }
             }
           },
           openUI: async function() {
             const settings = Grid.Config.getItem('settings')
             const newSettings = Object.assign({}, settings, {
-              selected: this.client.name
+              selected: this.client.name,
+              selectedTab: 0
             })
             Grid.Config.setItem('settings', newSettings)
 
@@ -394,12 +414,19 @@
             })
           },
           openTerminal: async function() {
+            const settings = Grid.Config.getItem('settings')
+            const newSettings = Object.assign({}, settings, {
+              selected: this.client.name,
+              selectedTab: 2
+            })
+            Grid.Config.setItem('settings', newSettings)
+
             this.terminalWindowId = await window.Grid.AppManager.launch({
               name: 'grid-ui',
               id: this.terminalWindowId,
               args: {
                 scope: {
-                  component: 'terminal',
+                  component: 'ui',
                   client: this.client.name
                 }
               }
@@ -419,7 +446,7 @@
             <div><a v-on:click="openApps()">View Apps</a></div>
             <div><a @click.prevent="openExternal('https://github.com/ethereum/grid')">Grid Repository</a></div>
             <div class="separator"></div>
-            <div><b-switch v-model="launchOnBoot" @input="handleChangeLaunch($event)" size="is-small">Start Grid on boot</b-switch></div>
+            <div><b-switch v-model="launchOnBoot" @input="handleChangeLaunch($event)" size="is-small">Start Grid at log in</b-switch></div>
           </div>
           `,
         methods: {
@@ -458,11 +485,12 @@
         methods: {
           init: function() {
             const plugins = window.Grid.PluginHost.getAllPlugins()
-            this.clients = plugins.map(p => ({
-              name: p.name,
-              displayName: p.displayName,
+            this.clients = plugins.map(plugin => ({
+              name: plugin.name,
+              displayName: plugin.displayName,
               profile: '',
-              version: ''
+              version: '',
+              plugin
             }))
             console.log('plugins loaded', plugins.length)
           },
@@ -483,32 +511,39 @@
         }
       })
 
-      
       // Tip placement, only at startup
       var distanceToBottom =
         window.screen.height - (window.screenTop + window.innerHeight)
       var distanceToTop = window.screenTop
       document.body.classList.add(
-        distanceToBottom < distanceToTop ? 'is-docked-to-bottom' : 'is-docked-to-top'
+        distanceToBottom < distanceToTop
+          ? 'is-docked-to-bottom'
+          : 'is-docked-to-top'
       )
 
       // OS detection
-      var osClass;
-      function checkPlatform(pattern) { return pattern.test(window.navigator.platform) }
+      var osClass
+      function checkPlatform(pattern) {
+        return pattern.test(window.navigator.platform)
+      }
       if (checkPlatform(/win/i)) {
-        osClass = 'is-windows';
+        osClass = 'is-windows'
       } else if (checkPlatform(/mac/i)) {
-        osClass = 'is-mac';
+        osClass = 'is-mac'
       } else {
         osClass = 'is-linux'
       }
       document.body.classList.add(osClass)
 
       document.onkeydown = function(evt) {
-        if (evt && evt.key === "Escape") {
+        if (evt && evt.key === 'Escape') {
           Grid.hideWindow()
         }
-      };
+      }
+
+      var gridVersion = navigator.userAgent.match(/grid\/([\d\.]+)/)
+      var versionString = (gridVersion.length > 0)? `v${gridVersion[1]}` : ''
+      document.getElementById('grid-version').innerText = versionString
 
     </script>
   </body>
