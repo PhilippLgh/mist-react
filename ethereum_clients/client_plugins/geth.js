@@ -81,9 +81,9 @@ module.exports = {
       ]
     },
     {
-      id: 'profile',
+      id: 'rpc-cors',
       default: 'none',
-      label: 'Profile',
+      label: 'RPC CORS Profile',
       options: [
         { value: 'none', label: 'None', flag: '' },
         {
