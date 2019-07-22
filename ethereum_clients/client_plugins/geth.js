@@ -80,7 +80,8 @@ module.exports = {
         { value: 'rpc', label: 'RPC HTTP', flag: '--rpc' }
       ]
     },
-    profile: {
+    {
+      id: 'profile',
       default: 'none',
       label: 'Profile',
       options: [
@@ -90,6 +91,11 @@ module.exports = {
           label: 'MetaMask',
           flag:
             '--rpc --rpccorsdomain moz-extension://e582a415-cf54-468e-9b4b-f32b576f7bf7,chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn'
+        },
+        {
+          value: 'all',
+          label: 'Allow all',
+          flag: '--rpc --rpccorsdomain=*'
         }
       ]
     },
