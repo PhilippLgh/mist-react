@@ -71,31 +71,34 @@ module.exports = {
       type: 'directory'
     },
     {
-      id: 'api',
-      default: 'ipc',
-      label: 'API',
-      options: [
-        { value: 'ipc', label: 'IPC', flag: '' },
-        { value: 'websockets', label: 'WebSockets', flag: '--ws' },
-        { value: 'rpc', label: 'RPC HTTP', flag: '--rpc' }
-      ]
-    },
-    {
-      id: 'rpc-cors',
+      id: 'rpc',
       default: 'none',
-      label: 'RPC CORS Profile',
+      label: 'RPC API',
       options: [
-        { value: 'none', label: 'None', flag: '' },
+        { value: 'none', label: 'No', flag: '' },
         {
           value: 'metamask',
-          label: 'MetaMask',
+          label: 'On for MetaMask',
           flag:
             '--rpc --rpccorsdomain moz-extension://e582a415-cf54-468e-9b4b-f32b576f7bf7,chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn'
         },
         {
-          value: 'all',
-          label: 'Allow all',
+          value: 'on',
+          label: 'On for all origins',
           flag: '--rpc --rpccorsdomain=*'
+        }
+      ]
+    },
+    {
+      id: 'ws',
+      default: 'none',
+      label: 'WebSockets API',
+      options: [
+        { value: 'none', label: 'No', flag: '' },
+        {
+          value: 'on',
+          label: 'On for all origins',
+          flag: '--ws --wsorigins=*'
         }
       ]
     },
