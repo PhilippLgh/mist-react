@@ -64,20 +64,18 @@ class ControlledProcess extends EventEmitter {
       })
 
       proc.on('close', code => {
-        if (code === 0) {
-          this.state = STATES.STOPPED
-          this.emit('newState', 'stopped')
-          this.debug('Emit newState: stopped')
-          return
+        this.state = STATES.STOPPED
+        this.emit('newState', 'stopped')
+        this.debug('Emit newState: stopped')
+
+        if (code !== 0) {
+          // Closing with any code other than 0 means there was an error
+          const errorMessage = `${this.name} child process exited with code: ${code}`
+          this.emit('pluginError', errorMessage)
+          this.debug('Error: ', errorMessage)
+          this.debug('DEBUG Last 10 log lines: ', this.logs.slice(-10))
+          reject(errorMessage)
         }
-        // Closing with any code other than 0 means there was an error
-        const errorMessage = `${
-          this.name
-        } child process exited with code: ${code}`
-        this.emit('pluginError', errorMessage)
-        this.debug('Error: ', errorMessage)
-        this.debug('DEBUG Last 10 log lines: ', this.logs.slice(-10))
-        reject(errorMessage)
       })
 
       const onStart = () => {
