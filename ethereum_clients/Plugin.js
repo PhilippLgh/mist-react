@@ -264,12 +264,22 @@ class Plugin extends EventEmitter {
     this.process.write(payload)
   }
   async execute(command) {
-    const { binaryPath } = await this.getLocalBinary()
-    if (!binaryPath) {
+    const binary = await this.getLocalBinary()
+
+    if (!binary) {
       console.log(
-        'execution error: binary not found. bad package path or missing/ambiguous binaryName'
+        'Execution error: binary not found. Bad package path or missing/ambiguous binaryName.'
       )
-      return Promise.reject(new Error('execution error: binary not found'))
+      // TODO: handle downloads when no binary exists.
+      // Challenge: first version not always most appropriate to download.
+      dialog.showMessageBox({
+        message: 'Please download a release of the plugin first.'
+      })
+      return Promise.reject(
+        new Error(
+          'Execution error: binary not found. Please download a version first.'
+        )
+      )
     }
 
     return new Promise((resolve, reject) => {
@@ -281,7 +291,7 @@ class Plugin extends EventEmitter {
       }
       let proc = undefined
       try {
-        proc = spawn(binaryPath, flags)
+        proc = spawn(binary.binaryPath, flags)
       } catch (error) {
         // console.log('spawn error', error)
         reject(error)
