@@ -19,7 +19,6 @@ const makePath = p =>
   (process.os !== 'windows' ? 'file://' : '') + path.normalize(p)
 
 const mb = menubar({
-  index: makePath(`${__dirname}/ui/nano.html`),
   browserWindow: {
     alwaysOnTop: true, // good for debugging
     transparent: true,
@@ -30,9 +29,31 @@ const mb = menubar({
     height: 420,
     webPreferences: {
       preload: preloadPath
-    }
+    },
+    title: 'Grid Nano'
   },
-  icon: path.resolve(`${__dirname}/build/IconTemplate.png`)
+  icon: path.resolve(`${__dirname}/build/IconTemplate.png`),
+  index: makePath(`${__dirname}/ui/nano.html`),
+  showDockIcon: true
+})
+
+const app = mb.app
+// make sure every webview has nodeIntegration turned off and has only access to the API defined by
+// preload-webview.js
+app.on('web-contents-created', (event, contents) => {
+  // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
+  contents.on('will-attach-webview', (event, webPreferences, params) => {
+    // Strip away preload scripts if unused or verify their location is legitimate
+    delete webPreferences.preload
+    delete webPreferences.preloadURL
+
+    // console.log('will attach webview')
+
+    webPreferences.preload = path.join(__dirname, 'preload-webview')
+
+    // Disable Node.js integration
+    webPreferences.nodeIntegration = false
+  })
 })
 
 mb.on('ready', () => {

@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { AppManager } = require('@philipplgh/electron-app-manager')
+const net = require('net')
 
 const getUserDataPath = () => {
   const USER_DATA_PATH =
@@ -25,14 +26,9 @@ const getPluginCachePath = name => {
   } else {
     CLIENT_PLUGINS = path.join(USER_DATA_PATH, `client_plugins`)
   }
-
-  if (!fs.existsSync(CLIENT_PLUGINS)) {
-    fs.mkdirSync(CLIENT_PLUGINS)
-  }
-
   const cachePath = path.join(CLIENT_PLUGINS, name)
   if (!fs.existsSync(cachePath)) {
-    fs.mkdirSync(cachePath)
+    fs.mkdirSync(cachePath, { recursive: true })
   }
 
   return cachePath
@@ -41,19 +37,30 @@ const getPluginCachePath = name => {
 const getCachePath = name => {
   let cachePath
   if (process.env.NODE_ENV === 'test') {
-    cachePath = path.join(__dirname, '/../test', 'fixtures', `bin_${name}`)
-  } else if (process.env.NODE_ENV === 'development') {
-    cachePath = path.join(__dirname, `bin_${name}`)
+    cachePath = path.join(__dirname, '/../test', 'fixtures')
   } else {
     const USER_DATA_PATH = getUserDataPath()
-    cachePath = path.join(USER_DATA_PATH, `bin_${name}`)
+    cachePath = path.join(USER_DATA_PATH, 'app_cache')
   }
-
+  if (name) {
+    cachePath = path.join(cachePath, name)
+  }
   if (!fs.existsSync(cachePath)) {
-    fs.mkdirSync(cachePath)
+    fs.mkdirSync(cachePath, { recursive: true })
   }
-
   return cachePath
+}
+
+/**
+ * when grid is built, we copy the latest version of grid-ui to the repo and include it in the installer for a fast start
+ * the path needs to be in the repo scope but those packages are not checked in
+ */
+const getShippedGridUiPath = () => {
+  const GRID_UI_CACHE = path.join(__dirname, '..', '..', 'shipped-grid-ui')
+  if (!fs.existsSync(GRID_UI_CACHE)) {
+    fs.mkdirSync(GRID_UI_CACHE, { recursive: true })
+  }
+  return GRID_UI_CACHE
 }
 
 const getBinaryUpdater = (repo, name, filter, prefix, cachePath) => {
@@ -67,7 +74,7 @@ const getBinaryUpdater = (repo, name, filter, prefix, cachePath) => {
   }
 
   if (!cachePath) {
-    cachePath = getCachePath(name)
+    cachePath = getCachePath(`bin/bin_${name}`)
   }
 
   return new AppManager({
@@ -89,8 +96,29 @@ const getBinaryUpdater = (repo, name, filter, prefix, cachePath) => {
   })
 }
 
+const checkConnection = async (host, port, timeout = 2000) => {
+  return new Promise((resolve, reject) => {
+    let timer = setTimeout(() => {
+      reject('timeout')
+      socket.end()
+    }, timeout)
+    let socket = net.createConnection(port, host, () => {
+      clearTimeout(timer)
+      resolve(true)
+      socket.end()
+    })
+    socket.on('error', err => {
+      clearTimeout(timer)
+      resolve(false)
+    })
+  })
+}
+
 module.exports = {
+  checkConnection,
+  getShippedGridUiPath,
   getCachePath,
+  getUserDataPath,
   getPluginCachePath,
   getBinaryUpdater
 }

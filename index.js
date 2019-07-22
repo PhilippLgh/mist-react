@@ -11,6 +11,8 @@ const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
 const { registerGlobalAppManager } = require('./grid_apps/AppManager')
 const { registerGlobalUserConfig } = require('./Config')
 
+const is = require('./utils/main/util')
+
 registerGlobalUserConfig()
 
 const log = {
@@ -73,32 +75,6 @@ app.on('web-contents-created', (event, contents) => {
     webPreferences.nodeIntegration = false
   })
 })
-
-// TODO util
-const is = {
-  dev: () =>
-    process.env.NODE_ENV && process.env.NODE_ENV.trim() == 'development',
-  prod: () => !is.dev()
-}
-
-// TODO util
-const checkConnection = async (host, port, timeout = 2000) => {
-  return new Promise((resolve, reject) => {
-    let timer = setTimeout(() => {
-      reject('timeout')
-      socket.end()
-    }, timeout)
-    let socket = net.createConnection(port, host, () => {
-      clearTimeout(timer)
-      resolve(true)
-      socket.end()
-    })
-    socket.on('error', err => {
-      clearTimeout(timer)
-      resolve(false)
-    })
-  })
-}
 
 // Step 1 - configure and start user interface
 const startWithDevConfig = async appUrl => {

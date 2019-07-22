@@ -1,6 +1,6 @@
 {
   "name": "grid",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Ethereum Grid",
   "main": "nano.js",
   "homepage": "https://github.com/ethereum/grid",
@@ -22,7 +22,7 @@
     "release": "env-cmd .env build"
   },
   "dependencies": {
-    "@philipplgh/electron-app-manager": "^0.42.0",
+    "@philipplgh/electron-app-manager": "^0.44.0",
     "auto-launch": "^5.0.5",
     "debug": "^4.1.1",
     "menubar": "^6.0.6",
@@ -68,6 +68,7 @@
       "preload.js",
       "preload-webview.js",
       "WindowManager.js",
+      "build/**/*.png",
       "ui/download-splash.html",
       "ui/json-editor.html",
       "ui/nano.html",
@@ -82,7 +83,8 @@
       "grid_apps/**/*.json",
       "utils/**/*.js",
       "*.asar",
-      "*.zip"
+      "*.zip",
+      "shipped-grid-ui/**/*.zip"
     ],
     "mac": {
       "category": "public.app-category.productivity",
