@@ -137,7 +137,7 @@ module.exports = {
       options: [
         { value: 0, label: '0 = Silent', flag: '--loglevel=0' },
         { value: 1, label: '1 = Error', flag: '--loglevel=1' },
-        { value: 2, label: '2 = Silent', flag: '--loglevel=2' },
+        { value: 2, label: '2 = Warn', flag: '--loglevel=2' },
         { value: 3, label: '3 = Info', flag: '' }, // Geth's default
         { value: 4, label: '4 = Debug', flag: '--loglevel=4' },
         { value: 5, label: '5 = Detail', flag: '--loglevel=5' }
