@@ -37,89 +37,86 @@ const mb = menubar({
   showDockIcon: true
 })
 
-const app = mb.app
-// make sure every webview has nodeIntegration turned off and has only access to the API defined by
-// preload-webview.js
-app.on('web-contents-created', (event, contents) => {
-  // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
-  contents.on('will-attach-webview', (event, webPreferences, params) => {
-    // Strip away preload scripts if unused or verify their location is legitimate
-    delete webPreferences.preload
-    delete webPreferences.preloadURL
+const init = function(mb) {
+  const app = mb.app
+  // make sure every webview has nodeIntegration turned off and has only access to the API defined by
+  // preload-webview.js
+  app.on('web-contents-created', (event, contents) => {
+    // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
+    contents.on('will-attach-webview', (event, webPreferences, params) => {
+      // Strip away preload scripts if unused or verify their location is legitimate
+      delete webPreferences.preload
+      delete webPreferences.preloadURL
 
-    // console.log('will attach webview')
+      // console.log('will attach webview')
+      webPreferences.preload = path.join(__dirname, 'preload-webview')
 
-    webPreferences.preload = path.join(__dirname, 'preload-webview')
-
-    // Disable Node.js integration
-    webPreferences.nodeIntegration = false
+      // Disable Node.js integration
+      webPreferences.nodeIntegration = false
+    })
   })
-})
 
-mb.on('ready', () => {
-  const pluginHost = registerGlobalPluginHost()
-  const appManager = registerGlobalAppManager()
+  mb.on('ready', () => {
+    const pluginHost = registerGlobalPluginHost()
+    const appManager = registerGlobalAppManager()
 
-  /* for testing:
-  appManager.launch({
-    name: 'grid-ui',
-    args: {
-      scope: {
-        component: 'terminal',
-        client: 'geth'
+    // Unsure of linux distros behavior with menubar
+    // so for now we will always show on launch
+    // if (!startMinimized) {
+    //   mb.showWindow()
+    // }
+    mb.showWindow()
+
+    mb.window.on('blur', function() {
+      // it prevents window from hiding if keepWindowOpen is checked on tray's context menu
+      !keepWindowOpen && mb.hideWindow()
+    })
+  })
+
+  // right-click menu for tray
+  mb.on('after-create-window', function() {
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: 'Keep window open',
+        type: 'checkbox',
+        checked: keepWindowOpen,
+        click: () => {
+          keepWindowOpen = !keepWindowOpen
+        }
+      },
+      { type: 'separator' },
+      {
+        label: 'Feedback',
+        click: () => {
+          shell.openExternal(
+            'https://docs.google.com/forms/d/e/1FAIpQLSeJ4BtbvDVSnIFCKG6TmJo_tbSZql-NBZHes_-M6SyTDTjP0Q/viewform'
+          )
+          mb.hideWindow()
+        }
+      },
+      { type: 'separator' },
+      {
+        label: 'Quit',
+        click: () => {
+          mb.app.quit()
+        }
       }
+    ])
+    mb.tray.on('right-click', () => {
+      mb.tray.popUpContextMenu(contextMenu)
+    })
+  })
+}
+
+const gotTheLock = mb.app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  mb.app.quit()
+} else {
+  mb.app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mb.window) {
+      mb.showWindow()
     }
   })
-  */
-
-  // Unsure of linux distros behavior with menubar
-  // so for now we will always show on launch
-  // if (!startMinimized) {
-  //   mb.showWindow()
-  // }
-  mb.showWindow()
-
-  /*
-  mb.window.webContents.openDevTools({
-    mode: 'detach'
-  })
-  */
-  mb.window.on('blur', function() {
-    // it prevents window from hiding if keepWindowOpen is checked on tray's context menu
-    !keepWindowOpen && mb.hideWindow()
-  })
-})
-
-// right-click menu for tray
-mb.on('after-create-window', function() {
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Keep window open',
-      type: 'checkbox',
-      checked: keepWindowOpen,
-      click: () => {
-        keepWindowOpen = !keepWindowOpen
-      }
-    },
-    { type: 'separator' },
-    {
-      label: 'Feedback',
-      click: () => {
-        shell.openExternal(
-          'https://docs.google.com/forms/d/e/1FAIpQLSeJ4BtbvDVSnIFCKG6TmJo_tbSZql-NBZHes_-M6SyTDTjP0Q/viewform'
-        )
-        mb.hideWindow()
-      }
-    },
-    { type: 'separator' },
-    {
-      label: 'Quit',
-      click: () => {
-        mb.app.quit()
-      }
-    }
-  ])
-  mb.tray.on('right-click', () => {
-    mb.tray.popUpContextMenu(contextMenu)
-  })
-})
+  init(mb)
+}
