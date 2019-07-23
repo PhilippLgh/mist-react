@@ -103,16 +103,16 @@ module.exports = {
       default: 'none',
       label: 'RPC API',
       options: [
-        { value: 'none', label: 'No', flag: '' },
+        { value: 'none', label: 'Disabled', flag: '' },
         {
           value: 'metamask',
-          label: 'On for MetaMask',
+          label: 'Enabled for MetaMask',
           flag:
             '--rpc --rpccorsdomain moz-extension://e582a415-cf54-468e-9b4b-f32b576f7bf7,chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn'
         },
         {
           value: 'on',
-          label: 'On for all origins',
+          label: 'Enabled for all origins',
           flag: '--rpc --rpccorsdomain=*'
         }
       ]
@@ -122,10 +122,10 @@ module.exports = {
       default: 'none',
       label: 'WebSockets API',
       options: [
-        { value: 'none', label: 'No', flag: '' },
+        { value: 'none', label: 'Disabled', flag: '' },
         {
           value: 'on',
-          label: 'On for all origins',
+          label: 'Enabled for all origins',
           flag: '--ws --wsorigins=*'
         }
       ]
