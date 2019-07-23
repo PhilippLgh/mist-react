@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const { EventEmitter } = require('events')
-const { getBinaryUpdater } = require('./util')
+const { getBinaryUpdater } = require('../utils/main/util')
 const ControlledProcess = require('./ControlledProcess')
 
 let rpcId = 1

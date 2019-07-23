@@ -10,27 +10,80 @@ const { getUserConfig } = require('../Config')
 const UserConfig = getUserConfig()
 
 const is = require('../utils/main/is')
+const {
+  checkConnection,
+  getShippedGridUiPath,
+  getCachePath
+} = require('../utils/main/util')
+
+const GRID_UI_CACHE = getCachePath('grid-ui')
+
+// console.log('grid ui cache created at', GRID_UI_CACHE)
 
 const gridUiManager = new PackageManager({
   repository: 'https://github.com/ethereum/grid-ui',
-  auto: false,
+  auto: true, // this will automatically check for new packages...
+  intervalMins: 60, // ...every 60 minutes. the first check will be after 1 minute though
+  cacheDir: GRID_UI_CACHE, // updates are automatically downloaded to this path
+  searchPaths: is.prod() ? [getShippedGridUiPath()] : undefined, // tell app-manager also to look for shipped packages
   logger: require('debug')('GridPackageManager'),
   policy: {
     onlySigned: false
   }
 })
 
+gridUiManager.on('update-downloaded', release => {
+  console.log('a new grid-ui version was downloaded:', release.version)
+  // TODO we can use this event to inform the user to restart
+})
+
 const getGridUiUrl = async () => {
-  const useHotLoading = false
+  let useHotLoading = false
+  const HOT_LOAD_URL = 'package://github.com/ethereum/grid-ui'
   if (is.dev()) {
-    let appUrl = 'http://localhost:3080/'
-    return appUrl
-  } else {
-    if (useHotLoading) {
-      return 'package://github.com/ethereum/grid-ui'
+    const PORT = '3080'
+    const appUrl = `http://localhost:${PORT}/index.html`
+    const isServerRunning = await checkConnection('localhost', PORT)
+    /**
+     * check if grid-ui is started and the server is running.
+     * otherwise load latest grid-ui package from github ("hot-load")
+     */
+    if (isServerRunning) {
+      return appUrl
+    } else {
+      console.log(
+        'WARNING: grid ui webserver not running - fallback to hot-loading'
+      )
+      return HOT_LOAD_URL
     }
-    // else: use caching
-    let packagePath = 'TODO'
+  } else {
+    // production:
+    if (useHotLoading) {
+      return HOT_LOAD_URL
+    } // else: use caching
+    console.log('check for cached packages')
+    let packagePath = ''
+    try {
+      // with the argument we can provide additional search paths besides cache
+      const cached = await gridUiManager.getLatestCached()
+      if (!cached) {
+        console.warn(
+          'WARNING: no cached packages found. fallback to hot-loading'
+        )
+        useHotLoading = true
+      } else {
+        console.log('package location', cached.location)
+        packagePath = cached.location
+      }
+    } catch (error) {
+      console.log('error during check', error)
+    }
+
+    // fallback necessary?
+    if (useHotLoading || !packagePath) {
+      return HOT_LOAD_URL
+    }
+
     let appUrl = await gridUiManager.load(packagePath)
     console.log('app url: ' + appUrl)
     return appUrl
@@ -92,7 +145,7 @@ class AppManager extends EventEmitter {
     return apps
   }
   async launch(app) {
-    console.log('launch', app.name)
+    console.log(`Launch: ${app.name}`)
 
     if (app.id) {
       const win = WindowManager.getById(app.id)
@@ -110,17 +163,13 @@ class AppManager extends EventEmitter {
       if (component === 'terminal') {
         appUrl = `file://${path.join(__dirname, '..', 'ui', 'terminal.html')}`
       }
-      const clientDisplayName = 'Geth'
       let mainWindow = createRenderer(
         appUrl,
         {
-          x: 400,
-          y: 400,
-          backgroundColor: component === 'terminal' ? '#1E1E1E' : '#202225'
+          backgroundColor: component === 'terminal' ? '#1E1E1E' : '#202225',
+          title: 'Grid'
         },
-        {
-          scope
-        }
+        { scope }
       )
       mainWindow.setMenu(null)
       /*
@@ -128,7 +177,6 @@ class AppManager extends EventEmitter {
         mode: 'detach'
       })
       */
-      mainWindow.setTitle('Ethereum Grid Terminal for ' + clientDisplayName)
       return mainWindow.id
     }
 

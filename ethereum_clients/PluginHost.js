@@ -3,7 +3,7 @@ const path = require('path')
 const { EventEmitter } = require('events')
 const { AppManager } = require('@philipplgh/electron-app-manager')
 const { Plugin, PluginProxy } = require('./Plugin')
-const { getPluginCachePath } = require('./util')
+const { getPluginCachePath } = require('../utils/main/util')
 const { getUserConfig } = require('../Config')
 const generateFlags = require('../utils/flags')
 

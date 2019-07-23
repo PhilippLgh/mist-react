@@ -1,18 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const createRenderer = require('./electron-shell')
-
-// FIXME duplicated code: ethereum_clients/util
-const getUserDataPath = () => {
-  const USER_DATA_PATH =
-    'electron' in process.versions
-      ? require('electron').app.getPath('userData')
-      : path.join(process.env.APPDATA, 'grid')
-  if (!fs.existsSync(USER_DATA_PATH)) {
-    fs.mkdirSync(USER_DATA_PATH)
-  }
-  return USER_DATA_PATH
-}
+const { getUserDataPath } = require('./utils/main/util')
 
 const INITIAL_CONFIG = {
   registries: [],
