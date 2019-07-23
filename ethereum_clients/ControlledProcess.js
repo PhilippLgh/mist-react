@@ -8,6 +8,7 @@ const STATES = {
   STARTING: 'STARTING' /* Node about to be started */,
   STARTED: 'STARTED' /* Node started */,
   CONNECTED: 'CONNECTED' /* IPC connected - all ready */,
+  DISCONNECTED: 'DISCONNECTED' /* IPC disconnected */,
   STOPPING: 'STOPPING' /* Node about to be stopped */,
   STOPPED: 'STOPPED' /* Node stopped */,
   ERROR: 'ERROR' /* Unexpected error */
@@ -41,7 +42,6 @@ class ControlledProcess extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.state = STATES.STARTING
       this.emit('newState', 'starting')
-      this.debug('Emit newState: starting')
       this.debug('Start: ', this.binaryPath)
       this.debug('Flags: ', flags)
 
@@ -54,19 +54,18 @@ class ControlledProcess extends EventEmitter {
       // Spawn process
       const proc = spawn(this.binaryPath, flags)
       const { stdout, stderr, stdin } = proc
+      this.proc = proc
       this.stdin = stdin
 
-      proc.on('error', error => {
+      const onProcError = error => {
         this.state = STATES.ERROR
         this.emit('pluginError', error)
-        this.debug('Emit: error', error)
         reject(error)
-      })
+      }
 
-      proc.on('close', code => {
+      const onProcClose = code => {
         this.state = STATES.STOPPED
         this.emit('newState', 'stopped')
-        this.debug('Emit newState: stopped')
 
         if (code !== 0) {
           // Closing with any code other than 0 means there was an error
@@ -76,12 +75,11 @@ class ControlledProcess extends EventEmitter {
           this.debug('DEBUG Last 10 log lines: ', this.logs.slice(-10))
           reject(errorMessage)
         }
-      })
+      }
 
       const onStart = () => {
         this.state = STATES.STARTED
         this.emit('newState', 'started')
-        this.debug('Emit newState: started')
         // Check for and connect IPC in 1s
         setTimeout(async () => {
           try {
@@ -126,10 +124,11 @@ class ControlledProcess extends EventEmitter {
         }
       }
 
+      proc.on('error', onProcError.bind(this))
+      proc.on('close', onProcClose.bind(this))
       stderr.once('data', onStart.bind(this))
       stdout.on('data', onData.bind(this))
       stderr.on('data', onData.bind(this))
-      this.proc = proc
     })
   }
   stop() {
@@ -138,15 +137,22 @@ class ControlledProcess extends EventEmitter {
       if (!this.proc || !this.isRunning) {
         resolve(this)
       }
-      this.state = STATES.STOPPING
-      this.proc.on('exit', () => {
+      if (this.state !== STATES.STOPPED) {
+        this.state = STATES.STOPPING
+        this.emit('newState', 'stopping')
+      }
+      const onProcExit = () => {
         this.state = STATES.STOPPED
+        this.emit('newState', 'stopped')
         resolve(this)
-      })
-      this.proc.on('error', error => {
+      }
+      const onProcError = () => {
         this.state = STATES.ERROR
+        this.emit('pluginError', error)
         reject(new Error('Error Stopping: ', error))
-      })
+      }
+      this.proc.on('exit', onProcExit.bind(this))
+      this.proc.on('error', onProcError.bind(this))
       this.proc.kill('SIGINT')
       // this.ipcPath = null
     })
@@ -162,15 +168,15 @@ class ControlledProcess extends EventEmitter {
       const onIpcConnect = () => {
         this.state = STATES.CONNECTED
         this.emit('newState', 'connected')
-        this.debug('Emit newState: connected')
         resolve(this.state)
         this.debug('IPC Connected')
       }
 
       const onIpcEnd = () => {
-        this.state = STATES.DISCONNECTED
-        this.emit('newState', 'disconnected')
-        this.debug('Emit newState: disconnected')
+        if (!['STOPPING', 'STOPPED'].includes(this.state)) {
+          this.state = STATES.DISCONNECTED
+          this.emit('newState', 'disconnected')
+        }
         this.ipc = null
         this.debug('IPC Connection Ended')
       }
@@ -186,9 +192,9 @@ class ControlledProcess extends EventEmitter {
         this.state = STATES.ERROR
         this.ipc = null
         const errorMessage = 'IPC Connection Timeout'
-        reject(new Error('IPC connection timed out'))
         this.emit('pluginError', errorMessage)
         this.debug(errorMessage)
+        reject(new Error('IPC connection timed out'))
       }
 
       this.ipc.on('connect', onIpcConnect.bind(this))

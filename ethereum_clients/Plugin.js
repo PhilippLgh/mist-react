@@ -83,7 +83,7 @@ class Plugin extends EventEmitter {
     eventTypes.forEach(eventName => {
       sourceEmitter.on(eventName, arg => {
         if (eventName !== 'log') {
-          console.log(`forward external process event >> ${eventName}`)
+          console.log(`forward external process event >> ${eventName}`, arg)
         }
         destEmitter.emit(eventName, arg)
       })
