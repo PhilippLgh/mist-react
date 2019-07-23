@@ -204,10 +204,10 @@ class Plugin extends EventEmitter {
           const userPermission = response !== 1 // = index of 'cancel'
           if (userPermission) {
             await this.start(flags, release)
-            resolve()
           } else {
-            reject(new Error('user permission denied'))
+            console.log('User cancelled start dialog.')
           }
+          resolve()
         }
       )
     })
