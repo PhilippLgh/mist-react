@@ -108,12 +108,20 @@ const init = function(mb) {
   })
 }
 
+/**
+ * requestSingleInstanceLock makes your application a Single Instance Application - instead of
+ * allowing multiple instances of your app to run, this will ensure that only a
+ * single instance of your app is running, and other instances signal this instance
+ * and exit.
+ * https://github.com/electron/electron/blob/f6a29707b64bc2f7364f89096d187246bfc53765/docs/api/app.md#apprequestsingleinstancelock
+ */
 const gotTheLock = mb.app.requestSingleInstanceLock()
+// If user tries to open another instance of Grid, the new one will quit
 if (!gotTheLock) {
   mb.app.quit()
 } else {
+  // When another Grid instance is trying to run, we tell the original instance to show Nano window.
   mb.app.on('second-instance', (event, commandLine, workingDirectory) => {
-    // Someone tried to run a second instance, we should focus our window.
     if (mb.window) {
       mb.showWindow()
     }
