@@ -105,6 +105,8 @@ const init = function(mb) {
     mb.tray.on('right-click', () => {
       mb.tray.popUpContextMenu(contextMenu)
     })
+
+    mb.window.on('hide', () => mb.hideWindow())
   })
 }
 
