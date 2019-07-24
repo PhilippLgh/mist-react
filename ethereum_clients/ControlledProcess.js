@@ -142,8 +142,10 @@ class ControlledProcess extends EventEmitter {
         this.emit('newState', 'stopping')
       }
       const onProcExit = () => {
-        this.state = STATES.STOPPED
-        this.emit('newState', 'stopped')
+        if (this.state !== STATES.STOPPED) {
+          this.state = STATES.STOPPED
+          this.emit('newState', 'stopped')
+        }
         resolve(this)
       }
       const onProcError = () => {
@@ -173,7 +175,7 @@ class ControlledProcess extends EventEmitter {
       }
 
       const onIpcEnd = () => {
-        if (!['STOPPING', 'STOPPED'].includes(this.state)) {
+        if (![STATES.STOPPING, STATES.STOPPED].includes(this.state)) {
           this.state = STATES.DISCONNECTED
           this.emit('newState', 'disconnected')
         }
