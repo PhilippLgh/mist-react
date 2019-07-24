@@ -216,7 +216,7 @@
         margin: 5px 0;
       }
       .grid-logo {
-        transform: translateX(12px) /* half of cog icon's width */
+        transform: translateX(28px) /* half of cog + app icon's width */
       }
       #grid-version {
         font-size: 0.8rem;
@@ -284,6 +284,11 @@
         </svg>
         </span>
         <span class="spacer"></span>
+        <icon-indicator
+          @change="openApps($event)"
+          pack="fas"
+          icon="th"
+        ></icon-indicator>
         <icon-indicator
           :active="configActive"
           @change="toggleSettings($event)"
@@ -497,6 +502,16 @@
           toggleSettings: function(val) {
             console.log('set configActive to', val)
             this.configActive = val
+          },
+          openApps: async function() {
+            this.appsWindowId = await window.Grid.AppManager.launch({
+              name: 'grid-ui',
+              args: {
+                scope: {
+                  component: 'apps'
+                }
+              }
+            })
           }
         },
         mounted: async function() {

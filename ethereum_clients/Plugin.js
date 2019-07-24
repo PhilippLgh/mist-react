@@ -4,6 +4,7 @@ const os = require('os')
 const { EventEmitter } = require('events')
 const { getBinaryUpdater } = require('../utils/main/util')
 const ControlledProcess = require('./ControlledProcess')
+const { dialog } = require('electron')
 
 let rpcId = 1
 
@@ -68,7 +69,7 @@ class Plugin extends EventEmitter {
     return this.process ? this.process.state : 'STOPPED'
   }
   get isRunning() {
-    return this.process && this.process.isRunning
+    return (this.process && this.process.isRunning) || false
   }
   getLogs() {
     return this.process ? this.process.logs : []
@@ -182,7 +183,37 @@ class Plugin extends EventEmitter {
     return undefined
   }
 
-  async start(release, flags) {
+  async requestStart(app, flags, release) {
+    return new Promise((resolve, reject) => {
+      // TODO move dialog code to different module
+      dialog.showMessageBox(
+        // currentWindow,
+        {
+          title: 'Start requested',
+          buttons: ['OK', 'Cancel'],
+          message: `The application "${
+            app.name
+          }" requests to start the client or service "${
+            this.displayName
+          }" with flags: [${
+            flags ? flags.join(' ') : ''
+          }].\n\nPress 'OK' to allow this time.
+        `
+        },
+        async response => {
+          const userPermission = response !== 1 // = index of 'cancel'
+          if (userPermission) {
+            await this.start(flags, release)
+          } else {
+            console.log('User cancelled start dialog.')
+          }
+          resolve()
+        }
+      )
+    })
+  }
+
+  async start(flags, release) {
     // TODO do flag validation here based on proxy metadata
     const { beforeStart } = this.config
     if (beforeStart && beforeStart.execute) {
@@ -233,12 +264,22 @@ class Plugin extends EventEmitter {
     this.process.write(payload)
   }
   async execute(command) {
-    const { binaryPath } = await this.getLocalBinary()
-    if (!binaryPath) {
+    const binary = await this.getLocalBinary()
+
+    if (!binary) {
       console.log(
-        'execution error: binary not found. bad package path or missing/ambiguous binaryName'
+        'Execution error: binary not found. Bad package path or missing/ambiguous binaryName.'
       )
-      return Promise.reject(new Error('execution error: binary not found'))
+      // TODO: handle downloads when no binary exists.
+      // Challenge: first version not always most appropriate to download.
+      dialog.showMessageBox({
+        message: 'Please download a release of the plugin first.'
+      })
+      return Promise.reject(
+        new Error(
+          'Execution error: binary not found. Please download a version first.'
+        )
+      )
     }
 
     return new Promise((resolve, reject) => {
@@ -250,7 +291,7 @@ class Plugin extends EventEmitter {
       }
       let proc = undefined
       try {
-        proc = spawn(binaryPath, flags)
+        proc = spawn(binary.binaryPath, flags)
       } catch (error) {
         // console.log('spawn error', error)
         reject(error)
@@ -348,8 +389,12 @@ class PluginProxy extends EventEmitter {
   getLocalBinary(release) {
     return this.plugin.getLocalBinary(release)
   }
-  start(release, config) {
-    return this.plugin.start(release, config)
+  requestStart(app, flags, release) {
+    return this.plugin.requestStart(app, flags, release)
+  }
+  // TODO reverse arg order
+  start(release, flags) {
+    return this.plugin.start(flags, release)
   }
   stop() {
     console.log(`client ${this.name} stopped`)

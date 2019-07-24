@@ -10,6 +10,7 @@ const { getUserConfig } = require('../Config')
 const UserConfig = getUserConfig()
 
 const is = require('../utils/main/is')
+const generateFlags = require('../utils/flags')
 const {
   checkConnection,
   getShippedGridUiPath,
@@ -145,13 +146,61 @@ class AppManager extends EventEmitter {
     return apps
   }
   async launch(app) {
-    console.log(`Launch: ${app.name}`)
+    console.log(`Launch app: ${app.name}`)
 
     if (app.id) {
       const win = WindowManager.getById(app.id)
       if (win) {
         win.show()
         return win.id
+      }
+    }
+
+    const { dependencies } = app
+    if (dependencies) {
+      for (const dependency of dependencies) {
+        console.log('found dependency', dependency)
+        const plugin = global.PluginHost.getPluginByName(dependency.name)
+        if (!plugin) {
+          console.log('Could not find necessary plugin')
+        } else if (plugin.isRunning) {
+          console.log(`Plugin ${plugin.name} already running`)
+        } else {
+          // TODO: error handling of malformed settings
+          const settings = plugin.settings || []
+          let config = {}
+
+          // 1. set default => check buildClientDefaults in grid-ui
+          // TODO: this code should not be duplicated
+          settings.forEach(setting => {
+            if ('default' in setting) {
+              config[setting.id] = setting.default
+            }
+          })
+
+          // 2. respect persisted user settings
+          const persistedConfig = (await UserConfig.getItem('settings')) || {}
+          const persistedPluginConfig = persistedConfig[plugin.name]
+          config = Object.assign({}, config, persistedPluginConfig)
+
+          // 3. overwrite configs with required app settings
+          dependency.settings.forEach(setting => {
+            config[setting.id] = setting.value
+          })
+
+          const flags = generateFlags(config, settings)
+          const release = undefined // TODO: allow apps to choose specific release?
+          console.log('request start', flags)
+
+          try {
+            // TODO: show progress to user
+            await plugin.requestStart(app, flags, release)
+          } catch (error) {
+            // e.g. user cancelled
+            console.log('error', error)
+            return // do NOT start in this case
+          }
+        }
       }
     }
 
@@ -182,7 +231,7 @@ class AppManager extends EventEmitter {
 
     let url = app.url || 'http://localhost:3000'
     const mainWindow = createRenderer(
-      WindowManager.getMainUrl(),
+      await getGridUiUrl(), // FIXME might be very inefficient. might load many grid-ui packages into memory!!
       {},
       {
         url,

@@ -64,23 +64,6 @@ module.exports = {
   resolveIpc: logs => findIpcPathInLogs(logs),
   settings: [
     {
-      id: 'dataDir',
-      default: dataDir,
-      label: 'Data Directory',
-      flag: '--datadir %s',
-      type: 'directory'
-    },
-    {
-      id: 'api',
-      default: 'ipc',
-      label: 'API',
-      options: [
-        { value: 'ipc', label: 'IPC', flag: '' },
-        { value: 'websockets', label: 'WebSockets', flag: '--ws' },
-        { value: 'rpc', label: 'RPC HTTP', flag: '--rpc' }
-      ]
-    },
-    {
       id: 'network',
       default: 'main',
       label: 'Network',
@@ -88,7 +71,8 @@ module.exports = {
         { value: 'main', label: 'Main', flag: '' },
         { value: 'ropsten', label: 'Ropsten (testnet)', flag: '--testnet' },
         { value: 'rinkeby', label: 'Rinkeby (testnet)', flag: '--rinkeby' },
-        { value: 'goerli', label: 'Görli (testnet)', flag: '--goerli' }
+        { value: 'goerli', label: 'Görli (testnet)', flag: '--goerli' },
+        { value: 'dev', label: 'Local (dev mode)', flag: '--dev' }
       ]
     },
     {
@@ -99,12 +83,64 @@ module.exports = {
       flag: '--syncmode %s'
     },
     {
+      id: 'dataDir',
+      default: dataDir,
+      label: 'Data Directory',
+      flag: '--datadir %s',
+      type: 'directory'
+    },
+    {
       id: 'console',
       label: 'Enable console',
       default: 'false',
       options: [
         { value: 'true', flag: 'console', label: 'Yes' },
         { value: 'false', flag: '', label: 'No' }
+      ]
+    },
+    {
+      id: 'rpc',
+      default: 'none',
+      label: 'RPC API',
+      options: [
+        { value: 'none', label: 'Disabled', flag: '' },
+        {
+          value: 'metamask',
+          label: 'Enabled for MetaMask',
+          flag:
+            '--rpc --rpccorsdomain moz-extension://e582a415-cf54-468e-9b4b-f32b576f7bf7,chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn'
+        },
+        {
+          value: 'on',
+          label: 'Enabled for all origins',
+          flag: '--rpc --rpccorsdomain=*'
+        }
+      ]
+    },
+    {
+      id: 'ws',
+      default: 'none',
+      label: 'WebSockets API',
+      options: [
+        { value: 'none', label: 'Disabled', flag: '' },
+        {
+          value: 'on',
+          label: 'Enabled for all origins',
+          flag: '--ws --wsorigins=*'
+        }
+      ]
+    },
+    {
+      id: 'verbosity',
+      label: 'Verbosity',
+      default: 3,
+      options: [
+        { value: 0, label: '0 = Silent', flag: '--loglevel=0' },
+        { value: 1, label: '1 = Error', flag: '--loglevel=1' },
+        { value: 2, label: '2 = Warn', flag: '--loglevel=2' },
+        { value: 3, label: '3 = Info', flag: '' }, // Geth's default
+        { value: 4, label: '4 = Debug', flag: '--loglevel=4' },
+        { value: 5, label: '5 = Detail', flag: '--loglevel=5' }
       ]
     },
     {

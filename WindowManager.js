@@ -3,13 +3,7 @@ const { BrowserWindow, ipcMain } = electron
 const path = require('path')
 const fs = require('fs')
 
-let main = null
-
 class WindowManager {
-  getMainUrl() {
-    return main ? main.webContents.getURL() : undefined
-  }
-
   getById(windowId) {
     return BrowserWindow.fromId(windowId)
   }
@@ -119,10 +113,6 @@ class WindowManager {
       })
     }
     */
-
-    if (!main) {
-      main = win
-    }
 
     return win
   }
