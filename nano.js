@@ -66,11 +66,6 @@ const init = function(mb) {
     //   mb.showWindow()
     // }
     mb.showWindow()
-
-    mb.window.on('blur', function() {
-      // it prevents window from hiding if keepWindowOpen is checked on tray's context menu
-      !keepWindowOpen && mb.hideWindow()
-    })
   })
 
   // right-click menu for tray
