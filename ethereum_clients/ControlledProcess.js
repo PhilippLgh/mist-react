@@ -64,8 +64,10 @@ class ControlledProcess extends EventEmitter {
       }
 
       const onProcClose = code => {
-        this.state = STATES.STOPPED
-        this.emit('newState', 'stopped')
+        if (this.state !== STATES.STOPPED) {
+          this.state = STATES.STOPPED
+          this.emit('newState', 'stopped')
+        }
 
         if (code !== 0) {
           // Closing with any code other than 0 means there was an error
@@ -94,17 +96,17 @@ class ControlledProcess extends EventEmitter {
               this.ipcPath = this.resolveIpc(this.logs)
             }
             if (this.ipcPath) {
-              console.log('connect to ipc at', this.ipcPath)
+              console.log('Connecting to IPC at', this.ipcPath)
               const state = await this.connectIPC(this.ipcPath)
-              console.log('connected?', state)
+              console.log('Connected? state: ', state)
               if (state === STATES.CONNECTED) {
                 resolve(this)
               }
             } else {
-              throw new Error('could not resolve ipc path')
+              throw new Error('Could not resolve IPC path.')
             }
           } catch (error) {
-            this.debug('failed to establish ipc connection: ' + error.message)
+            this.debug(`Failed to establish ipc connection: ${error.message}`)
           }
         }, 1000) // FIXME require long timeouts in tests - better solution?
       }
@@ -163,7 +165,7 @@ class ControlledProcess extends EventEmitter {
   connectIPC(ipcPath) {
     return new Promise((resolve, reject) => {
       if (this.ipc) {
-        return reject(new Error('close existing IPC before reopen'))
+        return reject(new Error('Close existing IPC before reopen.'))
       }
       this.ipc = net.connect({ path: ipcPath })
 
@@ -171,7 +173,7 @@ class ControlledProcess extends EventEmitter {
         this.state = STATES.CONNECTED
         this.emit('newState', 'connected')
         resolve(this.state)
-        this.debug('IPC Connected')
+        this.debug('IPC Connected.')
       }
 
       const onIpcEnd = () => {
