@@ -18,7 +18,7 @@ const makePath = p =>
 
 const mb = menubar({
   browserWindow: {
-    alwaysOnTop: false,
+    alwaysOnTop: true,
     transparent: true,
     backgroundColor: '#00FFFFFF',
     frame: false,
