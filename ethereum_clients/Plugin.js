@@ -5,7 +5,9 @@ const { EventEmitter } = require('events')
 const { getBinaryUpdater } = require('../utils/main/util')
 const ControlledProcess = require('./ControlledProcess')
 const { dialog } = require('electron')
+const { getUserConfig } = require('../Config')
 
+const UserConfig = getUserConfig()
 let rpcId = 1
 
 class Plugin extends EventEmitter {
@@ -98,6 +100,7 @@ class Plugin extends EventEmitter {
     const releases = await this.updater.getCachedReleases()
     return releases
   }
+
   async getLatestCached() {
     return this.updater.getLatestCached()
   }
@@ -182,7 +185,17 @@ class Plugin extends EventEmitter {
     console.warn('no binary found for', release)
     return undefined
   }
-
+  getSelectedRelease() {
+    const { name } = this.config
+    const selectedRelease = UserConfig.getItem('selectedRelease')
+    return selectedRelease ? selectedRelease[name] : null
+  }
+  setSelectedRelease(release) {
+    const { name } = this.config
+    const selectedRelease = UserConfig.getItem('selectedRelease')
+    const newSelectedRelease = { ...selectedRelease, [name]: release }
+    UserConfig.setItem('selectedRelease', newSelectedRelease)
+  }
   async requestStart(app, flags, release) {
     return new Promise((resolve, reject) => {
       // TODO move dialog code to different module
@@ -380,6 +393,12 @@ class PluginProxy extends EventEmitter {
   }
   getLatestRemote() {
     return this.plugin.getLatestRemote()
+  }
+  getSelectedRelease() {
+    return this.plugin.getSelectedRelease()
+  }
+  setSelectedRelease(release) {
+    return this.plugin.setSelectedRelease(release)
   }
   download(release, onProgress = () => {}) {
     return this.plugin.download(release, progress => {
