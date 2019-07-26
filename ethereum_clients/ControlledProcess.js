@@ -44,6 +44,7 @@ class ControlledProcess extends EventEmitter {
       this.emit('newState', 'starting')
       this.debug('Start: ', this.binaryPath)
       this.debug('Flags: ', flags)
+      let hasFiredOnStart = false
 
       flags = flags || []
 
@@ -80,6 +81,10 @@ class ControlledProcess extends EventEmitter {
       }
 
       const onStart = () => {
+        if (hasFiredOnStart) {
+          return
+        }
+        hasFiredOnStart = true
         this.state = STATES.STARTED
         this.emit('newState', 'started')
         // Check for and connect IPC in 1s
@@ -128,6 +133,7 @@ class ControlledProcess extends EventEmitter {
 
       proc.on('error', onProcError.bind(this))
       proc.on('close', onProcClose.bind(this))
+      stdout.once('data', onStart.bind(this))
       stderr.once('data', onStart.bind(this))
       stdout.on('data', onData.bind(this))
       stderr.on('data', onData.bind(this))
