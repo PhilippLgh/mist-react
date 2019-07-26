@@ -364,7 +364,7 @@
                 <span class="client-state">{{ state }}</span>
                 <span class="client-version">{{ clientVersion }}</span>
               </span>
-              <icon-indicator @change="openTerminal()" v-if="client.error" pack="fas" icon="exclamation-triangle" class="error" title="Plugin Error, click for more details"></icon-indicator>
+              <icon-indicator @change="openTerminal()" v-if="client.error" pack="fas" icon="exclamation-circle" class="error" title="Plugin Error, click for more details"></icon-indicator>
               <icon-indicator @change="openTerminal()" pack="far" icon="window-maximize"></icon-indicator>
             </div>
             <progress v-if="isDownloading" max="100" class="progress is-small is-primary" :value="downloadProgress"></progress>
