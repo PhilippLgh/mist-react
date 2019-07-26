@@ -193,6 +193,13 @@
         font-size: 1rem;
       }
 
+      .icon-indicator.error {
+        color: #ff000091;
+      }
+      .icon-indicator.error:hover {
+        color: red;
+      }
+
       .separator {
         height: 1px;
         margin-top: 3px;
@@ -323,14 +330,6 @@
         ></icon-indicator>
       </div>
       <div class="separator"></div>
-      <b-notification
-        type="is-danger"
-        aria-close-label="Close notification"
-        v-for="error in errors"
-        role="alert"
-      >
-        {{error}}
-      </b-notification>
       <client-item
         v-if="!configActive"
         v-for="client in clients"
@@ -365,6 +364,7 @@
                 <span class="client-state">{{ state }}</span>
                 <span class="client-version">{{ clientVersion }}</span>
               </span>
+              <icon-indicator @change="openTerminal()" v-if="client.error" pack="fas" icon="exclamation-triangle" class="error" title="Plugin Error, click for more details"></icon-indicator>
               <icon-indicator @change="openTerminal()" pack="far" icon="window-maximize"></icon-indicator>
             </div>
             <progress v-if="isDownloading" max="100" class="progress is-small is-primary" :value="downloadProgress"></progress>
@@ -471,6 +471,8 @@
                 }
               }
             })
+
+            this.client.error = false
           }
         }
       })
@@ -519,8 +521,7 @@
           return {
             clients: [],
             isSwitched: false,
-            configActive: false,
-            errors: []
+            configActive: false
           }
         },
         methods: {
@@ -535,13 +536,14 @@
                 displayName: plugin.displayName,
                 profile: '',
                 version: '',
-                plugin
+                plugin,
+                error: false
               }
             })
             console.log('Plugins loaded: ', plugins.length)
           },
           pluginErrorListener: function(plugin, error) {
-            this.errors.push(`${plugin.displayName}: ${error}`)
+            this.clients.find(p => p.name === plugin.name).error = true
           },
           toggleSettings: function(val) {
             console.log('Set configActive to: ', val)
