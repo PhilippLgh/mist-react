@@ -389,6 +389,10 @@
             } else {
               this.isSwitched = false
             }
+
+            if (state === 'started') {
+              this.client.error = false
+            }
           },
           handleSwitchedOn: async function() {
             // check if downloaded version is available
