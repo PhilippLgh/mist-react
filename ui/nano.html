@@ -333,6 +333,7 @@
       <client-item
         v-if="!configActive"
         v-for="client in clients"
+        :key="client.name"
         :client="client"
       ></client-item>
       <grid-config v-if="configActive"></grid-config>
