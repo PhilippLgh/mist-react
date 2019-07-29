@@ -53,20 +53,19 @@ module.exports.getMenuTemplate = () => {
           label: 'Rescan',
           click() {
             if (!global.PluginHost) {
-              console.log('plugin host not ready')
+              console.log('PluginHost not ready yet.')
               return
             }
-            global.PluginHost.loadUserRegistries()
+            global.PluginHost.discoverRemote()
           }
         }
       ]
     },
-    {
-      label: 'Updater',
-      submenu: [
-        // dynamically filled
-      ]
-    },
+    // { label: 'Updater',
+    //   submenu: [
+    //     // dynamically filled
+    //   ]
+    // },
     {
       role: 'help',
       submenu: [

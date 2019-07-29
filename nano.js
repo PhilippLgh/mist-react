@@ -5,6 +5,7 @@ const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
 const { registerGlobalAppManager } = require('./grid_apps/AppManager')
 const { registerGlobalUserConfig } = require('./Config')
 const { registerPackageProtocol } = require('@philipplgh/electron-app-manager')
+const { getMenuTemplate } = require('./Menu')
 registerPackageProtocol()
 registerGlobalUserConfig()
 
@@ -53,6 +54,9 @@ const init = function(mb) {
       webPreferences.nodeIntegration = false
     })
   })
+
+  const template = getMenuTemplate()
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 
   mb.on('ready', () => {
     const pluginHost = registerGlobalPluginHost()

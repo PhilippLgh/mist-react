@@ -100,11 +100,11 @@ class PluginHost extends EventEmitter {
           const result = await AppManager.downloadJson(registry)
           plugins = [...plugins, ...result.plugins]
         } catch (error) {
-          console.log('could not load plugins from registry:', registry, error)
+          console.log('Could not load plugins from registry: ', registry, error)
         }
       }
     } catch (error) {
-      console.log('could not load plugins from registries', error)
+      console.log('Could not load plugins from registries: ', error)
     }
     return plugins
   }
@@ -139,7 +139,7 @@ class PluginHost extends EventEmitter {
         const { name: pluginName, location } = pluginShortInfo
         if (!location) {
           throw new Error(
-            `error: external plugin ${pluginName} does not specify a valid location`
+            `Error: External plugin ${pluginName} does not specify a valid location.`
           )
         }
         if (fs.existsSync(location)) {
@@ -172,25 +172,25 @@ class PluginHost extends EventEmitter {
             latest = await pluginManager.download(latest)
             if (!latest) {
               throw new Error(
-                `error: plugin ${pluginName} could not be fetched`
+                `Error: Plugin ${pluginName} could not be fetched.`
               )
             }
           }
           // plugin verification necessary for remote plugins:
           if (!latest.verificationResult) {
             throw new Error(
-              `error: external plugin ${pluginName} has no verification info`
+              `Error: External plugin ${pluginName} has no verification info.`
             )
           }
           const { isValid, isTrusted } = latest.verificationResult
           if (!isValid) {
             throw new Error(
-              `error: ${pluginName} has invalid plugin signature - unsigned or corrupt?`
+              `Error: ${pluginName} has invalid plugin signature - unsigned or corrupt?`
             )
           }
           if (!isTrusted) {
             console.log(
-              `WARNING: the plugin ${pluginName} is signed but the author's key is unknown`
+              `WARNING: The plugin ${pluginName} is signed but the author's key is unknown.`
             )
           }
           const plugin = await this.loadPluginFromPackage(pluginManager, latest)
@@ -200,7 +200,7 @@ class PluginHost extends EventEmitter {
       } catch (error) {
         const { name: pluginName } = pluginShortInfo
         console.log(
-          `error: remote plugin ${pluginName} could not be loaded`,
+          `Error: remote plugin ${pluginName} could not be loaded.`,
           error
         )
         return undefined
@@ -212,7 +212,7 @@ class PluginHost extends EventEmitter {
   async discover() {
     const PLUGIN_DIR = path.join(__dirname, 'client_plugins')
     const pluginFiles = fs.readdirSync(PLUGIN_DIR)
-    console.time('plugin init')
+    console.time('Plugin Init')
     const plugins = []
     pluginFiles.forEach(f => {
       if (!f.endsWith('.js')) return
@@ -221,10 +221,10 @@ class PluginHost extends EventEmitter {
         const plugin = this.loadPluginFromFile(fullPath)
         plugins.push(plugin)
       } catch (error) {
-        console.log(`plugin ${f} could not be loaded`, error)
+        console.log(`Plugin ${f} could not be loaded: `, error)
       }
     })
-    console.timeEnd('plugin init')
+    console.timeEnd('Plugin Init')
     return plugins
   }
   getAllMetadata() {
@@ -246,10 +246,10 @@ class PluginHost extends EventEmitter {
     return this.getAllPlugins().find(plugin => plugin.name === name)
   }
   start(name) {
-    console.log('start plugin', name)
+    console.log('Start Plugin: ', name)
   }
   stop(name) {
-    console.log('stop plugin', name)
+    console.log('Stop Plugin: ', name)
   }
 }
 
