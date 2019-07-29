@@ -323,6 +323,14 @@
           icon="th"
         ></icon-indicator>
         <icon-indicator
+          v-if="configActive"
+          :active="configActive"
+          @change="toggleSettings($event)"
+          pack="fas"
+          icon="times"
+        ></icon-indicator>
+        <icon-indicator
+          v-else
           :active="configActive"
           @change="toggleSettings($event)"
           pack="fas"
