@@ -124,7 +124,7 @@ class ControlledProcess extends EventEmitter {
           this.logs.push(...parts)
           parts.map(logPart => {
             this.emit('log', logPart)
-            if (logPart.toLowerCase().includes('error')) {
+            if (/^error\W/.test(logPart.toLowerCase())) {
               this.emit('pluginError', logPart)
             }
           })
