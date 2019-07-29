@@ -86,9 +86,7 @@ const init = function(mb) {
       {
         label: 'Feedback',
         click: () => {
-          shell.openExternal(
-            'https://docs.google.com/forms/d/e/1FAIpQLSeJ4BtbvDVSnIFCKG6TmJo_tbSZql-NBZHes_-M6SyTDTjP0Q/viewform'
-          )
+          shell.openExternal('https://forms.gle/bjkphVS8ca1JzwL46')
           mb.hideWindow()
         }
       },

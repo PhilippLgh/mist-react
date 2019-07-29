@@ -512,24 +512,13 @@
         },
         template: `
           <div class="grid-config">
-            <div><a v-on:click="openApps()">View Apps</a></div>
             <div><a @click.prevent="openExternal('https://github.com/ethereum/grid')">Grid Repository</a></div>
+            <div><a @click.prevent="openExternal('https://forms.gle/bjkphVS8ca1JzwL46')">Feedback</a></div>
             <div class="separator"></div>
             <div><b-switch v-model="launchOnBoot" @input="handleChangeLaunch($event)" size="is-small">Start Grid at log in</b-switch></div>
           </div>
           `,
         methods: {
-          openApps: async function() {
-            this.appsWindowId = await window.Grid.AppManager.launch({
-              name: 'grid-ui',
-              id: this.appsWindowId,
-              args: {
-                scope: {
-                  component: 'apps'
-                }
-              }
-            })
-          },
           openExternal: function(href) {
             window.Grid.openExternalLink(href)
           },
