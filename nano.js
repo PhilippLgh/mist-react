@@ -12,6 +12,8 @@ registerGlobalUserConfig()
 // auto-launch may start process with --hidden
 const startMinimized = (process.argv || []).indexOf('--hidden') !== -1
 
+let alwaysOnTop = true
+
 const preloadPath = path.join(__dirname, 'preload.js')
 
 const makePath = p =>
@@ -26,7 +28,7 @@ const iconPath = () =>
 
 const mb = menubar({
   browserWindow: {
-    alwaysOnTop: true,
+    alwaysOnTop: alwaysOnTop,
     transparent: true,
     backgroundColor: '#00FFFFFF',
     frame: false,
@@ -83,10 +85,11 @@ const init = function(mb) {
       {
         label: 'Keep window open',
         type: 'checkbox',
-        checked: mb.window.alwaysOnTop,
+        checked: alwaysOnTop,
         click: () => {
+          alwaysOnTop = !alwaysOnTop
           // Toggles alwaysOnTop property of nano window
-          mb.window.setAlwaysOnTop(!mb.window.isAlwaysOnTop())
+          mb.window.setAlwaysOnTop(alwaysOnTop)
         }
       },
       { type: 'separator' },
