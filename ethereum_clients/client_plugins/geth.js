@@ -56,7 +56,7 @@ module.exports = {
   filter: {
     name: {
       includes: [platform],
-      excludes: ['unstable', 'alltools', 'swarm']
+      excludes: ['unstable', 'alltools', 'swarm', 'mips', 'arm']
     }
   },
   prefix: `geth-${platform}`,
