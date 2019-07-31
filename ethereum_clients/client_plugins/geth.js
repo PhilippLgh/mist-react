@@ -157,6 +157,15 @@ module.exports = {
         { value: 'true', flag: '--graphql', label: 'Yes (v1.9.0 and later)' },
         { value: 'false', flag: '', label: 'No' }
       ]
+    },
+    {
+      id: 'usb',
+      label: 'Enable USB (hardware wallets)',
+      default: 'false',
+      options: [
+        { value: 'false', flag: '--nousb', label: 'No' },
+        { value: 'true', flag: '', label: 'Yes' }
+      ]
     }
   ]
 }
