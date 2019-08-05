@@ -5,7 +5,7 @@ let dataDir = `${process.env.APPDATA}/Ethereum`
 switch (process.platform) {
   case 'win32': {
     platform = 'windows'
-    dataDir = `${process.env.APPDATA}/Ethereum`
+    dataDir = `${process.env.APPDATA}\Ethereum`
     break
   }
   case 'linux': {
