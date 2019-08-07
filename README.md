@@ -4,9 +4,13 @@
 
 [![CircleCI](https://circleci.com/gh/ethereum/grid/tree/master.svg?style=svg)](https://circleci.com/gh/ethereum/grid/tree/master)
 
-# Enter the Grid
+# Ethereum Grid
 
-Ethereum Grid is a desktop application that allows you to securely download, configure and use various clients and tools in the Ethereum ecosystem. You can download the application from the GitHub [releases](https://github.com/ethereum/grid/releases) or from the [landing page](https://grid.ethereum.org/).
+Grid is a desktop application that allows you to securely download, configure and use various clients and tools in the Ethereum ecosystem. Download the [latest version](https://grid.ethereum.org/).
+
+![](https://imgur.com/T3Tt65P.jpg)
+
+See this [introductory post](https://medium.com/ethereum-grid/introducing-ethereum-grid-1e65e7fb771e) to learn more about the motivations behind the project. Release announcements and tutorials are released on the project [Medium publication](https://medium.com/ethereum-grid).
 
 ## Development
 
