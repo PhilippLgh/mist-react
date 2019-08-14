@@ -7,31 +7,35 @@ const PluginHost = remote.getGlobal('PluginHost')
 const currentWindow = remote.getCurrentWindow()
 const { app } = currentWindow.args
 
-const clientInterface = client => {
+const pluginInterface = plugin => {
   return {
-    name: client.name,
-    displayName: client.displayName,
-    type: client.type,
+    name: plugin.name,
+    displayName: plugin.displayName,
+    type: plugin.type,
+    api: plugin.api,
+    stdinWrite: payload => {
+      return plugin.write(payload)
+    },
     sendRpc: async (method, params) => {
-      return client.rpc(method, params)
+      return plugin.rpc(method, params)
     },
     getState: () => {
-      return client.state
+      return plugin.state
     },
     execute: command => {
-      return client.execute(command)
+      return plugin.execute(command)
     },
     start: () => {
-      client.requestStart(app)
+      plugin.requestStart(app)
     },
     stop: () => {
       console.log('app requested stop')
     },
     on: (eventName, handler) => {
-      return client.on(eventName, handler)
+      return plugin.on(eventName, handler)
     },
     off: (eventName, handler) => {
-      return client.removeListener(eventName, handler)
+      return plugin.removeListener(eventName, handler)
     }
   }
 }
@@ -39,11 +43,11 @@ const clientInterface = client => {
 window.grid = {
   version: '0.1.0',
   getAllPlugins: () => {
-    return PluginHost.getAllPlugins().map(client => clientInterface(client))
+    return PluginHost.getAllPlugins().map(plugin => pluginInterface(plugin))
   },
   getClient: name => {
-    let client = PluginHost.getAllPlugins().find(p => p.name === name)
-    return client ? clientInterface(client) : client
+    const plugin = PluginHost.getAllPlugins().find(p => p.name === name)
+    return plugin ? pluginInterface(plugin) : plugin
   },
   notify,
   showOpenDialog
