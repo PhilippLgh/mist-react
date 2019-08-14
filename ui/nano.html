@@ -10,7 +10,8 @@
         padding: 0px;
         margin: 0px;
         background-color: transparent;
-        overflow: hidden;
+        overflow-y: scroll;
+        overflow-x: hidden;
         user-select: none;
       }
       body {
@@ -42,7 +43,7 @@
 
       #app {
         padding: 8px 6px;
-        height: calc(100vh - 18px);
+        min-height: calc(100vh - 18px);
         margin-top: 18px;
         z-index: 1;
         border-radius: 12px;
@@ -105,7 +106,8 @@
         border-radius: 2px;
       }
 
-      .plugin-item {
+      .plugin-item,
+      .app-item {
         padding: 5px;
         display: flex;
         color: white;
@@ -115,9 +117,18 @@
         margin-right: 5px;
       }
 
-      .plugin-name:hover {
+      .app-item:not(.open-dash) {
+        margin-left: 5px;
+      }
+
+      .plugin-name:hover,
+      .app-name:hover {
         cursor: pointer;
         text-decoration: underline;
+      }
+
+      .open-dash span {
+        font-weight: bold;
       }
 
       .plugin-profile {
@@ -318,33 +329,44 @@
         </span>
         <span class="spacer"></span>
         <icon-indicator
-          @change="openApps($event)"
+          @change="toggleApps(!showApps)"
           pack="fas"
           icon="th"
         ></icon-indicator>
         <icon-indicator
-          v-if="configActive"
-          :active="configActive"
+          v-if="showConfig"
+          :active="showConfig"
           @change="toggleSettings($event)"
           pack="fas"
           icon="times"
         ></icon-indicator>
         <icon-indicator
           v-else
-          :active="configActive"
+          :active="showConfig"
           @change="toggleSettings($event)"
           pack="fas"
           icon="cog"
         ></icon-indicator>
       </div>
       <div class="separator"></div>
+      <div v-if="showApps">
+        <div>
+          <div class="app-item open-dash">
+            <span class="app-name centered " v-on:click="openAppDashboard()"
+              >Open App Dashboard</span
+            >
+          </div>
+        </div>
+        <app-item v-for="app in apps" :key="app.name" :app="app"></app-item>
+        <div class="separator"></div>
+      </div>
       <plugin-item
-        v-if="!configActive"
+        v-if="!showConfig"
         v-for="plugin in plugins"
         :key="plugin.name"
         :plugin="plugin"
       ></plugin-item>
-      <grid-config v-if="configActive"></grid-config>
+      <grid-config v-if="showConfig"></grid-config>
       <div id="grid-version"></div>
     </div>
 
@@ -504,6 +526,30 @@
         }
       })
 
+      Vue.component('app-item', {
+        props: ['app'],
+        data: function() {
+          return {
+            uiWindowId: undefined
+          }
+        },
+        template: `
+          <div>
+            <div class="app-item">
+              <span class="app-name centered" v-on:click="openApp()">{{ app.name }}</span>
+            </div>
+          </div>
+          `,
+        methods: {
+          openApp: async function() {
+            this.uiWindowId = await window.Grid.AppManager.launch({
+              ...this.app,
+              id: this.uiWindowId
+            })
+          }
+        }
+      })
+
       Vue.component('grid-config', {
         data: function() {
           return {
@@ -536,12 +582,14 @@
         data: function() {
           return {
             plugins: [],
+            apps: [],
             isSwitched: false,
-            configActive: false
+            showConfig: false,
+            showApps: false
           }
         },
         methods: {
-          init: function() {
+          loadPlugins: function() {
             const plugins = window.Grid.PluginHost.getAllPlugins()
             this.plugins = plugins.map(plugin => {
               plugin.on('pluginError', error => {
@@ -556,16 +604,29 @@
                 error: false
               }
             })
-            console.log('Plugins loaded: ', plugins.length)
+            console.log('Plugins Loaded: ', plugins.length)
+          },
+          loadApps: async function() {
+            const apps = await window.Grid.AppManager.getAllApps()
+            this.apps = apps
+            console.log('Apps Loaded: ', apps.length)
+          },
+          init: function() {
+            this.loadPlugins()
+            this.loadApps()
           },
           pluginErrorListener: function(plugin, error) {
             this.plugins.find(p => p.name === plugin.name).error = true
           },
-          toggleSettings: function(val) {
-            console.log('Set configActive to: ', val)
-            this.configActive = val
+          toggleSettings: function(value) {
+            console.log('Set showConfig to: ', value)
+            this.showConfig = value
           },
-          openApps: async function() {
+          toggleApps: function(value) {
+            console.log('Set showApps to: ', value)
+            this.showApps = value
+          },
+          openAppDashboard: async function() {
             this.appsWindowId = await window.Grid.AppManager.launch({
               name: 'grid-ui',
               args: {
