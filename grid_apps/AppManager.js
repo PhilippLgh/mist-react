@@ -158,13 +158,13 @@ class AppManager extends EventEmitter {
 
     const { dependencies } = app
     if (dependencies) {
-      for (const dependency of dependencies) {
-        console.log('Found dependency', dependency)
+      dependencies.forEach(async dependency => {
+        console.log('Found dependency: ', dependency)
         const plugin = global.PluginHost.getPluginByName(dependency.name)
         if (!plugin) {
-          console.log('Could not find necessary plugin')
+          console.log('Could not find necessary plugin.')
         } else if (plugin.isRunning) {
-          console.log(`Plugin ${plugin.name} already running`)
+          console.log(`Plugin ${plugin.name} already running.`)
         } else {
           // TODO: error handling of malformed settings
           const settings = plugin.settings || []
@@ -181,7 +181,7 @@ class AppManager extends EventEmitter {
           // 2. respect persisted user settings
           const persistedConfig = (await UserConfig.getItem('settings')) || {}
           const persistedPluginConfig = persistedConfig[plugin.name]
-          config = Object.assign({}, config, persistedPluginConfig)
+          config = Object.assign({}, config)
 
           // 3. overwrite configs with required app settings
           dependency.settings.forEach(setting => {
@@ -190,18 +190,17 @@ class AppManager extends EventEmitter {
 
           const flags = generateFlags(config, settings)
           const release = undefined // TODO: allow apps to choose specific release?
-          console.log('Request start', flags)
-
+          console.log('Request start: ', app, flags, release)
           try {
             // TODO: show progress to user
             await plugin.requestStart(app, flags, release)
           } catch (error) {
             // e.g. user cancelled
-            console.log('Error', error)
+            console.log('Error: ', error)
             return // do NOT start in this case
           }
         }
-      }
+      })
     }
 
     if (app.name === 'grid-ui') {
