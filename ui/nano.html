@@ -357,7 +357,12 @@
             >
           </div>
         </div>
-        <app-item v-for="app in apps" :key="app.name" :app="app"></app-item>
+        <app-item
+          v-for="app in apps"
+          :key="app.name"
+          :app="app"
+          @app-opened="onAppOpened"
+        ></app-item>
         <div class="separator"></div>
       </div>
       <plugin-item
@@ -386,21 +391,21 @@
           }
         },
         template: `
-          <div>
-            <div class="plugin-item">
-              <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
-              <span class="plugin-name centered" v-on:click="openUI()">{{ plugin.displayName }}</span>
-              <span class="plugin-profile centered">{{ plugin.profile }}</span>
-              <span class="plugin-info centered">
-                <span class="plugin-state">{{ state }}</span>
-                <span class="plugin-version">{{ pluginVersion }}</span>
-              </span>
-              <icon-indicator @change="openTerminal()" v-if="plugin.error" pack="fas" icon="exclamation-circle" class="error" title="Plugin Error, click for more details"></icon-indicator>
-              <icon-indicator @change="openTerminal()" pack="far" icon="window-maximize"></icon-indicator>
-            </div>
-            <progress v-if="isDownloading" max="100" class="progress is-small is-primary" :value="downloadProgress"></progress>
-          </div>
-          `,
+                <div>
+                  <div class="plugin-item">
+                    <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
+                    <span class="plugin-name centered" v-on:click="openUI()">{{ plugin.displayName }}</span>
+                    <span class="plugin-profile centered">{{ plugin.profile }}</span>
+                    <span class="plugin-info centered">
+                      <span class="plugin-state">{{ state }}</span>
+                      <span class="plugin-version">{{ pluginVersion }}</span>
+                    </span>
+                    <icon-indicator @change="openTerminal()" v-if="plugin.error" pack="fas" icon="exclamation-circle" class="error" title="Plugin Error, click for more details"></icon-indicator>
+                    <icon-indicator @change="openTerminal()" pack="far" icon="window-maximize"></icon-indicator>
+                  </div>
+                  <progress v-if="isDownloading" max="100" class="progress is-small is-primary" :value="downloadProgress"></progress>
+                </div>
+                `,
         created: function() {
           this.plugin.pluginRef.on('newState', this.stateUpdateListener)
           // Set plugin version if selectedRelease
@@ -428,6 +433,7 @@
             }
           },
           handleSwitchedOn: async function() {
+            const { client } = this
             let release
             // Check if selectedRelease in UserConfig
             const selectedRelease = this.plugin.pluginRef.getSelectedRelease()
@@ -440,7 +446,7 @@
               // Check if downloaded version is available
               let latestBinCached = await this.plugin.pluginRef.getLatestCached()
               if (!latestBinCached) {
-                console.log('no plugin binary found --> download now')
+                console.log('No plugin binary found --> download now')
                 const latestRemote = await this.plugin.pluginRef.getLatestRemote()
                 // TODO handle no remote release found
                 try {
@@ -449,7 +455,10 @@
                   latestBinCached = await this.plugin.pluginRef.download(
                     latestRemote,
                     downloadProgress => {
-                      console.log('download progress', downloadProgress)
+                      console.log(
+                        `${client.name} download progress: `,
+                        downloadProgress
+                      )
                       this.downloadProgress = downloadProgress
                       this.state = `downloading ${downloadProgress}%`
                     }
@@ -457,7 +466,7 @@
                   this.isDownloading = false
                   this.state = ''
                 } catch (error) {
-                  console.log('error during download', error)
+                  console.log('Error during download: ', error)
                   return //TODO handleDownloadError(error)
                 }
               }
@@ -534,18 +543,43 @@
           }
         },
         template: `
-          <div>
-            <div class="app-item">
-              <span class="app-name centered" v-on:click="openApp()">{{ app.name }}</span>
-            </div>
-          </div>
-          `,
+                <div>
+                  <div class="app-item">
+                    <span class="app-name centered" v-on:click="openApp()">{{ app.name }}</span>
+                  </div>
+                </div>
+                `,
         methods: {
           openApp: async function() {
             this.uiWindowId = await window.Grid.AppManager.launch({
               ...this.app,
               id: this.uiWindowId
             })
+          }
+        }
+      })
+
+      Vue.component('app-item', {
+        props: ['app'],
+        data: function() {
+          return {
+            uiWindowId: undefined
+          }
+        },
+        template: `
+                <div>
+                  <div class="app-item">
+                    <span class="app-name centered" v-on:click="openApp()">{{ app.name }}</span>
+                  </div>
+                </div>
+                `,
+        methods: {
+          openApp: async function() {
+            this.uiWindowId = await window.Grid.AppManager.launch({
+              ...this.app,
+              id: this.uiWindowId
+            })
+            this.$emit('app-opened')
           }
         }
       })
@@ -557,13 +591,13 @@
           }
         },
         template: `
-          <div class="grid-config">
-            <div><a @click.prevent="openExternal('https://github.com/ethereum/grid')">Grid Repository</a></div>
-            <div><a @click.prevent="openExternal('https://forms.gle/bjkphVS8ca1JzwL46')">Feedback</a></div>
-            <div class="separator"></div>
-            <div><b-switch v-model="launchOnBoot" @input="handleChangeLaunch($event)" size="is-small">Start Grid at log in</b-switch></div>
-          </div>
-          `,
+                <div class="grid-config">
+                  <div><a @click.prevent="openExternal('https://github.com/ethereum/grid')">Grid Repository</a></div>
+                  <div><a @click.prevent="openExternal('https://forms.gle/bjkphVS8ca1JzwL46')">Feedback</a></div>
+                  <div class="separator"></div>
+                  <div><b-switch v-model="launchOnBoot" @input="handleChangeLaunch($event)" size="is-small">Start Grid at log in</b-switch></div>
+                </div>
+                `,
         methods: {
           openExternal: function(href) {
             window.Grid.openExternalLink(href)
@@ -622,9 +656,14 @@
             console.log('Set showConfig to: ', value)
             this.showConfig = value
           },
+          toggleSettings: function(value) {
+            this.showConfig = value
+          },
           toggleApps: function(value) {
-            console.log('Set showApps to: ', value)
             this.showApps = value
+          },
+          onAppOpened: function() {
+            this.showApps = false
           },
           openAppDashboard: async function() {
             this.appsWindowId = await window.Grid.AppManager.launch({
@@ -635,6 +674,7 @@
                 }
               }
             })
+            this.onAppOpened()
           }
         },
         mounted: async function() {
