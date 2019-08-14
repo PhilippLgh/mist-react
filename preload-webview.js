@@ -12,10 +12,6 @@ const pluginInterface = plugin => {
     name: plugin.name,
     displayName: plugin.displayName,
     type: plugin.type,
-    api: plugin.api,
-    stdinWrite: payload => {
-      return plugin.write(payload)
-    },
     sendRpc: async (method, params) => {
       return plugin.rpc(method, params)
     },
