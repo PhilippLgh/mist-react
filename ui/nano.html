@@ -105,22 +105,22 @@
         border-radius: 2px;
       }
 
-      .client-item {
+      .plugin-item {
         padding: 5px;
         display: flex;
         color: white;
       }
 
-      .client-name {
+      .plugin-name {
         margin-right: 5px;
       }
 
-      .client-name:hover {
+      .plugin-name:hover {
         cursor: pointer;
         text-decoration: underline;
       }
 
-      .client-profile {
+      .plugin-profile {
         color: #44a1d9;
         margin-right: 5px;
       }
@@ -130,29 +130,29 @@
         align-items: center;
       }
 
-      .client-info {
+      .plugin-info {
         line-height: 1rem;
         position: relative;
         overflow: hidden;
         flex-grow: 1;
       }
-      .client-info span {
+      .plugin-info span {
         display: inline-block;
         position: absolute;
         left: 0;
         transition: 200ms all ease-out;
         line-height: 1.85rem;
       }
-      .client-item:hover .client-state {
+      .plugin-item:hover .plugin-state {
         top: -1.85rem;
         opacity: 0;
       }
-      .client-item:hover .client-version {
+      .plugin-item:hover .plugin-version {
         top: 0rem;
         opacity: 1;
       }
 
-      .client-state {
+      .plugin-state {
         color: #555;
         margin-right: 5px;
         font-size: 0.8rem;
@@ -160,7 +160,7 @@
         opacity: 1;
       }
 
-      .client-version {
+      .plugin-version {
         font-size: 0.7rem;
         color: #555;
         white-space: nowrap;
@@ -168,7 +168,7 @@
         opacity: 0;
       }
 
-      /* .client-item:hover .client-version {
+      /* .plugin-item:hover .plugin-version {
         visibility: visible;
       } */
 
@@ -338,23 +338,23 @@
         ></icon-indicator>
       </div>
       <div class="separator"></div>
-      <client-item
+      <plugin-item
         v-if="!configActive"
-        v-for="client in clients"
-        :key="client.name"
-        :client="client"
-      ></client-item>
+        v-for="plugin in plugins"
+        :key="plugin.name"
+        :plugin="plugin"
+      ></plugin-item>
       <grid-config v-if="configActive"></grid-config>
       <div id="grid-version"></div>
     </div>
 
     <script>
-      Vue.component('client-item', {
-        props: ['client'],
+      Vue.component('plugin-item', {
+        props: ['plugin'],
         data: function() {
           return {
             isSwitched: false,
-            clientVersion: '',
+            pluginVersion: '',
             state: '',
             isDownloading: false,
             downloadProgress: 0,
@@ -365,34 +365,34 @@
         },
         template: `
           <div>
-            <div class="client-item">
+            <div class="plugin-item">
               <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
-              <span class="client-name centered" v-on:click="openUI()">{{ client.displayName }}</span>
-              <span class="client-profile centered">{{ client.profile }}</span>
-              <span class="client-info centered">
-                <span class="client-state">{{ state }}</span>
-                <span class="client-version">{{ clientVersion }}</span>
+              <span class="plugin-name centered" v-on:click="openUI()">{{ plugin.displayName }}</span>
+              <span class="plugin-profile centered">{{ plugin.profile }}</span>
+              <span class="plugin-info centered">
+                <span class="plugin-state">{{ state }}</span>
+                <span class="plugin-version">{{ pluginVersion }}</span>
               </span>
-              <icon-indicator @change="openTerminal()" v-if="client.error" pack="fas" icon="exclamation-circle" class="error" title="Plugin Error, click for more details"></icon-indicator>
+              <icon-indicator @change="openTerminal()" v-if="plugin.error" pack="fas" icon="exclamation-circle" class="error" title="Plugin Error, click for more details"></icon-indicator>
               <icon-indicator @change="openTerminal()" pack="far" icon="window-maximize"></icon-indicator>
             </div>
             <progress v-if="isDownloading" max="100" class="progress is-small is-primary" :value="downloadProgress"></progress>
           </div>
           `,
         created: function() {
-          this.client.plugin.on('newState', this.stateUpdateListener)
-          // Set client version if selectedRelease
-          const selectedRelease = this.client.plugin.getSelectedRelease()
+          this.plugin.pluginRef.on('newState', this.stateUpdateListener)
+          // Set plugin version if selectedRelease
+          const selectedRelease = this.plugin.pluginRef.getSelectedRelease()
           if (selectedRelease) {
-            this.clientVersion = selectedRelease.version
+            this.pluginVersion = selectedRelease.version
           }
         },
         beforeDestroy: function() {
-          this.client.plugin.off('newState', this.stateUpdateListener)
+          this.plugin.pluginRef.off('newState', this.stateUpdateListener)
         },
         methods: {
           stateUpdateListener: function(state) {
-            console.log('New nano state: ', this.client.name, state)
+            console.log('New nano state: ', this.plugin.name, state)
             this.state = state
 
             if (['starting', 'started', 'connected'].includes(state)) {
@@ -402,29 +402,29 @@
             }
 
             if (state === 'started') {
-              this.client.error = false
+              this.plugin.error = false
             }
           },
           handleSwitchedOn: async function() {
             let release
             // Check if selectedRelease in UserConfig
-            const selectedRelease = this.client.plugin.getSelectedRelease()
+            const selectedRelease = this.plugin.pluginRef.getSelectedRelease()
             if (selectedRelease) {
-              this.clientVersion = selectedRelease.version
+              this.pluginVersion = selectedRelease.version
               release = selectedRelease
             }
 
             if (!release) {
               // Check if downloaded version is available
-              let latestBinCached = await this.client.plugin.getLatestCached()
+              let latestBinCached = await this.plugin.pluginRef.getLatestCached()
               if (!latestBinCached) {
-                console.log('no client binary found --> download now')
-                const latestRemote = await this.client.plugin.getLatestRemote()
+                console.log('no plugin binary found --> download now')
+                const latestRemote = await this.plugin.pluginRef.getLatestRemote()
                 // TODO handle no remote release found
                 try {
                   this.state = 'downloading'
                   this.isDownloading = true
-                  latestBinCached = await this.client.plugin.download(
+                  latestBinCached = await this.plugin.pluginRef.download(
                     latestRemote,
                     downloadProgress => {
                       console.log('download progress', downloadProgress)
@@ -440,16 +440,16 @@
                 }
               }
               console.log('Cached release found')
-              this.clientVersion = latestBinCached.version
+              this.pluginVersion = latestBinCached.version
               release = latestBinCached
             }
 
             console.log('Starting release: ', release.version)
 
             const persistedFlags = (await Grid.Config.getItem('flags')) || {}
-            const flags = persistedFlags[this.client.plugin.name]
+            const flags = persistedFlags[this.plugin.pluginRef.name]
 
-            this.client.plugin.start(release, flags)
+            this.plugin.pluginRef.start(release, flags)
           },
           handleChange: function(ev) {
             if (this.isSwitched) {
@@ -457,14 +457,14 @@
             } else {
               // TODO cancel download if currently running
               if (['started', 'starting', 'connected'].includes(this.state)) {
-                this.client.plugin.stop()
+                this.plugin.pluginRef.stop()
               }
             }
           },
           openUI: async function() {
             const settings = Grid.Config.getItem('settings')
             const newSettings = Object.assign({}, settings, {
-              selected: this.client.name,
+              selected: this.plugin.name,
               selectedTab: 0
             })
             Grid.Config.setItem('settings', newSettings)
@@ -475,7 +475,7 @@
               args: {
                 scope: {
                   component: 'ui',
-                  client: this.client.name
+                  plugin: this.plugin.name
                 }
               }
             })
@@ -483,7 +483,7 @@
           openTerminal: async function() {
             const settings = Grid.Config.getItem('settings')
             const newSettings = Object.assign({}, settings, {
-              selected: this.client.name,
+              selected: this.plugin.name,
               selectedTab: 2
             })
             Grid.Config.setItem('settings', newSettings)
@@ -494,12 +494,12 @@
               args: {
                 scope: {
                   component: 'ui',
-                  client: this.client.name
+                  plugin: this.plugin.name
                 }
               }
             })
 
-            this.client.error = false
+            this.plugin.error = false
           }
         }
       })
@@ -535,7 +535,7 @@
         el: '#app',
         data: function() {
           return {
-            clients: [],
+            plugins: [],
             isSwitched: false,
             configActive: false
           }
@@ -543,7 +543,7 @@
         methods: {
           init: function() {
             const plugins = window.Grid.PluginHost.getAllPlugins()
-            this.clients = plugins.map(plugin => {
+            this.plugins = plugins.map(plugin => {
               plugin.on('pluginError', error => {
                 this.pluginErrorListener(plugin, error)
               })
@@ -559,7 +559,7 @@
             console.log('Plugins loaded: ', plugins.length)
           },
           pluginErrorListener: function(plugin, error) {
-            this.clients.find(p => p.name === plugin.name).error = true
+            this.plugins.find(p => p.name === plugin.name).error = true
           },
           toggleSettings: function(val) {
             console.log('Set configActive to: ', val)

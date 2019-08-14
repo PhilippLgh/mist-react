@@ -170,7 +170,7 @@ class AppManager extends EventEmitter {
           const settings = plugin.settings || []
           let config = {}
 
-          // 1. set default => check buildClientDefaults in grid-ui
+          // 1. set default => check buildPluginDefaults in grid-ui
           // TODO: this code should not be duplicated
           settings.forEach(setting => {
             if ('default' in setting) {
@@ -208,7 +208,7 @@ class AppManager extends EventEmitter {
       const { args } = app
       let appUrl = await getGridUiUrl()
       const { scope } = args
-      const { client: clientName, component } = scope
+      const { plugin: pluginName, component } = scope
       if (component === 'terminal') {
         appUrl = `file://${path.join(__dirname, '..', 'ui', 'terminal.html')}`
       }
