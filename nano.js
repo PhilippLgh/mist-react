@@ -1,6 +1,6 @@
 const path = require('path')
 const { menubar } = require('menubar')
-const { Menu, shell } = require('electron')
+const { app, Menu, shell, Tray } = require('electron')
 const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
 const { registerGlobalAppManager } = require('./grid_apps/AppManager')
 const { registerGlobalUserConfig } = require('./Config')
@@ -31,44 +31,7 @@ const iconPath = () =>
       : `${__dirname}/build/IconTemplate.png`
   )
 
-const mb = menubar({
-  browserWindow: {
-    alwaysOnTop: alwaysOnTop,
-    transparent: true,
-    backgroundColor: '#00FFFFFF',
-    frame: false,
-    resizable: false,
-    fullscreenable: false,
-    width: 320,
-    height: 420,
-    webPreferences: {
-      preload: preloadPath
-    },
-    title: 'Grid Nano'
-  },
-  icon: iconPath(),
-  index: makePath(`${__dirname}/ui/nano.html`),
-  showDockIcon: true
-})
-
-const init = function(mb) {
-  const app = mb.app
-  // make sure every webview has nodeIntegration turned off and has only access to the API defined by
-  // preload-webview.js
-  app.on('web-contents-created', (event, contents) => {
-    // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
-    contents.on('will-attach-webview', (event, webPreferences, params) => {
-      // Strip away preload scripts if unused or verify their location is legitimate
-      delete webPreferences.preload
-      delete webPreferences.preloadURL
-
-      // console.log('will attach webview')
-      webPreferences.preload = path.join(__dirname, 'preload-webview')
-
-      // Disable Node.js integration
-      webPreferences.nodeIntegration = false
-    })
-  })
+let mb
 
   const template = getMenuTemplate()
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
@@ -87,20 +50,13 @@ const init = function(mb) {
     })
   })
 
-  mb.on('ready', () => {
-    const appManager = registerGlobalAppManager()
 
-    // Unsure of linux distros behavior with menubar
-    // so for now we will always show on launch
-    // if (!startMinimized) {
-    //   mb.showWindow()
-    // }
-    mb.showWindow()
-  })
+const init = function() {
+  app.on('ready', () => {
+    const tray = new Tray(iconPath())
 
-  // right-click menu for tray
-  mb.on('after-create-window', function() {
     const contextMenu = Menu.buildFromTemplate([
+      { label: 'You made it!' },
       {
         label: 'Keep window open',
         type: 'checkbox',
@@ -127,13 +83,77 @@ const init = function(mb) {
         }
       }
     ])
-    mb.tray.on('right-click', () => {
-      mb.tray.popUpContextMenu(contextMenu)
+
+    mb = menubar({
+      browserWindow: {
+        alwaysOnTop,
+        transparent: true,
+        backgroundColor: '#00FFFFFF',
+        frame: false,
+        resizable: false,
+        fullscreenable: false,
+        width: 320,
+        height: 420,
+        webPreferences: {
+          preload: preloadPath
+        },
+        title: 'Grid Nano'
+      },
+      index: makePath(`${__dirname}/ui/nano.html`),
+      showDockIcon: true,
+      tray
     })
 
+    mb.on('ready', () => {
+      const pluginHost = registerGlobalPluginHost()
+      const appManager = registerGlobalAppManager()
+
+      // Unsure of linux distros behavior with menubar
+      // so for now we will always show on launch
+      // if (!startMinimized) {
+      //   mb.showWindow()
+      // }
+      mb.showWindow()
+    })
+
+    // Context menu behavior must be different among OSes.
+    // Linux: menu appears on left-click
+    // Mac and Windows: menu appears on right-click
+    if (process.platform == 'linux') {
+      tray.setContextMenu(contextMenu)
+    } else {
+      mb.on('after-create-window', function() {
+        mb.tray.on('right-click', () => {
+          mb.tray.popUpContextMenu(contextMenu)
+        })
+      })
+    }
+    
     // Syncs tray icon highlight state on mac
-    mb.window.on('hide', () => mb.hideWindow())
+    mb.on('after-create-window', function() {
+      mb.window.on('hide', () => mb.hideWindow())
+    })
   })
+
+  // make sure every webview has nodeIntegration turned off and has only access to the API defined by
+  // preload-webview.js
+  app.on('web-contents-created', (event, contents) => {
+    // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
+    contents.on('will-attach-webview', (event, webPreferences, params) => {
+      // Strip away preload scripts if unused or verify their location is legitimate
+      delete webPreferences.preload
+      delete webPreferences.preloadURL
+
+      // console.log('will attach webview')
+      webPreferences.preload = path.join(__dirname, 'preload-webview')
+
+      // Disable Node.js integration
+      webPreferences.nodeIntegration = false
+    })
+  })
+
+  const template = getMenuTemplate()
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
 
 /**
@@ -143,16 +163,16 @@ const init = function(mb) {
  * and exit.
  * https://github.com/electron/electron/blob/f6a29707b64bc2f7364f89096d187246bfc53765/docs/api/app.md#apprequestsingleinstancelock
  */
-const gotTheLock = mb.app.requestSingleInstanceLock()
+const gotTheLock = app.requestSingleInstanceLock()
 // If user tries to open another instance of Grid, the new one will quit
 if (!gotTheLock) {
-  mb.app.quit()
+  app.quit()
 } else {
   // When another Grid instance is trying to run, we tell the original instance to show Nano window.
-  mb.app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
     if (mb.window) {
       mb.showWindow()
     }
   })
-  init(mb)
+  init()
 }
