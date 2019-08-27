@@ -18,8 +18,8 @@
     "test:integration:parity": "cross-env NODE_ENV=test mocha ./test/integration/parity.test.js",
     "test:integration:geth": "cross-env NODE_ENV=test mocha ./test/integration/geth.test.js",
     "prepare-release": "node ./scripts/copyApp.js",
-    "build:grid": "yarn run prepare-release && build",
-    "release": "env-cmd .env yarn run build:grid"
+    "dist": "yarn run prepare-release && electron-builder",
+    "release": "env-cmd .env yarn run dist"
   },
   "dependencies": {
     "@philipplgh/electron-app-manager": "^0.45.0",
@@ -34,8 +34,8 @@
     "chai": "^4.2.0",
     "cross-env": "^5.2.0",
     "electron": "6.0.4",
-    "electron-builder": "20.31.3",
-    "electron-rebuild": "^1.8.5",
+    "electron-builder": "21.2.0",
+    "electron-rebuild": "^1.8.6",
     "env-cmd": "^8.0.2",
     "husky": "^1.3.1",
     "lint-staged": "^8.1.3",

@@ -30,12 +30,12 @@ aliases:
 
   - &node_installation
     run:
-      name: "Update Node.js and npm if on MacOS"
+      name: 'Update Node.js and npm if on MacOS'
       command: .circleci/install_node.sh
 
   - &upgrade_yarn
     run:
-      name: "Updates yarn"
+      name: 'Updates yarn'
       command: .circleci/upgrade_yarn.sh
 
   # Custom task removes unnecessary build files before uploading release directory
@@ -55,15 +55,14 @@ aliases:
     run: yarn test:e2e -s
 
   - &run_script
-    run: 
-      name: "Building app (deploy if on master)"
-      command: | 
+    run:
+      name: 'Building app (deploy if on master)'
+      command: |
         if [[ "${CIRCLE_BRANCH}" == 'master' ]]; then
           yarn release --$GRID_ENV;
         else
-          yarn build --$GRID_ENV;
+          yarn dist --$GRID_ENV;
         fi;
-
 
   - &run_steps
     steps:
