@@ -8,10 +8,10 @@
   "license": "ISC",
   "repository": "https://github.com/ethereum/grid",
   "scripts": {
-    "start:prod": "cross-env NODE_ENV=production electron .",
-    "start:dev": "cross-env NODE_ENV=development electron .",
     "start": "yarn start:dev",
+    "start:dev": "cross-env NODE_ENV=development electron .",
     "start:dev:verbose": "cross-env NODE_ENV=development DEBUG=geth-js electron .",
+    "start:prod": "cross-env NODE_ENV=production electron .",
     "test:mocha": "cross-env NODE_ENV=test mocha ./test",
     "test:e2e": "cross-env NODE_ENV=development ava ./test/e2e --verbose -s",
     "test:integration:watch": "cross-env NODE_ENV=test mocha ./test/integration --watch",
@@ -92,7 +92,8 @@
       "target": [
         "zip",
         "dmg"
-      ]
+      ],
+      "darkModeSupport": true
     },
     "nsis": {
       "createDesktopShortcut": "always"
