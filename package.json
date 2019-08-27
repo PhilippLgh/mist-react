@@ -8,10 +8,10 @@
   "license": "ISC",
   "repository": "https://github.com/ethereum/grid",
   "scripts": {
-    "start:prod": "cross-env NODE_ENV=production electron .",
-    "start:dev": "cross-env NODE_ENV=development electron .",
     "start": "yarn start:dev",
+    "start:dev": "cross-env NODE_ENV=development electron .",
     "start:dev:verbose": "cross-env NODE_ENV=development DEBUG=geth-js electron .",
+    "start:prod": "cross-env NODE_ENV=production electron .",
     "test:mocha": "cross-env NODE_ENV=test mocha ./test",
     "test:e2e": "cross-env NODE_ENV=development ava ./test/e2e --verbose -s",
     "test:integration:watch": "cross-env NODE_ENV=test mocha ./test/integration --watch",
@@ -34,7 +34,7 @@
     "chai": "^4.2.0",
     "cross-env": "^5.2.0",
     "electron": "5.0.8",
-    "electron-builder": "20.31.3",
+    "electron-builder": "20.44.4",
     "electron-rebuild": "^1.8.5",
     "env-cmd": "^8.0.2",
     "husky": "^1.3.1",
@@ -92,7 +92,8 @@
       "target": [
         "zip",
         "dmg"
-      ]
+      ],
+      "darkModeSupport": true
     },
     "nsis": {
       "createDesktopShortcut": "always"
