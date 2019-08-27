@@ -60,7 +60,7 @@ const startConfigEditor = () => {
     width: 800,
     height: 600
   })
-  win.setMenu(null)
+  win.removeMenu()
 }
 
 module.exports = {
