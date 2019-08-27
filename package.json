@@ -1,10 +1,10 @@
 {
   "name": "grid",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Ethereum Grid",
   "main": "nano.js",
   "homepage": "https://github.com/ethereum/grid",
-  "author": "Grid team <mist@ethereum.org>",
+  "author": "Grid Team <grid@ethereum.org>",
   "license": "ISC",
   "repository": "https://github.com/ethereum/grid",
   "scripts": {
