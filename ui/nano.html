@@ -8,10 +8,9 @@
       html,
       body {
         padding: 0px;
-        margin: 0px;
+        margin: 0px; 
         background-color: transparent;
-        overflow-y: scroll;
-        overflow-x: hidden;
+        overflow: hidden;
         user-select: none;
       }
       body {
@@ -47,6 +46,8 @@
         margin-top: 18px;
         z-index: 1;
         border-radius: 12px;
+        display: flex;
+        flex-direction: column;
       }
       #app,
       .tip::before {
@@ -78,6 +79,51 @@
       #app,
       .tip::before {
         border: 1px solid #303030;
+      }
+
+      .plugin-container {
+        overflow-y: auto;
+        /* windows and linux */
+        height: calc(100vh - 75px);
+      }
+
+      .is-mac .plugin-container {
+        height: calc(100vh - 88px);
+      }
+
+      /* Base properties */
+      .plugin-container::-webkit-scrollbar {
+        width: 4px;
+        border-radius: 2px;
+      }
+      .plugin-container::-webkit-scrollbar-thumb {
+        border-radius: 2px;
+        transition: 200ms all ease-out;
+      }
+
+      /* Scrollbar track and thumb starts transparent */
+      .plugin-container::-webkit-scrollbar {
+        background: rgba(1, 1, 1, .1);
+      }
+      .plugin-container::-webkit-scrollbar-thumb {
+        background: rgba(255,255, 255, 0.1);
+      }
+
+      /* Shows scrollbar and thumb when hovering the window */
+      html:hover .plugin-container::-webkit-scrollbar {
+        background: rgba(1, 1, 1, .2);
+      }
+      html:hover .plugin-container::-webkit-scrollbar-thumb {
+        /* 30% white */
+        /* background: #4c4c4c;   */
+        background: linear-gradient(#585858, #424242);
+      }
+
+      html:hover .plugin-container::-webkit-scrollbar-thumb:hover {
+        background: #727272;
+      }
+      html:hover .plugin-container::-webkit-scrollbar-thumb:active {
+        background: #a7a7a7;
       }
 
       /* variant of the tip when the window is docked to the bottom */
@@ -365,12 +411,14 @@
         ></app-item>
         <div class="separator"></div>
       </div>
-      <plugin-item
-        v-if="!showConfig"
-        v-for="plugin in plugins"
-        :key="plugin.name"
-        :plugin="plugin"
-      ></plugin-item>
+      <div class="plugin-container">
+        <plugin-item
+          v-if="!showConfig"
+          v-for="plugin in plugins"
+          :key="plugin.name"
+          :plugin="plugin"
+        ></plugin-item>
+      </div>
       <grid-config v-if="showConfig"></grid-config>
       <div id="grid-version"></div>
     </div>
