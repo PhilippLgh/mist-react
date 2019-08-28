@@ -63,6 +63,18 @@ module.exports = {
       label: 'IPC Path',
       default: IPC_PATH,
       flag: '--ipc-path %s'
+    },
+    {
+      required: true,
+      id: 'noDownload',
+      default: 'required',
+      options: [{ value: 'required', flag: '--no-download' }]
+    },
+    {
+      required: true,
+      id: 'forceDirect',
+      default: 'required',
+      options: [{ value: 'required', flag: '--force-direct' }]
     }
   ],
   about: {
