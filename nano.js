@@ -68,8 +68,24 @@ const init = function(mb) {
   const template = getMenuTemplate()
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 
+  const pluginHost = registerGlobalPluginHost()
+
+  app.on('quit', () => {
+    const plugins = pluginHost.getAllPlugins()
+    plugins.forEach(p => {
+      if (!p.plugin.process || p.plugin.process.state === 'STOPPED') {
+        console.log('Successfully shut down plugin:', p.name)
+      } else {
+        const proc = p.plugin.process.proc
+        if (!proc.killed) {
+          console.log('Forcefully shutting down plugin:', p.name)
+          proc.kill('SIGINT')
+        }
+      }
+    })
+  })
+
   mb.on('ready', () => {
-    const pluginHost = registerGlobalPluginHost()
     const appManager = registerGlobalAppManager()
 
     // Unsure of linux distros behavior with menubar
