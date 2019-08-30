@@ -74,13 +74,10 @@ const init = function(mb) {
     const plugins = pluginHost.getAllPlugins()
     plugins.forEach(p => {
       if (!p.plugin.process || p.plugin.process.state === 'STOPPED') {
-        console.log('Successfully shut down plugin:', p.name)
+        console.log('Plugin already stopped:', p.name)
       } else {
-        const proc = p.plugin.process.proc
-        if (!proc.killed) {
-          console.log('Forcefully shutting down plugin:', p.name)
-          proc.kill('SIGINT')
-        }
+        console.log('Forcefully shutting down plugin:', p.name)
+        p.plugin.process.proc.kill('SIGINT')
       }
     })
   })
