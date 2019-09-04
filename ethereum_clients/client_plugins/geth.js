@@ -230,6 +230,10 @@ module.exports = {
         url: 'https://geth.ethereum.org/docs/'
       },
       {
+        name: 'Geth Changelog',
+        url: 'https://github.com/ethereum/go-ethereum/releases'
+      },
+      {
         name: 'JSON RPC API Reference',
         url:
           'https://github.com/ethereum/wiki/wiki/JSON-RPC#json-rpc-api-reference'
