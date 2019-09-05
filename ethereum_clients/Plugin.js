@@ -274,9 +274,9 @@ class Plugin extends EventEmitter {
       )
       this.registerEventListeners(this.process, this)
       await this.process.start(flags)
-    } catch (e) {
-      console.log('Error: could not start plugin')
-      throw new Error('Plugin Start Error')
+    } catch (error) {
+      console.log(`Plugin Start Error: ${error}`)
+      throw new Error(`Plugin Start Error: ${error}`)
     }
 
     return this.process
