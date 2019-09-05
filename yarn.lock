@@ -396,10 +396,10 @@
     universal-user-agent "^2.0.0"
     url-template "^2.0.8"
 
-"@philipplgh/electron-app-manager@^0.50.0":
-  version "0.50.0"
-  resolved "https://registry.yarnpkg.com/@philipplgh/electron-app-manager/-/electron-app-manager-0.50.0.tgz#8a69083a55ccf7ad1cf241a1630253380bcbc003"
-  integrity sha512-ZVYez5UKGeAj2roeif0EZI8KphrvGRrDR/sgxWYphfqKZnXA7igmcKk9qYhKhD6HwC5SMjM1fOwnV18Hm7I8nQ==
+"@philipplgh/electron-app-manager@^0.51.0":
+  version "0.51.0"
+  resolved "https://registry.yarnpkg.com/@philipplgh/electron-app-manager/-/electron-app-manager-0.51.0.tgz#a93494eaa04cf99dc534591d580398230d81e0cc"
+  integrity sha512-aFYg9i+GJ/o9sM18w/kqYeqGR1dojdcymwYRhXNgoBdua1phj23ZM1h9+VHZPX3WtOvIN9XHmvET9h3p7mqhRQ==
   dependencies:
     "@octokit/rest" "^16.27.0"
     electron-updater "4.1.2"

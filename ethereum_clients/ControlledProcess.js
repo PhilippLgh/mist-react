@@ -161,8 +161,6 @@ class ControlledProcess extends EventEmitter {
   }
   stop() {
     return new Promise((resolve, reject) => {
-      this.removeStateListeners()
-
       // FIXME kill IPC ? or is it indirectly closed: onIpcEnd
       if (!this.proc || !this.isRunning) {
         resolve(this)

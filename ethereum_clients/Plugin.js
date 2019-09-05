@@ -265,6 +265,7 @@ class Plugin extends EventEmitter {
     console.log(
       `Plugin ${this.name} (${packagePath}) about to start. Binary: ${binaryPath}`
     )
+
     try {
       this.process = new ControlledProcess(
         binaryPath,
@@ -273,9 +274,11 @@ class Plugin extends EventEmitter {
       )
       this.registerEventListeners(this.process, this)
       await this.process.start(flags)
-    } catch (error) {
-      console.log('error start', error)
+    } catch (e) {
+      console.log('Error: could not start plugin')
+      throw new Error('Plugin Start Error')
     }
+
     return this.process
   }
   async stop() {
