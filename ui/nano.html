@@ -764,8 +764,10 @@
             this.loadApps()
           },
           pluginErrorListener: function(plugin, error) {
-            let errors = this.plugins.find(p => p.name === plugin.name).errors
-            errors = [...errors, error]
+            this.plugins.find(p => p.name === plugin.name).errors = [
+              ...this.plugins.find(p => p.name === plugin.name).errors,
+              error
+            ]
           },
           setAppBadgeListener: function(plugin, appId, count) {
             console.log(plugin.name, appId, count)

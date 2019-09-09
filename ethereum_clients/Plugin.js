@@ -88,6 +88,9 @@ class Plugin extends EventEmitter {
   }
   dismissError(key) {
     this.errors = this.errors.filter(error => error.key !== key)
+    if (this.errors.length === 0) {
+      this.emit('clearPluginErrors')
+    }
   }
   get resolveIpc() {
     return this.config.resolveIpc
