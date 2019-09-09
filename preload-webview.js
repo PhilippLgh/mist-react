@@ -45,10 +45,12 @@ window.grid = {
   getAllPlugins: () => {
     return PluginHost.getAllPlugins().map(plugin => pluginInterface(plugin))
   },
-  getClient: name => {
+  getPlugin: name => {
     const plugin = PluginHost.getAllPlugins().find(p => p.name === name)
     return plugin ? pluginInterface(plugin) : plugin
   },
+  // getClient deprecated, for backwards compat
+  getClient: name => window.grid.getPlugin(name),
   notify,
   showOpenDialog
 }
