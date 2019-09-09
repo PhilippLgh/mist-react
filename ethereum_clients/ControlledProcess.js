@@ -40,6 +40,12 @@ class ControlledProcess extends EventEmitter {
       this.state
     )
   }
+  emitPluginError(message) {
+    this.emit('pluginError', {
+      message,
+      key: new Date().getTime() + Math.random()
+    })
+  }
   createStateListeners() {
     // Listen to state events that may emit from plugin code
     this.on('newState', newState => {
@@ -72,7 +78,7 @@ class ControlledProcess extends EventEmitter {
 
       const onProcError = error => {
         this.state = STATES.ERROR
-        this.emit('pluginError', error)
+        this.emitPluginError(error)
         reject(error)
       }
 
@@ -85,7 +91,7 @@ class ControlledProcess extends EventEmitter {
         if (code !== 0) {
           // Closing with any code other than 0 means there was an error
           const errorMessage = `${this.name} child process exited with code: ${code}`
-          this.emit('pluginError', errorMessage)
+          this.emitPluginError(errorMessage)
           this.debug('Error: ', errorMessage)
           this.debug('DEBUG Last 10 log lines: ', this.logs.slice(-10))
           reject(errorMessage)
@@ -145,7 +151,7 @@ class ControlledProcess extends EventEmitter {
               this.handleData(logPart, this.emit.bind(this), Notification)
             }
             if (/^error\W/.test(logPart.toLowerCase())) {
-              this.emit('pluginError', logPart)
+              this.emitPluginError(logPart)
             }
           })
         }
@@ -178,7 +184,7 @@ class ControlledProcess extends EventEmitter {
       }
       const onProcError = () => {
         this.state = STATES.ERROR
-        this.emit('pluginError', error)
+        this.emitPluginError(error)
         reject(new Error('Error Stopping: ', error))
       }
       this.proc.on('exit', onProcExit.bind(this))
@@ -214,7 +220,7 @@ class ControlledProcess extends EventEmitter {
       const onIpcError = error => {
         this.state = STATES.ERROR
         this.ipc = null
-        this.emit('pluginError', error)
+        this.emitPluginError(error)
         this.debug('IPC Connection Error: ', error)
       }
 
@@ -222,7 +228,7 @@ class ControlledProcess extends EventEmitter {
         this.state = STATES.ERROR
         this.ipc = null
         const errorMessage = 'IPC Connection Timeout'
-        this.emit('pluginError', errorMessage)
+        this.emitPluginError(errorMessage)
         this.debug(errorMessage)
         reject(new Error('IPC connection timed out'))
       }
