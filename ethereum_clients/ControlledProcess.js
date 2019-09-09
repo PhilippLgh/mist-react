@@ -40,9 +40,9 @@ class ControlledProcess extends EventEmitter {
       this.state
     )
   }
-  emitPluginError(message) {
+  emitPluginError(error) {
     this.emit('pluginError', {
-      message,
+      message: error.toString(),
       key: new Date().getTime() + Math.random()
     })
   }
