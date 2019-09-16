@@ -10,10 +10,11 @@ const { getCachePath } = require('./utils/main/util')
 registerPackageProtocol(getCachePath('apps'))
 registerGlobalUserConfig()
 
-// auto-launch may start process with --hidden
+// Auto-launch may start process with --hidden
 const startMinimized = (process.argv || []).indexOf('--hidden') !== -1
 
-let alwaysOnTop = true
+// Due to a bug, do not autohide nano on blur for Windows
+let alwaysOnTop = !process.platform === 'darwin'
 
 const preloadPath = path.join(__dirname, 'preload.js')
 
