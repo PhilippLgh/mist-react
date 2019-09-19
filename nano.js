@@ -11,11 +11,11 @@ registerPackageProtocol(getCachePath('apps'))
 registerGlobalUserConfig()
 
 // Auto-launch may start process with --hidden
-const startMinimized = (process.argv || []).indexOf('--hidden') !== -1
+// const startMinimized = (process.argv || []).indexOf('--hidden') !== -1
 
 // Do not autohide nano on blur for Windows
-// As we cannot guarantee the icon will be on the visible area 
-// of user's notification area in Windows, we set it to a "sticky mode" by default
+// As we cannot guarantee the icon will be on the visible area of user's
+// notification area in Windows, we set it to a "sticky mode" by default
 // Windows users can still close Nano with <Esc> or <Control+W>.
 let alwaysOnTop = !process.platform === 'darwin'
 
@@ -28,35 +28,43 @@ const iconPath = () =>
   path.resolve(
     process.platform === 'win32'
       ? `${__dirname}/build/TrayIcon.ico`
-      : `${__dirname}/build/IconTemplate.png`
+      : `${__dirname}/build/IconTemplate@2x.png`
   )
 
 let mb
 
-  const template = getMenuTemplate()
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+const template = getMenuTemplate()
+Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 
-  const pluginHost = registerGlobalPluginHost()
+const pluginHost = registerGlobalPluginHost()
 
-  app.on('quit', () => {
-    const plugins = pluginHost.getAllPlugins()
-    plugins.forEach(p => {
-      if (!p.plugin.process || p.plugin.process.state === 'STOPPED') {
-        console.log('Plugin already stopped:', p.name)
-      } else {
-        console.log('Forcefully shutting down plugin:', p.name)
-        p.plugin.process.proc.kill('SIGINT')
-      }
-    })
+app.on('quit', () => {
+  const plugins = pluginHost.getAllPlugins()
+  plugins.forEach(p => {
+    if (!p.plugin.process || p.plugin.process.state === 'STOPPED') {
+      console.log('Plugin already stopped:', p.name)
+    } else {
+      console.log('Forcefully shutting down plugin:', p.name)
+      p.plugin.process.proc.kill('SIGINT')
+    }
   })
-
+})
 
 const init = function() {
   app.on('ready', () => {
     const tray = new Tray(iconPath())
 
-    const contextMenu = Menu.buildFromTemplate([
-      { label: 'You made it!' },
+    const menuOptions = [
+      {
+        label: 'Toggle window',
+        click: () => {
+          if (mb.window.isVisible()) {
+            mb.hideWindow()
+          } else {
+            mb.showWindow()
+          }
+        }
+      },
       {
         label: 'Keep window open',
         type: 'checkbox',
@@ -82,7 +90,9 @@ const init = function() {
           mb.app.quit()
         }
       }
-    ])
+    ]
+
+    const contextMenu = Menu.buildFromTemplate(menuOptions)
 
     mb = menubar({
       browserWindow: {
@@ -128,7 +138,7 @@ const init = function() {
         })
       })
     }
-    
+
     // Syncs tray icon highlight state on mac
     mb.on('after-create-window', function() {
       mb.window.on('hide', () => mb.hideWindow())
