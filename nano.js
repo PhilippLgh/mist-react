@@ -66,7 +66,7 @@ const init = function() {
         }
       },
       {
-        label: 'Keep window open',
+        label: 'Always on Top',
         type: 'checkbox',
         checked: alwaysOnTop,
         click: () => {
