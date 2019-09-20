@@ -109,7 +109,10 @@ const getBinaryUpdater = (repo, name, filter, prefix, cachePath) => {
 const checkConnection = async (host, port, timeout = 2000) => {
   return new Promise((resolve, reject) => {
     let timer = setTimeout(() => {
-      reject('timeout')
+      console.warn(
+        `Connection timeout (${timeout}ms) while trying to load ${host}:${port}`
+      )
+      resolve(false)
       socket.end()
     }, timeout)
     let socket = net.createConnection(port, host, () => {
