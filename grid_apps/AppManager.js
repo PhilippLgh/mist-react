@@ -55,8 +55,8 @@ const getGridUiUrl = async () => {
   if (is.dev()) {
     const PORT = '3080'
 
-    const appUrl = `http://localhost:${PORT}/index.html`
-    const isServerRunning = await checkConnection('localhost', PORT)
+    const appUrl = `http://127.0.0.1:${PORT}/index.html`
+    const isServerRunning = await checkConnection('127.0.0.1', PORT)
     /**
      * check if grid-ui is started and the server is running.
      * otherwise load latest grid-ui package from github ("hot-load")
