@@ -376,10 +376,10 @@ class Plugin extends EventEmitter {
         binaryPath: binaryPathExtracted,
         packagePath
       } = await this.getLocalBinary(release)
+      binaryPath = binaryPathExtracted
       console.log(
         `Plugin ${this.name} (${packagePath}) about to start. Binary: ${binaryPath}`
       )
-      binaryPath = binaryPathExtracted
     }
 
     try {
