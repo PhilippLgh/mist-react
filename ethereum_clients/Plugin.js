@@ -188,9 +188,16 @@ class Plugin extends EventEmitter {
         fs.unlinkSync(destAbs)
       }
       // IMPORTANT: if the binary already exists the mode cannot be set
-      fs.writeFileSync(destAbs, await binaryEntry.file.readContent(), {
-        mode: parseInt('754', 8) // strict mode prohibits octal numbers in some cases
-      })
+      fs.writeFileSync(
+        destAbs,
+        await binaryEntry.file.readContent(),
+        {
+          mode: parseInt('754', 8) // strict mode prohibits octal numbers in some cases
+        },
+        err => {
+          throw `Error while writing binary: ${err}`
+        }
+      )
 
       // cache the binary path
       this.binPath = destAbs
