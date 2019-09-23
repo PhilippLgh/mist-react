@@ -154,12 +154,6 @@ class Plugin extends EventEmitter {
     return this.updater.download(release, { onProgress })
   }
   async getLocalBinary(release) {
-    if (this.binPath) {
-      return {
-        binaryPath: this.binPath
-      }
-    }
-
     const extractBinary = async (pkg, binaryName) => {
       const entries = await this.updater.getEntries(pkg)
       let binaryEntry = undefined
