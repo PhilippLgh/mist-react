@@ -118,8 +118,7 @@ const init = function() {
     })
 
     mb.on('ready', () => {
-      const pluginHost = registerGlobalPluginHost()
-      const appManager = registerGlobalAppManager()
+      registerGlobalAppManager()
 
       // Unsure of linux distros behavior with menubar
       // so for now we will always show on launch
