@@ -4,7 +4,10 @@ const { app, Menu, shell, Tray } = require('electron')
 const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
 const { registerGlobalAppManager } = require('./grid_apps/AppManager')
 const { registerGlobalUserConfig } = require('./Config')
-const { registerPackageProtocol } = require('@philipplgh/electron-app-manager')
+const {
+  registerPackageProtocol,
+  AppManager
+} = require('@philipplgh/electron-app-manager')
 const { getMenuTemplate } = require('./Menu')
 const { getCachePath } = require('./utils/main/util')
 registerPackageProtocol(getCachePath('apps'))
@@ -12,6 +15,14 @@ registerGlobalUserConfig()
 
 // Auto-launch may start process with --hidden
 // const startMinimized = (process.argv || []).indexOf('--hidden') !== -1
+
+// used to check for "full" updates including electron binaries.
+// will restart the app after download to apply updates if user clicks "ok"
+const shellManager = new AppManager({
+  repository: 'https://github.com/ethereum/grid',
+  auto: true,
+  electron: true
+})
 
 // Do not autohide nano on blur for Windows
 // As we cannot guarantee the icon will be on the visible area of user's

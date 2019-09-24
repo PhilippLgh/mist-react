@@ -1,4 +1,5 @@
 const { EventEmitter } = require('events')
+const fs = require('fs')
 const path = require('path')
 const createRenderer = require('../electron-shell')
 const WindowManager = require('../WindowManager')
@@ -40,11 +41,22 @@ gridUiManager.on('update-downloaded', release => {
 
 const getGridUiUrl = async () => {
   let useHotLoading = true // temporary fix from philipp
-  const HOT_LOAD_URL = 'package://github.com/ethereum/grid-ui'
+  let version = 'latest'
+  try {
+    let packageJson = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8')
+    )
+    version = `~${packageJson.version}` // pin grid-ui version to grid version range
+  } catch (error) {
+    console.log('WARNING: package.json parse error', error)
+  }
+  const HOT_LOAD_URL = `package://github.com/ethereum/grid-ui?version=${version}`
+  // const HOT_LOAD_URL = `package://github.com/ethereum/grid-ui`
   if (is.dev()) {
     const PORT = '3080'
-    const appUrl = `http://localhost:${PORT}/index.html`
-    const isServerRunning = await checkConnection('localhost', PORT)
+
+    const appUrl = `http://127.0.0.1:${PORT}/index.html`
+    const isServerRunning = await checkConnection('127.0.0.1', PORT)
     /**
      * check if grid-ui is started and the server is running.
      * otherwise load latest grid-ui package from github ("hot-load")

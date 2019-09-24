@@ -154,12 +154,6 @@ class Plugin extends EventEmitter {
     return this.updater.download(release, { onProgress })
   }
   async getLocalBinary(release) {
-    if (this.binPath) {
-      return {
-        binaryPath: this.binPath
-      }
-    }
-
     const extractBinary = async (pkg, binaryName) => {
       const entries = await this.updater.getEntries(pkg)
       let binaryEntry = undefined
@@ -194,9 +188,16 @@ class Plugin extends EventEmitter {
         fs.unlinkSync(destAbs)
       }
       // IMPORTANT: if the binary already exists the mode cannot be set
-      fs.writeFileSync(destAbs, await binaryEntry.file.readContent(), {
-        mode: parseInt('754', 8) // strict mode prohibits octal numbers in some cases
-      })
+      fs.writeFileSync(
+        destAbs,
+        await binaryEntry.file.readContent(),
+        {
+          mode: parseInt('754', 8) // strict mode prohibits octal numbers in some cases
+        },
+        err => {
+          throw `Error while writing binary: ${err}`
+        }
+      )
 
       // cache the binary path
       this.binPath = destAbs
@@ -375,10 +376,10 @@ class Plugin extends EventEmitter {
         binaryPath: binaryPathExtracted,
         packagePath
       } = await this.getLocalBinary(release)
+      binaryPath = binaryPathExtracted
       console.log(
         `Plugin ${this.name} (${packagePath}) about to start. Binary: ${binaryPath}`
       )
-      binaryPath = binaryPathExtracted
     }
 
     try {
