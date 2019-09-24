@@ -54,17 +54,7 @@ const init = function() {
   app.on('ready', () => {
     const tray = new Tray(iconPath())
 
-    const menuOptions = [
-      {
-        label: 'Toggle window',
-        click: () => {
-          if (mb.window.isVisible()) {
-            mb.hideWindow()
-          } else {
-            mb.showWindow()
-          }
-        }
-      },
+    let menuOptions = [
       {
         label: 'Always on Top',
         type: 'checkbox',
@@ -91,6 +81,19 @@ const init = function() {
         }
       }
     ]
+
+    if (process.platform !== 'mac') {
+      menuOptions.unshift({
+        label: 'Toggle Window',
+        click: () => {
+          if (mb.window.isVisible()) {
+            mb.hideWindow()
+          } else {
+            mb.showWindow()
+          }
+        }
+      })
+    }
 
     const contextMenu = Menu.buildFromTemplate(menuOptions)
 
