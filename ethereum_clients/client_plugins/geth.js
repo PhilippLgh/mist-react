@@ -22,7 +22,7 @@ switch (process.platform) {
   }
 }
 
-const keystoreDir = `${dataDir}/Ethereum`
+const keystoreDir = `${dataDir}/keystore`
 
 const findIpcPathInLogs = logs => {
   let ipcPath
