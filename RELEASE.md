@@ -35,3 +35,15 @@ Note: on macOS, you'll get a warning if you don't sign the package with an Apple
 ### Using build channels
 
 `grid-ui` versions may be published to various build channels. Push the changes to the appropriate branch and the CI will complete the deployment. Available channels include: `dev`, `ci`, `alpha`, `beta`, `nightly`, `production`, `master`, and `release`.
+
+## Releasing Grid Apps
+
+For apps created with create-react-app:
+
+- Build the app:
+  - `yarn build`
+- Zip the output (but don't include the `build` dir):
+  - `cd build && zip grid-appname-app-0.1.0.zip .`
+- Create a new release in GitHub and include the zip file.
+- Include the app in `grid_apps/apps.json`. See the file for examples. This will include the app in the Nano app menu.
+- Include the app in relevant client configurations (`about > apps`). See `ethereum_clients/client_plugins/geth.js` for examples.
