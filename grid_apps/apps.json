@@ -14,6 +14,18 @@
     "ignore": "package://24f0c0e4272ca1bbb7e32fe1d8bf87367b169f74415e48eb9f2ca4552759ef5c"
   },
   {
+    "name": "Block Explorer",
+    "description": "Visualize the blockchain.",
+    "screenshot": "https://i.imgur.com/E479tBV.png",
+    "url": "package://github.com/marcgarreau/grid-blocks-app",
+    "dependencies": [
+      {
+        "name": "geth",
+        "settings": [{ "id": "graphql", "value": "true" }]
+      }
+    ]
+  },
+  {
     "name": "RPC Tester",
     "description": "Test RPC endpoints.",
     "screenshot": "https://i.imgur.com/zI5QLEv.png",
@@ -21,7 +33,7 @@
   },
   {
     "name": "Geth GraphQL Explorer",
-    "description": "GraphiQL interface to explore and query the Geth GraphQL schema.",
+    "description": "Query the network via a GraphiQL interface.",
     "screenshot": "https://camo.githubusercontent.com/36e1dff0883acf38171e88f2d71a60462a709197/68747470733a2f2f626c6f672e657468657265756d2e6f72672f696d672f323031392f30372f6772617068716c2e706e67",
     "url": "http://localhost:8547",
     "dependencies": [

@@ -204,6 +204,16 @@ module.exports = {
       'Geth is a multipurpose command line tool that runs a full Ethereum node implemented in Go.',
     apps: [
       {
+        name: 'Block Explorer',
+        url: 'package://github.com/marcgarreau/grid-blocks-app',
+        dependencies: [
+          {
+            name: 'geth',
+            settings: [{ id: 'graphql', value: 'true' }]
+          }
+        ]
+      },
+      {
         name: 'RPC Tester App',
         url: 'package://github.com/ryanio/grid-rpc-app',
         dependencies: [
