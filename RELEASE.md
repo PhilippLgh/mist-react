@@ -43,7 +43,11 @@ For apps created with create-react-app:
 - Build the app:
   - `yarn build`
 - Zip the output (but don't include the `build` dir):
-  - `cd build && zip grid-appname-app-0.1.0.zip .`
-- Create a new release in GitHub and include the zip file.
+  - `cd build && zip -r grid-appname-app-0.1.0.zip .`
+  - Note: you don't have to worry about pruning this zip file, as the `build` directory is in `.gitignore`.
+- Create a new release in GitHub and include the zip file (e.g. drag and drop it into the GitHub release GUI).
+
+If this is the first time the app is being introduced to Grid:
+
 - Include the app in `grid_apps/apps.json`. See the file for examples. This will include the app in the Nano app menu.
 - Include the app in relevant client configurations (`about > apps`). See `ethereum_clients/client_plugins/geth.js` for examples.
