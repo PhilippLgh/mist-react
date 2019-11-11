@@ -1,11 +1,15 @@
 /**
- * This method preserves spaces contained in the value.
+ * This method:
+ * 1) returns nothing if ignoreIfEmpty && value === ''
+ * 2) preserves spaces contained in the value.
  * input: "--ipc '%s'", "/path with spaces"
  * output: ["--ipc", "/path with spaces"]
  */
-const parseFlag = (pattern, value) => {
-  let result = pattern.split(' ').map(e => e.replace(/%s/, value))
-
+const parseFlag = (pattern, value, ignoreIfEmpty) => {
+  if (ignoreIfEmpty && !value) {
+    return ''
+  }
+  const result = pattern.split(' ').map(e => e.replace(/%s/, value))
   return result
 }
 
@@ -40,7 +44,11 @@ const generateFlags = (userConfig, nodeSettings) => {
       throw new Error(`Config entry "${entry}" must have the "flag" key`)
     }
 
-    const parsedFlag = parseFlag(pattern, userConfig[entry])
+    const parsedFlag = parseFlag(
+      pattern,
+      userConfig[entry],
+      configEntry.ignoreIfEmpty
+    )
     flags = flags.concat(parsedFlag)
   })
 
