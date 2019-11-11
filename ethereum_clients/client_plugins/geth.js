@@ -1,30 +1,3 @@
-let platform = 'windows'
-let dataDir = `${process.env.APPDATA}/Ethereum`
-
-// Platform specific initialization
-switch (process.platform) {
-  case 'win32': {
-    platform = 'windows'
-    dataDir = `${process.env.APPDATA}\\Ethereum`
-    break
-  }
-  case 'linux': {
-    platform = 'linux'
-    dataDir = '~/.ethereum'
-    break
-  }
-  case 'darwin': {
-    platform = 'darwin'
-    dataDir = '~/Library/Ethereum'
-    break
-  }
-  default: {
-  }
-}
-
-const keystoreDir =
-  process.platform === 'win32' ? `${dataDir}\\keystore` : `${dataDir}/keystore`
-
 const findIpcPathInLogs = logs => {
   let ipcPath
   for (const logPart of logs) {
@@ -58,11 +31,11 @@ module.exports = {
   },
   filter: {
     name: {
-      includes: [platform],
+      includes: [process.platform],
       excludes: ['unstable', 'alltools', 'swarm', 'mips', 'arm']
     }
   },
-  prefix: `geth-${platform}`,
+  prefix: `geth-${process.platform}`,
   binaryName: process.platform === 'win32' ? 'geth.exe' : 'geth',
   resolveIpc: logs => findIpcPathInLogs(logs),
   settings: [
@@ -91,17 +64,19 @@ module.exports = {
     },
     {
       id: 'dataDir',
-      default: dataDir,
+      default: '',
       label: 'Data Directory',
       flag: '--datadir %s',
-      type: 'directory'
+      type: 'directory',
+      ignoreIfEmpty: true
     },
     {
       id: 'keystoreDir',
-      default: keystoreDir,
+      default: '',
       label: 'Keystore Directory',
       flag: '--keystore %s',
-      type: 'directory'
+      type: 'directory',
+      ignoreIfEmpty: true
     },
     {
       id: 'console',
