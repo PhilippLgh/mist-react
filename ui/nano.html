@@ -458,6 +458,7 @@
         data: function() {
           return {
             isSwitched: false,
+            switchDisabled: false,
             pluginVersion: '',
             state: '',
             isDownloading: false,
@@ -470,7 +471,7 @@
         template: `
                 <div>
                   <div class="plugin-item">
-                    <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small"></b-switch>
+                    <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small" :disabled="switchDisabled"></b-switch>
                     <span class="plugin-name centered" v-on:click="openUI()">{{ plugin.displayName }}</span>
                     <span class="plugin-profile centered">{{ plugin.profile }}</span>
                     <span class="plugin-info centered">
@@ -517,8 +518,13 @@
             if (state === 'started') {
               this.plugin.errors = []
             }
+
+            if (['started', 'connected', 'stopped', 'error'].includes(state)) {
+              this.switchDisabled = false
+            }
           },
           handleSwitchedOn: async function() {
+            this.switchDisabled = true
             const persistedFlags = (await Grid.Config.getItem('flags')) || {}
             const flags = persistedFlags[this.plugin.pluginRef.name]
             const setupHandler = event => {
