@@ -1,3 +1,5 @@
+const platform = process.platform === 'win32' ? 'windows' : process.platform
+
 const findIpcPathInLogs = logs => {
   let ipcPath
   for (const logPart of logs) {
@@ -31,11 +33,11 @@ module.exports = {
   },
   filter: {
     name: {
-      includes: [process.platform],
+      includes: [platform],
       excludes: ['unstable', 'alltools', 'swarm', 'mips', 'arm']
     }
   },
-  prefix: `geth-${process.platform}`,
+  prefix: `geth-${platform}`,
   binaryName: process.platform === 'win32' ? 'geth.exe' : 'geth',
   resolveIpc: logs => findIpcPathInLogs(logs),
   settings: [
