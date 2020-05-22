@@ -46,21 +46,6 @@ module.exports.getMenuTemplate = () => {
         }
       ]
     },
-    {
-      label: 'Plugins',
-      submenu: [
-        {
-          label: 'Rescan',
-          click() {
-            if (!global.PluginHost) {
-              console.log('PluginHost not ready yet.')
-              return
-            }
-            global.PluginHost.discoverRemote()
-          }
-        }
-      ]
-    },
     // { label: 'Updater',
     //   submenu: [
     //     // dynamically filled
