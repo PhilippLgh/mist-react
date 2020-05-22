@@ -3,6 +3,7 @@ const { menubar } = require('menubar')
 const { app, Menu, shell, Tray } = require('electron')
 const { registerGlobalAppManager } = require('./grid_apps/AppManager')
 const { registerGlobalUserConfig } = require('./Config')
+const { MultiClientManager } = require('ethbinary')
 const {
   registerPackageProtocol,
   AppManager
@@ -11,6 +12,8 @@ const { getMenuTemplate } = require('./Menu')
 const { getCachePath } = require('./utils/main/util')
 registerPackageProtocol(getCachePath('apps'))
 registerGlobalUserConfig()
+
+global.ClientManager = MultiClientManager.getInstance()
 
 // Auto-launch may start process with --hidden
 // const startMinimized = (process.argv || []).indexOf('--hidden') !== -1

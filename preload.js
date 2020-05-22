@@ -9,8 +9,6 @@ const {
   showOpenDialog
 } = require('./utils/renderer/electron')
 
-const { resolveRuntimeDependency } = require('./utils/main/util')
-
 // Enabling spectron integration https://github.com/electron/spectron#node-integration
 if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
   window.electronRequire = require
@@ -73,10 +71,12 @@ console.log('grid preload script loaded')
 
 const currentWindow = remote.getCurrentWindow()
 
+const clientManager = remote.getGlobal('ClientManager')
+
 const Grid = {
   ClientManager: {
     getAvailableClients() {
-      return ['foo', 'bar']
+      return clientManager.getAvailableClients()
     }
   },
   AppManager: remote.getGlobal('AppManager'),
@@ -105,8 +105,11 @@ const Grid = {
   platform: {
     name: process.platform,
     hasRuntime: dependency => {
+      /*
       const result = resolveRuntimeDependency(dependency) !== undefined
       return result
+      */
+      return false
     }
   },
   notify,

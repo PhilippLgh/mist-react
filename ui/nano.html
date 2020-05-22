@@ -1,353 +1,383 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!--link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css" -->
-    <link rel="stylesheet" href="./scripts/buefy.min.css" />
-    <style>
-      html,
-      body {
-        padding: 0px;
-        margin: 0px;
-        background-color: transparent;
-        overflow: hidden;
-        user-select: none;
-      }
-      body {
-        min-height: 100vh;
-      }
-      a {
-        color: rgba(84, 182, 132, 0.8);
-      }
-      a:hover {
-        color: rgba(84, 182, 132, 1);
-      }
 
-      .switch {
-        margin-right: 4px;
-      }
-      .switch input[type='checkbox']:checked + .check {
-        background: #54b684;
-      }
-      .switch:hover input[type='checkbox']:checked + .check {
-        background: rgba(84, 182, 132, 0.9);
-      }
-      .switch input[type='checkbox']:focus:checked + .check {
-        box-shadow: 0 0 0.5em rgba(84, 182, 132, 0.8);
-      }
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!--link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css" -->
+  <link rel="stylesheet" href="./scripts/buefy.min.css" />
+  <style>
+    html,
+    body {
+      padding: 0px;
+      margin: 0px;
+      background-color: transparent;
+      overflow: hidden;
+      user-select: none;
+    }
 
-      .switch input[type='checkbox'] + .check {
-        background: #3e3e3e;
-      }
+    body {
+      min-height: 100vh;
+    }
 
-      #app {
-        padding: 8px 6px;
-        min-height: calc(100vh - 18px);
-        margin-top: 18px;
-        z-index: 1;
-        border-radius: 12px;
-        display: flex;
-        flex-direction: column;
-      }
-      #app,
-      .tip::before {
-        background-color: rgba(32, 34, 37, 1);
-      }
+    a {
+      color: rgba(84, 182, 132, 0.8);
+    }
 
-      .tip {
-        display: block;
-        height: 16px;
-        width: 70px;
-        position: absolute;
-        left: 50%;
-        top: 3px;
-        overflow: hidden;
-        transform: translateX(-48%);
-      }
-      .tip::before {
-        content: '';
-        display: block;
-        position: absolute;
-        width: 50px;
-        height: 50px;
-        border-radius: 8px;
-        transform: rotate(-45deg) translateX(1px) translateY(11px);
-        transform-origin: center;
-      }
+    a:hover {
+      color: rgba(84, 182, 132, 1);
+    }
 
-      /* app container and tip need to share the same border */
-      #app,
-      .tip::before {
-        border: 1px solid #303030;
-      }
+    .switch {
+      margin-right: 4px;
+    }
 
-      .plugin-container {
-        overflow-y: auto;
-        /* windows and linux */
-        height: calc(100vh - 75px);
-      }
+    .switch input[type='checkbox']:checked+.check {
+      background: #54b684;
+    }
 
-      .is-mac .plugin-container {
-        height: calc(100vh - 88px);
-      }
+    .switch:hover input[type='checkbox']:checked+.check {
+      background: rgba(84, 182, 132, 0.9);
+    }
 
-      /* Base properties */
-      .plugin-container::-webkit-scrollbar {
-        width: 4px;
-        border-radius: 2px;
-      }
-      .plugin-container::-webkit-scrollbar-thumb {
-        border-radius: 2px;
-        transition: 200ms all ease-out;
-      }
+    .switch input[type='checkbox']:focus:checked+.check {
+      box-shadow: 0 0 0.5em rgba(84, 182, 132, 0.8);
+    }
 
-      /* Scrollbar track and thumb starts transparent */
-      .plugin-container::-webkit-scrollbar {
-        background: rgba(1, 1, 1, 0.1);
-      }
-      .plugin-container::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-      }
+    .switch input[type='checkbox']+.check {
+      background: #3e3e3e;
+    }
 
-      /* Shows scrollbar and thumb when hovering the window */
-      html:hover .plugin-container::-webkit-scrollbar {
-        background: rgba(1, 1, 1, 0.2);
-      }
-      html:hover .plugin-container::-webkit-scrollbar-thumb {
-        /* 30% white */
-        /* background: #4c4c4c;   */
-        background: linear-gradient(#585858, #424242);
-      }
+    #app {
+      padding: 8px 6px;
+      min-height: calc(100vh - 18px);
+      margin-top: 18px;
+      z-index: 1;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+    }
 
-      html:hover .plugin-container::-webkit-scrollbar-thumb:hover {
-        background: #727272;
-      }
-      html:hover .plugin-container::-webkit-scrollbar-thumb:active {
-        background: #a7a7a7;
-      }
+    #app,
+    .tip::before {
+      background-color: rgba(32, 34, 37, 1);
+    }
 
-      /* variant of the tip when the window is docked to the bottom */
-      body.is-docked-to-bottom #app {
-        margin-top: 3px;
-      }
-      body.is-docked-to-bottom .tip {
-        transform: rotate(180deg) translateX(50%);
-        top: initial;
-        bottom: 0;
-        margin-left: -2px;
-      }
+    .tip {
+      display: block;
+      height: 16px;
+      width: 70px;
+      position: absolute;
+      left: 50%;
+      top: 3px;
+      overflow: hidden;
+      transform: translateX(-48%);
+    }
 
-      /*
+    .tip::before {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      transform: rotate(-45deg) translateX(1px) translateY(11px);
+      transform-origin: center;
+    }
+
+    /* app container and tip need to share the same border */
+    #app,
+    .tip::before {
+      border: 1px solid #303030;
+    }
+
+    .plugin-container {
+      overflow-y: auto;
+      /* windows and linux */
+      height: calc(100vh - 75px);
+    }
+
+    .is-mac .plugin-container {
+      height: calc(100vh - 88px);
+    }
+
+    /* Base properties */
+    .plugin-container::-webkit-scrollbar {
+      width: 4px;
+      border-radius: 2px;
+    }
+
+    .plugin-container::-webkit-scrollbar-thumb {
+      border-radius: 2px;
+      transition: 200ms all ease-out;
+    }
+
+    /* Scrollbar track and thumb starts transparent */
+    .plugin-container::-webkit-scrollbar {
+      background: rgba(1, 1, 1, 0.1);
+    }
+
+    .plugin-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Shows scrollbar and thumb when hovering the window */
+    html:hover .plugin-container::-webkit-scrollbar {
+      background: rgba(1, 1, 1, 0.2);
+    }
+
+    html:hover .plugin-container::-webkit-scrollbar-thumb {
+      /* 30% white */
+      /* background: #4c4c4c;   */
+      background: linear-gradient(#585858, #424242);
+    }
+
+    html:hover .plugin-container::-webkit-scrollbar-thumb:hover {
+      background: #727272;
+    }
+
+    html:hover .plugin-container::-webkit-scrollbar-thumb:active {
+      background: #a7a7a7;
+    }
+
+    /* variant of the tip when the window is docked to the bottom */
+    body.is-docked-to-bottom #app {
+      margin-top: 3px;
+    }
+
+    body.is-docked-to-bottom .tip {
+      transform: rotate(180deg) translateX(50%);
+      top: initial;
+      bottom: 0;
+      margin-left: -2px;
+    }
+
+    /*
        * Removes windows and linux window tip.
        * Mac on by default for shadow rendering reasons.
        */
-      body.is-windows .tip,
-      body.is-linux .tip {
-        display: none;
-      }
-      body.is-windows #app,
-      body.is-linux #app {
-        height: 100vh;
-        margin: 0;
-        border-radius: 2px;
-      }
+    body.is-windows .tip,
+    body.is-linux .tip {
+      display: none;
+    }
 
-      .plugin-item,
-      .app-item {
-        padding: 5px;
-        display: flex;
-        color: white;
-      }
+    body.is-windows #app,
+    body.is-linux #app {
+      height: 100vh;
+      margin: 0;
+      border-radius: 2px;
+    }
 
-      .plugin-name {
-        margin-right: 5px;
-      }
+    .plugin-item,
+    .app-item {
+      padding: 5px;
+      display: flex;
+      color: white;
+    }
 
-      .app-item:not(.open-dash) {
-        margin-left: 5px;
-      }
+    .plugin-name {
+      margin-right: 5px;
+    }
 
-      .plugin-name:hover,
-      .app-name:hover {
-        cursor: pointer;
-        text-decoration: underline;
-      }
+    .app-item:not(.open-dash) {
+      margin-left: 5px;
+    }
 
-      .app-badge:hover {
-        cursor: pointer;
-      }
+    .plugin-name:hover,
+    .app-name:hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
 
-      /* Match app badge to grid-ui (.app-badge <b-tag>) */
-      .tag:not(body).is-info {
-        background: #78aac7 !important;
-        color: black;
-      }
+    .app-badge:hover {
+      cursor: pointer;
+    }
 
-      /* Match switch to grid-ui */
-      .switch input[type='checkbox'] + .check {
-        background: #6c6e72;
-      }
-      .switch input[type='checkbox']:checked + .check {
-        background: #4c735e;
-      }
-      .switch.is-rounded input[type='checkbox'] + .check:before {
-        background: #bdbdbd;
-      }
-      .switch.is-rounded input:checked + .check:before {
-        background: #4fb783;
-      }
+    /* Match app badge to grid-ui (.app-badge <b-tag>) */
+    .tag:not(body).is-info {
+      background: #78aac7 !important;
+      color: black;
+    }
 
-      .open-dash span {
-        font-weight: bold;
-      }
+    /* Match switch to grid-ui */
+    .switch input[type='checkbox']+.check {
+      background: #6c6e72;
+    }
 
-      .plugin-profile {
-        color: #44a1d9;
-        margin-right: 5px;
-      }
+    .switch input[type='checkbox']:checked+.check {
+      background: #4c735e;
+    }
 
-      span.centered {
-        display: inline-flex;
-        align-items: center;
-      }
+    .switch.is-rounded input[type='checkbox']+.check:before {
+      background: #bdbdbd;
+    }
 
-      .plugin-info {
-        line-height: 1rem;
-        position: relative;
-        overflow: hidden;
-        flex-grow: 1;
-      }
-      .plugin-info span {
-        display: inline-block;
-        position: absolute;
-        left: 0;
-        transition: 200ms all ease-out;
-        line-height: 1.85rem;
-      }
-      .plugin-item:hover .plugin-state {
-        top: -1.85rem;
-        opacity: 0;
-      }
-      .plugin-item:hover .plugin-version {
-        top: 0rem;
-        opacity: 1;
-      }
+    .switch.is-rounded input:checked+.check:before {
+      background: #4fb783;
+    }
 
-      .plugin-state {
-        color: #555;
-        margin-right: 5px;
-        font-size: 0.8rem;
-        top: 0;
-        opacity: 1;
-      }
+    .open-dash span {
+      font-weight: bold;
+    }
 
-      .plugin-version {
-        font-size: 0.7rem;
-        color: #555;
-        white-space: nowrap;
-        top: 1.85rem;
-        opacity: 0;
-      }
+    .plugin-profile {
+      color: #44a1d9;
+      margin-right: 5px;
+    }
 
-      /* .plugin-item:hover .plugin-version {
+    span.centered {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .plugin-info {
+      line-height: 1rem;
+      position: relative;
+      overflow: hidden;
+      flex-grow: 1;
+    }
+
+    .plugin-info span {
+      display: inline-block;
+      position: absolute;
+      left: 0;
+      transition: 200ms all ease-out;
+      line-height: 1.85rem;
+    }
+
+    .plugin-item:hover .plugin-state {
+      top: -1.85rem;
+      opacity: 0;
+    }
+
+    .plugin-item:hover .plugin-version {
+      top: 0rem;
+      opacity: 1;
+    }
+
+    .plugin-state {
+      color: #555;
+      margin-right: 5px;
+      font-size: 0.8rem;
+      top: 0;
+      opacity: 1;
+    }
+
+    .plugin-version {
+      font-size: 0.7rem;
+      color: #555;
+      white-space: nowrap;
+      top: 1.85rem;
+      opacity: 0;
+    }
+
+    /* .plugin-item:hover .plugin-version {
         visibility: visible;
       } */
 
-      .icon-indicator {
-        padding: 1px;
-        color: #555;
-        cursor: pointer;
-        margin-left: 2px;
-        transition: color 120ms linear;
-      }
-      .icon-indicator:hover {
-        color: #888;
-      }
+    .icon-indicator {
+      padding: 1px;
+      color: #555;
+      cursor: pointer;
+      margin-left: 2px;
+      transition: color 120ms linear;
+    }
 
-      /*
+    .icon-indicator:hover {
+      color: #888;
+    }
+
+    /*
       .icon-indicator.active {
         color: #5789d5cc;
       }
       */
 
-      .icon-indicator i {
-        font-size: 1rem;
-      }
+    .icon-indicator i {
+      font-size: 1rem;
+    }
 
-      .icon-indicator.error {
-        color: #ff000091;
-      }
-      .icon-indicator.error:hover {
-        color: red;
-      }
+    .icon-indicator.error {
+      color: #ff000091;
+    }
 
-      .separator {
-        height: 1px;
-        margin-top: 3px;
-        margin-bottom: 3px;
-        background-color: #333;
-      }
+    .icon-indicator.error:hover {
+      color: red;
+    }
 
-      .notification {
-        padding: 0.75em;
-        font-size: 80%;
-      }
-      .notification:not(:last-child) {
-        margin-bottom: 0.75em;
-      }
+    .separator {
+      height: 1px;
+      margin-top: 3px;
+      margin-bottom: 3px;
+      background-color: #333;
+    }
 
-      .header {
-        display: flex;
-        padding-left: 5px;
-        padding-right: 5px;
-      }
+    .notification {
+      padding: 0.75em;
+      font-size: 80%;
+    }
 
-      .spacer {
-        flex-grow: 1;
-      }
+    .notification:not(:last-child) {
+      margin-bottom: 0.75em;
+    }
 
-      .grid-config > div:not(.separator) {
-        padding: 5px;
-      }
-      .grid-config > .separator {
-        margin: 5px 0;
-      }
-      .grid-logo {
-        transform: translateX(28px); /* half of cog + app icon's width */
-      }
-      .grid-logo.config-active {
-        transform: translateX(14px); /* half of cog icon's width */
-      }
-      #grid-version {
-        font-size: 0.8rem;
-        position: absolute;
-        bottom: 3px;
-        right: 7px;
-        opacity: 0.8;
-      }
-    </style>
+    .header {
+      display: flex;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
 
-    <!--script src="https://unpkg.com/vue"></script-->
-    <script src="./scripts/vue.js"></script>
-    <!-- Full bundle -->
-    <!--script src="https://unpkg.com/buefy/dist/buefy.min.js"></script-->
-    <script src="./scripts/buefy.min.js"></script>
-    <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" /> -->
-    <link rel="stylesheet" href="./scripts/fontawesome_v5.2.0_all.css" />
+    .spacer {
+      flex-grow: 1;
+    }
 
-    <script>
-      Vue.component('icon-indicator', {
-        props: ['icon', 'pack', 'active'],
-        template: `
+    .grid-config>div:not(.separator) {
+      padding: 5px;
+    }
+
+    .grid-config>.separator {
+      margin: 5px 0;
+    }
+
+    .grid-logo {
+      transform: translateX(28px);
+      /* half of cog + app icon's width */
+    }
+
+    .grid-logo.config-active {
+      transform: translateX(14px);
+      /* half of cog icon's width */
+    }
+
+    #grid-version {
+      font-size: 0.8rem;
+      position: absolute;
+      bottom: 3px;
+      right: 7px;
+      opacity: 0.8;
+    }
+  </style>
+
+  <!--script src="https://unpkg.com/vue"></script-->
+  <script src="./scripts/vue.js"></script>
+  <!-- Full bundle -->
+  <!--script src="https://unpkg.com/buefy/dist/buefy.min.js"></script-->
+  <script src="./scripts/buefy.min.js"></script>
+  <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" /> -->
+  <link rel="stylesheet" href="./scripts/fontawesome_v5.2.0_all.css" />
+
+  <script>
+    Vue.component('icon-indicator', {
+      props: ['icon', 'pack', 'active'],
+      template: `
         <span class="icon-indicator" v-bind:class="{ active: active }" v-on:click="$emit('change', !active)">
           <b-icon :pack="pack" :icon="icon"></b-icon>
         </span>
         `
-      })
+    })
 
-      Vue.component('profile-select', {
-        template: `
+    Vue.component('profile-select', {
+      template: `
           <b-dropdown aria-role="list">
             <button size="is-small" class="button is-primary" slot="trigger">
                 <span>Click me!</span>
@@ -358,11 +388,11 @@
             <b-dropdown-item aria-role="listitem">Something else</b-dropdown-item>
           </b-dropdown>
           `
-      })
-    </script>
-  </head>
+    })
+  </script>
+</head>
 
-  <!--
+<!--
     Possible classes:
     dock position:
       is-docked-to-top, is-docked-to-bottom
@@ -372,103 +402,63 @@
     <body class="is-docked-to-bottom is-windows">
     <body class="is-docked-to-top is-mac">
   -->
-  <body>
-    <span class="tip"></span>
-    <div id="app">
-      <div class="header">
-        <span class="spacer"></span>
-        <span class="grid-logo" v-bind:class="{ 'config-active': showConfig }">
-          <svg
-            width="44px"
-            height="27px"
-            viewBox="0 0 44 27"
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-          >
-            <g
-              id="Views"
-              stroke="none"
-              stroke-width="1"
-              fill="none"
-              fill-rule="evenodd"
-            >
-              <path
-                d="M9.968,9.504 C10.2666682,9.504 10.416,9.65333184 10.416,9.952 L10.416,22.752 C10.416,22.944001 10.3413341,23.2213315 10.192,23.584 C9.46666304,25.376009 7.8773456,26.272 5.424,26.272 C4.76266336,26.272 4.02667072,26.1333347 3.216,25.856 C2.27732864,25.5573318 1.62666848,25.1840022 1.264,24.736 C1.1573328,24.6293328 1.104,24.5226672 1.104,24.416 C1.104,24.1173318 1.25333184,23.968 1.552,23.968 C1.48799968,23.968 1.89332896,24.2026643 2.768,24.672 C3.64267104,25.1413357 4.52799552,25.376 5.424,25.376 C7.42934336,25.376 8.73066368,24.7146733 9.328,23.392 C9.45600064,23.1146653 9.52,22.9013341 9.52,22.752 L9.52,17.856 C8.49599488,19.5413418 7.05600928,20.384 5.2,20.384 C3.72799264,20.384 2.50133824,19.8240056 1.52,18.704 C0.53866176,17.5839944 0.048,16.2880074 0.048,14.816 C0.048,13.3226592 0.53866176,12.0213389 1.52,10.912 C2.50133824,9.80266112 3.72799264,9.248 5.2,9.248 C7.05600928,9.248 8.49599488,10.0906582 9.52,11.776 L9.52,9.952 C9.52,9.65333184 9.66933184,9.504 9.968,9.504 Z M5.2,19.488 C6.41600608,19.488 7.42932928,19.0186714 8.24,18.08 C9.05067072,17.1413286 9.456,16.0533395 9.456,14.816 C9.456,13.5786605 9.05067072,12.4906714 8.24,11.552 C7.42932928,10.6133286 6.41600608,10.144 5.2,10.144 C3.98399392,10.144 2.97067072,10.6133286 2.16,11.552 C1.34932928,12.4906714 0.944,13.5786605 0.944,14.816 C0.944,16.0533395 1.34932928,17.1413286 2.16,18.08 C2.97067072,19.0186714 3.98399392,19.488 5.2,19.488 Z M20.6148567,9.504 C20.9348583,9.504 21.0948567,9.64266528 21.0948567,9.92 C21.0948567,10.1973347 20.9561914,10.3573331 20.6788567,10.4 C19.4201838,10.5706675 18.4601934,11.1466618 17.7988567,12.128 C17.180187,13.002671 16.8708567,14.1013267 16.8708567,15.424 L16.8708567,19.712 C16.8708567,20.0106682 16.7215249,20.16 16.4228567,20.16 C16.1241886,20.16 15.9748567,20.0106682 15.9748567,19.712 L15.9748567,9.952 C15.9748567,9.65333184 16.1241886,9.504 16.4228567,9.504 C16.7215249,9.504 16.8708567,9.65333184 16.8708567,9.952 L16.8708567,11.936 C17.2761921,11.2533299 17.7988535,10.6880022 18.4388567,10.24 C19.1641937,9.74933088 19.8895198,9.504 20.6148567,9.504 Z M27.9657134,6.432 C27.9657134,6.90133568 27.7203826,7.136 27.2297134,7.136 C26.7390443,7.136 26.4937134,6.90133568 26.4937134,6.432 C26.4937134,5.94133088 26.7390443,5.696 27.2297134,5.696 C27.7203826,5.696 27.9657134,5.94133088 27.9657134,6.432 Z M27.2297134,9.568 C27.5283816,9.568 27.6777134,9.71733184 27.6777134,10.016 L27.6777134,19.744 C27.6777134,20.0426682 27.5283816,20.192 27.2297134,20.192 C26.9310453,20.192 26.7817134,20.0426682 26.7817134,19.744 L26.7817134,10.016 C26.7817134,9.71733184 26.9310453,9.568 27.2297134,9.568 Z M43.4445702,0.544 C43.7432383,0.544 43.8925702,0.69333184 43.8925702,0.992 L43.8925702,19.712 C43.8925702,20.0106682 43.7432383,20.16 43.4445702,20.16 C43.145902,20.16 42.9965702,20.0106682 42.9965702,19.712 L42.9965702,17.664 C41.9938985,19.5200093 40.5005801,20.448 38.5165702,20.448 C37.0658962,20.448 35.8445751,19.8933389 34.8525702,18.784 C33.8605652,17.6746611 33.3645702,16.3733408 33.3645702,14.88 C33.3645702,13.4079926 33.8552319,12.1120056 34.8365702,10.992 C35.8179084,9.8719944 37.0445628,9.312 38.5165702,9.312 C40.5005801,9.312 41.9938985,10.2506573 42.9965702,12.128 L42.9965702,0.992 C42.9965702,0.69333184 43.145902,0.544 43.4445702,0.544 Z M38.5165702,19.552 C39.7325762,19.552 40.7458994,19.0826714 41.5565702,18.144 C42.3672409,17.2053286 42.7725702,16.1173395 42.7725702,14.88 C42.7725702,13.6426605 42.3672409,12.5546714 41.5565702,11.616 C40.7458994,10.6773286 39.7325762,10.208 38.5165702,10.208 C37.3005641,10.208 36.2872409,10.6773286 35.4765702,11.616 C34.6658994,12.5546714 34.2605702,13.6426605 34.2605702,14.88 C34.2605702,16.1173395 34.6658994,17.2053286 35.4765702,18.144 C36.2872409,19.0826714 37.3005641,19.552 38.5165702,19.552 Z"
-                id="grid"
-                fill="#DADADA"
-              ></path>
-            </g>
-          </svg>
-        </span>
-        <span class="spacer"></span>
-        <icon-indicator
-          v-if="!showConfig"
-          @change="toggleApps(!showApps)"
-          pack="fas"
-          icon="th"
-        ></icon-indicator>
-        <icon-indicator
-          v-if="showConfig"
-          :active="showConfig"
-          @change="toggleSettings($event)"
-          pack="fas"
-          icon="times"
-        ></icon-indicator>
-        <icon-indicator
-          v-else
-          :active="showConfig"
-          @change="toggleSettings($event)"
-          pack="fas"
-          icon="cog"
-        ></icon-indicator>
-      </div>
-      <div class="separator"></div>
-      <div v-if="!showConfig" class="plugin-container">
-        <div v-if="showApps">
-          <div>
-            <div class="app-item open-dash">
-              <span class="app-name centered " v-on:click="openAppDashboard()"
-                >Open App Dashboard</span
-              >
-            </div>
-          </div>
-          <app-item
-            v-for="app in apps"
-            :key="app.name"
-            :app="app"
-            @app-opened="onAppOpened"
-          ></app-item>
-          <div class="separator"></div>
-        </div>
-        <plugin-item
-          v-if="!showConfig"
-          v-for="plugin in plugins"
-          :key="plugin.name"
-          :plugin="plugin"
-        ></plugin-item>
-      </div>
-      <grid-config v-if="showConfig"></grid-config>
-      <div id="grid-version"></div>
-    </div>
 
-    <script>
-      Vue.component('plugin-item', {
-        props: ['plugin'],
-        data: function() {
-          return {
-            isSwitched: false,
-            switchDisabled: false,
-            pluginVersion: '',
-            state: '',
-            isDownloading: false,
-            downloadProgress: 0,
-            checkbox: [],
-            terminalWindowId: undefined,
-            uiWindowId: undefined
-          }
-        },
-        template: `
+<body>
+  <span class="tip"></span>
+  <div id="app">
+    <div class="header">
+      <span class="spacer"></span>
+      <span class="grid-logo" v-bind:class="{ 'config-active': showConfig }">
+        <svg width="44px" height="27px" viewBox="0 0 44 27" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+          <g id="Views" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <path
+              d="M9.968,9.504 C10.2666682,9.504 10.416,9.65333184 10.416,9.952 L10.416,22.752 C10.416,22.944001 10.3413341,23.2213315 10.192,23.584 C9.46666304,25.376009 7.8773456,26.272 5.424,26.272 C4.76266336,26.272 4.02667072,26.1333347 3.216,25.856 C2.27732864,25.5573318 1.62666848,25.1840022 1.264,24.736 C1.1573328,24.6293328 1.104,24.5226672 1.104,24.416 C1.104,24.1173318 1.25333184,23.968 1.552,23.968 C1.48799968,23.968 1.89332896,24.2026643 2.768,24.672 C3.64267104,25.1413357 4.52799552,25.376 5.424,25.376 C7.42934336,25.376 8.73066368,24.7146733 9.328,23.392 C9.45600064,23.1146653 9.52,22.9013341 9.52,22.752 L9.52,17.856 C8.49599488,19.5413418 7.05600928,20.384 5.2,20.384 C3.72799264,20.384 2.50133824,19.8240056 1.52,18.704 C0.53866176,17.5839944 0.048,16.2880074 0.048,14.816 C0.048,13.3226592 0.53866176,12.0213389 1.52,10.912 C2.50133824,9.80266112 3.72799264,9.248 5.2,9.248 C7.05600928,9.248 8.49599488,10.0906582 9.52,11.776 L9.52,9.952 C9.52,9.65333184 9.66933184,9.504 9.968,9.504 Z M5.2,19.488 C6.41600608,19.488 7.42932928,19.0186714 8.24,18.08 C9.05067072,17.1413286 9.456,16.0533395 9.456,14.816 C9.456,13.5786605 9.05067072,12.4906714 8.24,11.552 C7.42932928,10.6133286 6.41600608,10.144 5.2,10.144 C3.98399392,10.144 2.97067072,10.6133286 2.16,11.552 C1.34932928,12.4906714 0.944,13.5786605 0.944,14.816 C0.944,16.0533395 1.34932928,17.1413286 2.16,18.08 C2.97067072,19.0186714 3.98399392,19.488 5.2,19.488 Z M20.6148567,9.504 C20.9348583,9.504 21.0948567,9.64266528 21.0948567,9.92 C21.0948567,10.1973347 20.9561914,10.3573331 20.6788567,10.4 C19.4201838,10.5706675 18.4601934,11.1466618 17.7988567,12.128 C17.180187,13.002671 16.8708567,14.1013267 16.8708567,15.424 L16.8708567,19.712 C16.8708567,20.0106682 16.7215249,20.16 16.4228567,20.16 C16.1241886,20.16 15.9748567,20.0106682 15.9748567,19.712 L15.9748567,9.952 C15.9748567,9.65333184 16.1241886,9.504 16.4228567,9.504 C16.7215249,9.504 16.8708567,9.65333184 16.8708567,9.952 L16.8708567,11.936 C17.2761921,11.2533299 17.7988535,10.6880022 18.4388567,10.24 C19.1641937,9.74933088 19.8895198,9.504 20.6148567,9.504 Z M27.9657134,6.432 C27.9657134,6.90133568 27.7203826,7.136 27.2297134,7.136 C26.7390443,7.136 26.4937134,6.90133568 26.4937134,6.432 C26.4937134,5.94133088 26.7390443,5.696 27.2297134,5.696 C27.7203826,5.696 27.9657134,5.94133088 27.9657134,6.432 Z M27.2297134,9.568 C27.5283816,9.568 27.6777134,9.71733184 27.6777134,10.016 L27.6777134,19.744 C27.6777134,20.0426682 27.5283816,20.192 27.2297134,20.192 C26.9310453,20.192 26.7817134,20.0426682 26.7817134,19.744 L26.7817134,10.016 C26.7817134,9.71733184 26.9310453,9.568 27.2297134,9.568 Z M43.4445702,0.544 C43.7432383,0.544 43.8925702,0.69333184 43.8925702,0.992 L43.8925702,19.712 C43.8925702,20.0106682 43.7432383,20.16 43.4445702,20.16 C43.145902,20.16 42.9965702,20.0106682 42.9965702,19.712 L42.9965702,17.664 C41.9938985,19.5200093 40.5005801,20.448 38.5165702,20.448 C37.0658962,20.448 35.8445751,19.8933389 34.8525702,18.784 C33.8605652,17.6746611 33.3645702,16.3733408 33.3645702,14.88 C33.3645702,13.4079926 33.8552319,12.1120056 34.8365702,10.992 C35.8179084,9.8719944 37.0445628,9.312 38.5165702,9.312 C40.5005801,9.312 41.9938985,10.2506573 42.9965702,12.128 L42.9965702,0.992 C42.9965702,0.69333184 43.145902,0.544 43.4445702,0.544 Z M38.5165702,19.552 C39.7325762,19.552 40.7458994,19.0826714 41.5565702,18.144 C42.3672409,17.2053286 42.7725702,16.1173395 42.7725702,14.88 C42.7725702,13.6426605 42.3672409,12.5546714 41.5565702,11.616 C40.7458994,10.6773286 39.7325762,10.208 38.5165702,10.208 C37.3005641,10.208 36.2872409,10.6773286 35.4765702,11.616 C34.6658994,12.5546714 34.2605702,13.6426605 34.2605702,14.88 C34.2605702,16.1173395 34.6658994,17.2053286 35.4765702,18.144 C36.2872409,19.0826714 37.3005641,19.552 38.5165702,19.552 Z"
+              id="grid" fill="#DADADA"></path>
+          </g>
+        </svg>
+      </span>
+      <span class="spacer"></span>
+      <icon-indicator v-if="!showConfig" @change="toggleApps(!showApps)" pack="fas" icon="th"></icon-indicator>
+      <icon-indicator v-if="showConfig" :active="showConfig" @change="toggleSettings($event)" pack="fas" icon="times">
+      </icon-indicator>
+      <icon-indicator v-else :active="showConfig" @change="toggleSettings($event)" pack="fas" icon="cog">
+      </icon-indicator>
+    </div>
+    <div class="separator"></div>
+    <div v-if="!showConfig" class="plugin-container">
+      <div v-if="showApps">
+        <div>
+          <div class="app-item open-dash">
+            <span class="app-name centered " v-on:click="openAppDashboard()">Open App Dashboard</span>
+          </div>
+        </div>
+        <app-item v-for="app in apps" :key="app.name" :app="app" @app-opened="onAppOpened"></app-item>
+        <div class="separator"></div>
+      </div>
+      <plugin-item v-if="!showConfig" v-for="plugin in plugins" :key="plugin.name" :plugin="plugin"></plugin-item>
+    </div>
+    <grid-config v-if="showConfig"></grid-config>
+    <div id="grid-version"></div>
+  </div>
+
+  <script>
+    Vue.component('plugin-item', {
+      props: ['plugin'],
+      data: function () {
+        return {
+          isSwitched: false,
+          switchDisabled: false,
+          pluginVersion: '',
+          state: '',
+          isDownloading: false,
+          downloadProgress: 0,
+          checkbox: [],
+          terminalWindowId: undefined,
+          uiWindowId: undefined
+        }
+      },
+      template: `
                 <div>
                   <div class="plugin-item">
                     <b-switch v-model="isSwitched" @input="handleChange($event)" size="is-small" :disabled="switchDisabled"></b-switch>
@@ -485,216 +475,218 @@
                   <progress v-if="isDownloading" max="100" class="progress is-small is-primary" :value="downloadProgress"></progress>
                 </div>
                 `,
-        created: function() {
-          this.plugin.pluginRef.on('newState', this.stateUpdateListener)
-          // Set plugin version if selectedRelease
-          const selectedRelease = this.plugin.pluginRef.getSelectedRelease()
-          if (selectedRelease) {
-            this.pluginVersion = selectedRelease.version
-          }
-        },
-        beforeDestroy: function() {
-          this.plugin.pluginRef.off('newState', this.stateUpdateListener)
-        },
-        methods: {
-          stateUpdateListener: function(state) {
-            console.log('New nano state: ', this.plugin.name, state)
-            this.state = state
-
-            if (
-              [
-                'downloading',
-                'extracting',
-                'starting',
-                'started',
-                'connected'
-              ].includes(state)
-            ) {
-              this.isSwitched = true
-            } else {
-              this.isSwitched = false
-            }
-
-            if (state === 'started') {
-              this.plugin.errors = []
-            }
-
-            if (['started', 'connected', 'stopped', 'error'].includes(state)) {
-              this.switchDisabled = false
-            }
-          },
-          handleSwitchedOn: async function() {
-            this.switchDisabled = true
-            const persistedFlags = (await Grid.Config.getItem('flags')) || {}
-            const flags = persistedFlags[this.plugin.pluginRef.name]
-            const setupHandler = event => {
-              const { type } = event
-              // let user know that a long running operation will be started
-              if (type === 'fetch-release') {
-                this.state = `fetching "latest"`
-              }
-              if (type === 'download-progress') {
-                let { downloadProgress } = event
-                this.downloadProgress = downloadProgress
-                this.state = `downloading ${downloadProgress}%`
-              }
-              if (type === 'extraction-progress') {
-                let { extractionProgress } = event
-                this.downloadProgress = extractionProgress
-                this.state = `extracting ${extractionProgress}%`
-              }
-            }
-            this.plugin.pluginRef.on('setup-event', setupHandler)
-            try {
-              await this.plugin.pluginRef.start(flags)
-            } catch (error) {
-              console.log('start error', error)
-              this.isSwitched = false
-              this.plugin.error = error
-            } finally {
-              this.downloadProgress = 0
-              this.plugin.pluginRef.off('setup-event', setupHandler)
-            }
-          },
-          handleChange: function(ev) {
-            if (this.isSwitched) {
-              this.handleSwitchedOn()
-            } else {
-              // TODO cancel download if currently running
-              if (['started', 'starting', 'connected'].includes(this.state)) {
-                this.plugin.pluginRef.stop()
-              }
-            }
-          },
-          openUI: async function() {
-            const settings = Grid.Config.getItem('settings')
-
-            let selectedTab = 0
-            if (this.plugin.errors.length > 0) {
-              // If error, go to Terminal tab
-              selectedTab = 3
-              this.plugin.errors = []
-            }
-
-            const newSettings = Object.assign({}, settings, {
-              selected: this.plugin.name,
-              selectedTab
-            })
-            Grid.Config.setItem('settings', newSettings)
-            this.uiWindowId = await window.Grid.AppManager.launch({
-              name: 'grid-ui',
-              windowId: this.uiWindowId,
-              args: {
-                scope: {
-                  component: 'ui',
-                  plugin: this.plugin.name
-                }
-              }
-            })
-          },
-          openTerminal: async function() {
-            const settings = Grid.Config.getItem('settings')
-            const newSettings = Object.assign({}, settings, {
-              selected: this.plugin.name,
-              selectedTab: 3
-            })
-            Grid.Config.setItem('settings', newSettings)
-
-            this.terminalWindowId = await window.Grid.AppManager.launch({
-              name: 'grid-ui',
-              windowId: this.terminalWindowId,
-              args: {
-                scope: {
-                  component: 'ui',
-                  plugin: this.plugin.name
-                }
-              }
-            })
-          }
+      created: function () {
+        /*
+        this.plugin.pluginRef.on('newState', this.stateUpdateListener)
+        // Set plugin version if selectedRelease
+        const selectedRelease = this.plugin.pluginRef.getSelectedRelease()
+        if (selectedRelease) {
+          this.pluginVersion = selectedRelease.version
         }
-      })
+        */
+      },
+      beforeDestroy: function () {
+        this.plugin.pluginRef.off('newState', this.stateUpdateListener)
+      },
+      methods: {
+        stateUpdateListener: function (state) {
+          console.log('New nano state: ', this.plugin.name, state)
+          this.state = state
 
-      Vue.component('app-item', {
-        props: ['app'],
-        data: function() {
-          return {
-            uiWindowId: undefined
+          if (
+            [
+              'downloading',
+              'extracting',
+              'starting',
+              'started',
+              'connected'
+            ].includes(state)
+          ) {
+            this.isSwitched = true
+          } else {
+            this.isSwitched = false
+          }
+
+          if (state === 'started') {
+            this.plugin.errors = []
+          }
+
+          if (['started', 'connected', 'stopped', 'error'].includes(state)) {
+            this.switchDisabled = false
           }
         },
-        template: `
+        handleSwitchedOn: async function () {
+          this.switchDisabled = true
+          const persistedFlags = (await Grid.Config.getItem('flags')) || {}
+          const flags = persistedFlags[this.plugin.pluginRef.name]
+          const setupHandler = event => {
+            const { type } = event
+            // let user know that a long running operation will be started
+            if (type === 'fetch-release') {
+              this.state = `fetching "latest"`
+            }
+            if (type === 'download-progress') {
+              let { downloadProgress } = event
+              this.downloadProgress = downloadProgress
+              this.state = `downloading ${downloadProgress}%`
+            }
+            if (type === 'extraction-progress') {
+              let { extractionProgress } = event
+              this.downloadProgress = extractionProgress
+              this.state = `extracting ${extractionProgress}%`
+            }
+          }
+          this.plugin.pluginRef.on('setup-event', setupHandler)
+          try {
+            await this.plugin.pluginRef.start(flags)
+          } catch (error) {
+            console.log('start error', error)
+            this.isSwitched = false
+            this.plugin.error = error
+          } finally {
+            this.downloadProgress = 0
+            this.plugin.pluginRef.off('setup-event', setupHandler)
+          }
+        },
+        handleChange: function (ev) {
+          if (this.isSwitched) {
+            this.handleSwitchedOn()
+          } else {
+            // TODO cancel download if currently running
+            if (['started', 'starting', 'connected'].includes(this.state)) {
+              this.plugin.pluginRef.stop()
+            }
+          }
+        },
+        openUI: async function () {
+          const settings = Grid.Config.getItem('settings')
+
+          let selectedTab = 0
+          if (this.plugin.errors.length > 0) {
+            // If error, go to Terminal tab
+            selectedTab = 3
+            this.plugin.errors = []
+          }
+
+          const newSettings = Object.assign({}, settings, {
+            selected: this.plugin.name,
+            selectedTab
+          })
+          Grid.Config.setItem('settings', newSettings)
+          this.uiWindowId = await window.Grid.AppManager.launch({
+            name: 'grid-ui',
+            windowId: this.uiWindowId,
+            args: {
+              scope: {
+                component: 'ui',
+                plugin: this.plugin.name
+              }
+            }
+          })
+        },
+        openTerminal: async function () {
+          const settings = Grid.Config.getItem('settings')
+          const newSettings = Object.assign({}, settings, {
+            selected: this.plugin.name,
+            selectedTab: 3
+          })
+          Grid.Config.setItem('settings', newSettings)
+
+          this.terminalWindowId = await window.Grid.AppManager.launch({
+            name: 'grid-ui',
+            windowId: this.terminalWindowId,
+            args: {
+              scope: {
+                component: 'ui',
+                plugin: this.plugin.name
+              }
+            }
+          })
+        }
+      }
+    })
+
+    Vue.component('app-item', {
+      props: ['app'],
+      data: function () {
+        return {
+          uiWindowId: undefined
+        }
+      },
+      template: `
                 <div>
                   <div class="app-item">
                     <span class="app-name centered" v-on:click="openApp()">{{ app.name }}</span>
                   </div>
                 </div>
                 `,
-        methods: {
-          openApp: async function() {
-            this.uiWindowId = await window.Grid.AppManager.launch({
-              ...this.app,
-              windowId: this.uiWindowId
-            })
-          }
+      methods: {
+        openApp: async function () {
+          this.uiWindowId = await window.Grid.AppManager.launch({
+            ...this.app,
+            windowId: this.uiWindowId
+          })
         }
-      })
+      }
+    })
 
-      Vue.component('app-item', {
-        props: ['app'],
-        data: function() {
-          return {
-            uiWindowId: undefined
-          }
-        },
-        template: `
+    Vue.component('app-item', {
+      props: ['app'],
+      data: function () {
+        return {
+          uiWindowId: undefined
+        }
+      },
+      template: `
                 <div>
                   <div class="app-item">
                     <span class="app-name centered" v-on:click="openApp()">{{ app.name }}</span>
                   </div>
                 </div>
                 `,
-        methods: {
-          openApp: async function() {
-            this.uiWindowId = await window.Grid.AppManager.launch({
-              ...this.app,
-              windowId: this.uiWindowId
-            })
-            this.$emit('app-opened')
-          }
+      methods: {
+        openApp: async function () {
+          this.uiWindowId = await window.Grid.AppManager.launch({
+            ...this.app,
+            windowId: this.uiWindowId
+          })
+          this.$emit('app-opened')
         }
-      })
+      }
+    })
 
-      Vue.component('app-item', {
-        props: ['app'],
-        data: function() {
-          return {
-            uiWindowId: undefined
-          }
-        },
-        template: `
+    Vue.component('app-item', {
+      props: ['app'],
+      data: function () {
+        return {
+          uiWindowId: undefined
+        }
+      },
+      template: `
           <div>
             <div class="app-item">
               <span class="app-name centered" v-on:click="openApp()">{{ app.name }}</span>
             </div>
           </div>
           `,
-        methods: {
-          openApp: async function() {
-            this.uiWindowId = await window.Grid.AppManager.launch({
-              ...this.app,
-              windowId: this.uiWindowId
-            })
-            this.$emit('app-opened')
-          }
+      methods: {
+        openApp: async function () {
+          this.uiWindowId = await window.Grid.AppManager.launch({
+            ...this.app,
+            windowId: this.uiWindowId
+          })
+          this.$emit('app-opened')
         }
-      })
+      }
+    })
 
-      Vue.component('grid-config', {
-        data: function() {
-          return {
-            launchOnBoot: false
-          }
-        },
-        template: `
+    Vue.component('grid-config', {
+      data: function () {
+        return {
+          launchOnBoot: false
+        }
+      },
+      template: `
                 <div class="grid-config">
                   <div><a @click.prevent="openExternal('https://github.com/ethereum/grid')">Grid Repository</a></div>
                   <div><a @click.prevent="openExternal('https://forms.gle/bjkphVS8ca1JzwL46')">Feedback</a></div>
@@ -702,150 +694,161 @@
                   <div><b-switch v-model="launchOnBoot" @input="handleChangeLaunch($event)" size="is-small">Start Grid at log in</b-switch></div>
                 </div>
                 `,
-        methods: {
-          openExternal: function(href) {
-            window.Grid.openExternalLink(href)
-          },
-          handleChangeLaunch: function(event) {
-            window.Grid.setLaunchOnBoot(this.launchOnBoot)
-          }
+      methods: {
+        openExternal: function (href) {
+          window.Grid.openExternalLink(href)
         },
-        created: async function() {
-          this.launchOnBoot = await window.Grid.getLaunchOnBoot()
+        handleChangeLaunch: function (event) {
+          window.Grid.setLaunchOnBoot(this.launchOnBoot)
         }
-      })
+      },
+      created: async function () {
+        this.launchOnBoot = await window.Grid.getLaunchOnBoot()
+      }
+    })
 
-      new Vue({
-        el: '#app',
-        data: function() {
-          return {
-            plugins: [],
-            apps: [],
-            isSwitched: false,
-            showConfig: false,
-            showApps: false
-          }
-        },
-        methods: {
-          loadPlugins: function() {
-            const plugins = window.Grid.PluginHost.getAllPlugins()
-            this.plugins = plugins.map(plugin => {
-              plugin.on('pluginError', error => {
-                this.pluginErrorListener(plugin, error)
-              })
-              plugin.on('setAppBadge', ({ appId, count }) => {
-                this.setAppBadgeListener(plugin, appId, count)
-              })
-              plugin.on('clearPluginErrors', () => {
-                this.clearPluginErrors(plugin)
-              })
-              return {
-                name: plugin.name,
-                displayName: plugin.displayName,
-                profile: '',
-                version: '',
-                pluginRef: plugin,
-                errors: [],
-                badge: 0
-              }
+    new Vue({
+      el: '#app',
+      data: function () {
+        return {
+          plugins: [],
+          apps: [],
+          isSwitched: false,
+          showConfig: false,
+          showApps: false
+        }
+      },
+      methods: {
+        loadPlugins: async function () {
+          const clients = await window.Grid.ClientManager.getAvailableClients()
+          console.log('clients', clients)
+          this.plugins = clients.map(clientName => (
+            {
+              name: clientName,
+              displayName: clientName,
+              profile: '',
+              version: '',
+              errors: [],
+              badge: 0
+            }
+          ))
+          /*
+          this.plugins = plugins.map(plugin => {
+            plugin.on('pluginError', error => {
+              this.pluginErrorListener(plugin, error)
             })
-            console.log('Plugins Loaded: ', plugins.length)
-          },
-          loadApps: async function() {
-            const apps = await window.Grid.AppManager.getAllApps()
-            this.apps = apps
-            console.log('Apps Loaded: ', apps.length)
-          },
-          init: function() {
-            this.loadPlugins()
-            this.loadApps()
-          },
-          pluginErrorListener: function(plugin, error) {
-            this.plugins.find(p => p.name === plugin.name).errors = [
-              ...this.plugins.find(p => p.name === plugin.name).errors,
-              error
-            ]
-          },
-          setAppBadgeListener: function(plugin, appId, count) {
-            console.log(plugin.name, appId, count)
-            this.plugins.find(p => p.name === plugin.name).badge = count
-          },
-          clearPluginErrors: function(plugin) {
-            this.plugins.find(p => p.name === plugin.name).errors = []
-          },
-          toggleSettings: function(value) {
-            this.showConfig = value
-          },
-          toggleApps: function(value) {
-            this.showApps = value
-          },
-          onAppOpened: function() {
-            this.showApps = false
-          },
-          openAppDashboard: async function() {
-            this.appsWindowId = await window.Grid.AppManager.launch({
-              name: 'grid-ui',
-              args: {
-                scope: {
-                  component: 'apps'
-                }
-              }
+            plugin.on('setAppBadge', ({ appId, count }) => {
+              this.setAppBadgeListener(plugin, appId, count)
             })
-            this.onAppOpened()
-          }
-        },
-        mounted: async function() {
-          try {
-            this.init()
-            window.Grid.PluginHost.on('plugins-loaded', () => {
-              this.init()
+            plugin.on('clearPluginErrors', () => {
+              this.clearPluginErrors(plugin)
             })
-          } catch (error) {
-            console.log('Error loading plugins: ', error)
-          }
-        },
-        beforeDestroy: function() {
-          plugins.forEach(plugin => {
-            plugin.off('pluginError', this.pluginErrorListener)
-            plugin.off('setAppBadge', this.setAppBadgeListener)
-            plugin.off('clearPluginErrors', this.clearPluginErrors)
+            return {
+              name: plugin.name,
+              displayName: plugin.displayName,
+              profile: '',
+              version: '',
+              pluginRef: plugin,
+              errors: [],
+              badge: 0
+            }
           })
+          */
+          console.log('Plugins Loaded: ', this.plugins.length)
+        },
+        loadApps: async function () {
+          const apps = await window.Grid.AppManager.getAllApps()
+          this.apps = apps
+          console.log('Apps Loaded: ', apps.length)
+        },
+        init: function () {
+          this.loadPlugins()
+          this.loadApps()
+        },
+        pluginErrorListener: function (plugin, error) {
+          this.plugins.find(p => p.name === plugin.name).errors = [
+            ...this.plugins.find(p => p.name === plugin.name).errors,
+            error
+          ]
+        },
+        setAppBadgeListener: function (plugin, appId, count) {
+          console.log(plugin.name, appId, count)
+          this.plugins.find(p => p.name === plugin.name).badge = count
+        },
+        clearPluginErrors: function (plugin) {
+          this.plugins.find(p => p.name === plugin.name).errors = []
+        },
+        toggleSettings: function (value) {
+          this.showConfig = value
+        },
+        toggleApps: function (value) {
+          this.showApps = value
+        },
+        onAppOpened: function () {
+          this.showApps = false
+        },
+        openAppDashboard: async function () {
+          this.appsWindowId = await window.Grid.AppManager.launch({
+            name: 'grid-ui',
+            args: {
+              scope: {
+                component: 'apps'
+              }
+            }
+          })
+          this.onAppOpened()
         }
-      })
-
-      // Tip placement, only at startup
-      var distanceToBottom =
-        window.screen.height - (window.screenTop + window.innerHeight)
-      var distanceToTop = window.screenTop
-      document.body.classList.add(
-        distanceToBottom < distanceToTop
-          ? 'is-docked-to-bottom'
-          : 'is-docked-to-top'
-      )
-
-      // OS detection
-      var osClass
-      function checkPlatform(pattern) {
-        return pattern.test(window.navigator.platform)
-      }
-      if (checkPlatform(/win/i)) {
-        osClass = 'is-windows'
-      } else if (checkPlatform(/mac/i)) {
-        osClass = 'is-mac'
-      } else {
-        osClass = 'is-linux'
-      }
-      document.body.classList.add(osClass)
-
-      document.onkeydown = function(evt) {
-        if (evt && evt.key === 'Escape') {
-          Grid.hideWindow()
+      },
+      mounted: async function () {
+        try {
+          this.init()
+        } catch (error) {
+          console.log('Error loading plugins: ', error)
         }
+      },
+      beforeDestroy: function () {
+        plugins.forEach(plugin => {
+          plugin.off('pluginError', this.pluginErrorListener)
+          plugin.off('setAppBadge', this.setAppBadgeListener)
+          plugin.off('clearPluginErrors', this.clearPluginErrors)
+        })
       }
+    })
 
-      var gridVersion = navigator.userAgent.match(/grid\/([\d\.]+)/)
-      var versionString = gridVersion.length > 0 ? `v${gridVersion[1]}` : ''
-      document.getElementById('grid-version').innerText = versionString
-    </script>
-  </body>
+    // Tip placement, only at startup
+    var distanceToBottom =
+      window.screen.height - (window.screenTop + window.innerHeight)
+    var distanceToTop = window.screenTop
+    document.body.classList.add(
+      distanceToBottom < distanceToTop
+        ? 'is-docked-to-bottom'
+        : 'is-docked-to-top'
+    )
+
+    // OS detection
+    var osClass
+    function checkPlatform(pattern) {
+      return pattern.test(window.navigator.platform)
+    }
+    if (checkPlatform(/win/i)) {
+      osClass = 'is-windows'
+    } else if (checkPlatform(/mac/i)) {
+      osClass = 'is-mac'
+    } else {
+      osClass = 'is-linux'
+    }
+    document.body.classList.add(osClass)
+
+    document.onkeydown = function (evt) {
+      if (evt && evt.key === 'Escape') {
+        Grid.hideWindow()
+      }
+    }
+
+    var gridVersion = navigator.userAgent.match(/grid\/([\d\.]+)/)
+    var versionString = gridVersion.length > 0 ? `v${gridVersion[1]}` : ''
+    document.getElementById('grid-version').innerText = versionString
+  </script>
+</body>
+
 </html>
