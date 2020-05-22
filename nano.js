@@ -1,7 +1,6 @@
 const path = require('path')
 const { menubar } = require('menubar')
 const { app, Menu, shell, Tray } = require('electron')
-const { registerGlobalPluginHost } = require('./ethereum_clients/PluginHost')
 const { registerGlobalAppManager } = require('./grid_apps/AppManager')
 const { registerGlobalUserConfig } = require('./Config')
 const {
@@ -47,9 +46,8 @@ let mb
 const template = getMenuTemplate()
 Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 
-const pluginHost = registerGlobalPluginHost()
-
 app.on('quit', () => {
+  /*
   const plugins = pluginHost.getAllPlugins()
   plugins.forEach(p => {
     if (!p.plugin.process || p.plugin.process.state === 'STOPPED') {
@@ -59,6 +57,7 @@ app.on('quit', () => {
       p.plugin.process.proc.kill('SIGINT')
     }
   })
+  */
 })
 
 const init = function() {

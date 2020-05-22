@@ -18,8 +18,7 @@ if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
 
 const openCache = clientName => {
   try {
-    const PluginHost = remote.getGlobal('PluginHost')
-    const client = PluginHost.getPluginByName(clientName)
+    const client = undefined
     if (!client) {
       return
     }
@@ -75,7 +74,11 @@ console.log('grid preload script loaded')
 const currentWindow = remote.getCurrentWindow()
 
 const Grid = {
-  PluginHost: remote.getGlobal('PluginHost'),
+  ClientManager: {
+    getAvailableClients() {
+      return ['foo', 'bar']
+    }
+  },
   AppManager: remote.getGlobal('AppManager'),
   Config: remote.getGlobal('UserConfig'),
   window: {
@@ -149,7 +152,6 @@ const Mist = {
   geth: Geth
 }
 */
-window.Mist = Grid
 window.Grid = Grid
 /*
 webFrame.executeJavaScript(`window.Mist = {geth: {

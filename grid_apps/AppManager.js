@@ -165,7 +165,7 @@ class AppManager extends EventEmitter {
   }
   async _startDependency(app, dependency) {
     console.log('Found dependency: ', dependency)
-    const plugin = global.PluginHost.getPluginByName(dependency.name)
+    const plugin = undefined // global.PluginHost.getPluginByName(dependency.name)
     if (!plugin) {
       console.log('Could not find necessary plugin.')
     } else if (plugin.isRunning) {

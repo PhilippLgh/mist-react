@@ -2,8 +2,6 @@ const { ipcRenderer, remote, webFrame } = require('electron')
 const { dialog } = remote
 const { notify, showOpenDialog } = require('./utils/renderer/electron')
 
-const PluginHost = remote.getGlobal('PluginHost')
-
 const currentWindow = remote.getCurrentWindow()
 const { app } = currentWindow.args
 
@@ -43,10 +41,10 @@ const pluginInterface = plugin => {
 window.grid = {
   version: '0.1.0',
   getAllPlugins: () => {
-    return PluginHost.getAllPlugins().map(plugin => pluginInterface(plugin))
+    return []
   },
   getPlugin: name => {
-    const plugin = PluginHost.getAllPlugins().find(p => p.name === name)
+    const plugin = undefined
     return plugin ? pluginInterface(plugin) : plugin
   },
   // getClient deprecated, for backwards compat
